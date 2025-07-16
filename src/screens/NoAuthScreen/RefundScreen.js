@@ -11,9 +11,10 @@ import Icon from "react-native-vector-icons/Entypo";
 import { arrowRightImg, failedImg } from '../../utils/Images';
 import { TouchableOpacity } from 'react-native';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-const RefundScreen = ({ navigation, route }) => {
+const RefundScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [data, setData] = useState(JSON.stringify(route?.params?.message));
     const [appendView, setAppendView] = useState(false)
     const [appendView2, setAppendView2] = useState(false)

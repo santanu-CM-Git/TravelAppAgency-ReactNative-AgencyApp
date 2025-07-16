@@ -21,10 +21,11 @@ import { AuthContext } from '../../context/AuthContext';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Loader from '../../utils/Loader';
 import Toast from 'react-native-toast-message';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 // import OTPVerify from 'react-native-otp-verify';
 
-const BankOtpScreen = ({ navigation, route }) => {
+const BankOtpScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [otp, setOtp] = useState('');
     const [comingOTP, setComingOTP] = useState(route?.params?.otp)
     const [errors, setError] = useState(true)

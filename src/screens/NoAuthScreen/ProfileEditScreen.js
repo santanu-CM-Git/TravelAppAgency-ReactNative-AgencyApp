@@ -32,11 +32,11 @@ import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { addIconImg, facebookImg, googleImg, plus, userPhoto } from '../../utils/Images';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileEditScreen = ({ navigation, route }) => {
-
+const ProfileEditScreen = ({ route }) => {
+  const navigation = useNavigation();
   const [firstname, setFirstname] = useState('');
   const [firstNameError, setFirstNameError] = useState('')
   const [contactno, setContactno] = useState('');

@@ -27,10 +27,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { addIconImg, plus, userPhoto } from '../../utils/Images';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AddNewUserType = ({ navigation, route }) => {
+const AddNewUserType = ({ route }) => {
+    const navigation = useNavigation();
     const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
 

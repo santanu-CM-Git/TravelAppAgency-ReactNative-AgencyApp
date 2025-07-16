@@ -33,7 +33,7 @@ import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { plus, userPhoto } from '../../utils/Images';
 import CustomHeader from '../../components/CustomHeader';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CountryPicker } from "react-native-country-codes-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -76,8 +76,8 @@ const paymentStatus = [
     { label: 'Full', value: 'full' },
 ]
 
-const NewBookingScreen = ({ navigation, route }) => {
-
+const NewBookingScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
     const [phone, setPhone] = useState('');

@@ -31,13 +31,13 @@ import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { addIconImg, plus, userPhoto } from '../../utils/Images';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CountryPicker } from "react-native-country-codes-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const AddNewMemberScreen = ({ navigation, route }) => {
-
+const AddNewMemberScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
     const [email, setEmail] = useState('');

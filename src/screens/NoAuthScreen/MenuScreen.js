@@ -35,7 +35,7 @@ import Toast from 'react-native-toast-message';
 import { accountMenu, accountSettingsMenu, arrowRightImg, bankMenu, editImg, logoutMenuImg, mybookingMenuImg, packagepostMenuImg, plus, policyMenuImg, profileMenu, settingsMenuImg, supportMenuImg, teamMenu, termMenuImg, transactionMenuImg, userPhoto } from '../../utils/Images';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const menuItems = [
@@ -48,8 +48,8 @@ const menuItems = [
     { id: 10, title: 'Logout', icon: logoutMenuImg, page: 'Logout', alwaysVisible: true },
 ];
 
-const MenuScreen = ({ navigation, route }) => {
-
+const MenuScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState([])
     const [filteredMenuItems, setFilteredMenuItems] = useState([])
     const { login, userToken, logout } = useContext(AuthContext);

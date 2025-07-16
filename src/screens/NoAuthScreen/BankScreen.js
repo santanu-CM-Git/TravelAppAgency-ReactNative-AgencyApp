@@ -35,10 +35,10 @@ import Toast from 'react-native-toast-message';
 import { addIconImg, bankImg, plus, userPhoto } from '../../utils/Images';
 import CustomHeader from '../../components/CustomHeader';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-const BankScreen = ({ navigation, route }) => {
-
+const BankScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 
     if (isLoading) {

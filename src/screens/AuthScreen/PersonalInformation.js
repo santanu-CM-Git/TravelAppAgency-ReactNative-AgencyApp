@@ -35,6 +35,7 @@ import Toast from 'react-native-toast-message';
 import { addIconImg, facebookImg, googleImg, plus, userPhoto } from '../../utils/Images';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { useNavigation } from '@react-navigation/native';
 
 const dataGender = [
   { label: 'Male', value: 'Male' },
@@ -48,7 +49,8 @@ const dataMarital = [
   { label: 'Widowed', value: 'Widowed' }
 ];
 
-const PersonalInformation = ({ navigation, route }) => {
+const PersonalInformation = ({ route }) => {
+  const navigation = useNavigation();
   const autocompleteRef = useRef(null);
 
   const [firstname, setFirstname] = useState(route?.params?.name);

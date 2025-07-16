@@ -34,11 +34,11 @@ import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { accountMenu, accountSettingsMenu, arrowRightImg, bankMenu, editImg, logoutMenuImg, mybookingMenuImg, newMemberButton, packagepostMenuImg, plus, policyMenuImg, productImg, profileMenu, settingsMenuImg, supportMenuImg, teamMenu, termMenuImg, transactionMenuImg, userPhoto } from '../../utils/Images';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TeamScreen = ({ navigation, route }) => {
-
+const TeamScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(false)
     const { login, userToken } = useContext(AuthContext);

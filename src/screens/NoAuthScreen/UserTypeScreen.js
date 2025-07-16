@@ -23,12 +23,12 @@ import axios from 'axios';
 import { API_URL } from '@env'
 import { accountMenu, accountSettingsMenu, arrowRightImg, bankMenu, editImg, logoutMenuImg, mybookingMenuImg, newMemberButton, packagepostMenuImg, plus, policyMenuImg, productImg, profileMenu, settingsMenuImg, supportMenuImg, teamMenu, termMenuImg, transactionMenuImg, userPhoto, userTypeButton } from '../../utils/Images';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const UserTypeScreen = ({ navigation, route }) => {
-
+const UserTypeScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(true)
     const [userType, setUserType] = useState([])
     const { login, userToken } = useContext(AuthContext);

@@ -35,11 +35,11 @@ import Toast from 'react-native-toast-message';
 import { addIconImg, bankImg, plus, productImg, userPhoto } from '../../utils/Images';
 import CustomHeader from '../../components/CustomHeader';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BankLinkedScreen = ({ navigation, route }) => {
-
+const BankLinkedScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
     const [bankAccounts, setBankAccounts] = useState([])
 

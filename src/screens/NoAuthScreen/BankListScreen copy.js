@@ -35,9 +35,10 @@ import Toast from 'react-native-toast-message';
 import { addIconImg, bankImg, plus, productImg, userPhoto } from '../../utils/Images';
 import CustomHeader from '../../components/CustomHeader';
 import Modal from "react-native-modal";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-const BankListScreen = ({ navigation, route }) => {
+const BankListScreen = ({ route }) => {
+    const navigation = useNavigation();
 
     const [isLoading, setIsLoading] = useState(false)
     const [isFilterModalVisible2, setFilterModalVisible2] = useState(false);

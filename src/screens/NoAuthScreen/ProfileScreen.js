@@ -33,11 +33,11 @@ import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { addIconImg, editImg, plus, userPhoto } from '../../utils/Images';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileScreen = ({ navigation, route }) => {
-
+const ProfileScreen = ({ route }) => {
+  const navigation = useNavigation();
 
   const [isLoading, setIsLoading] = useState(true)
   const { login, userToken } = useContext(AuthContext);

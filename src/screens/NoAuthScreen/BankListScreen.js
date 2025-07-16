@@ -24,12 +24,13 @@ import { AuthContext } from '../../context/AuthContext';
 import Loader from '../../utils/Loader';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomHeader from '../../components/CustomHeader';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BankListScreen = ({ navigation, route }) => {
+const BankListScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         agentName: '',

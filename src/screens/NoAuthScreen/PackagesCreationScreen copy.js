@@ -37,11 +37,12 @@ import { addIconImg, facebookImg, googleImg, plus, userPhoto } from '../../utils
 import CustomHeader from '../../components/CustomHeader';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from "react-native-modal";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PackagesCreationScreen = ({ navigation, route }) => {
+const PackagesCreationScreen = ({ route }) => {
+    const navigation = useNavigation();
     const autocompleteRef = useRef(null);
     const richText = useRef();
     const [packageDescription, setPackageDescription] = useState('');
