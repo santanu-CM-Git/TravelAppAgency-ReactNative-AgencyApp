@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Group Travel Agent</string>
+     <string name="facebook_app_id">974564787686868d</string>
+    <string name="facebook_client_token">46bac1e829d0197f7957c40fe346b6f4d</string>
+    <!-- add for truecaller login -->
+    <!-- <string name="partnerKey">-df3_ox1_dh4f9shnjts_ehuwrd3hsjs9bsoshnbhko</string>  -->
+</resources>
