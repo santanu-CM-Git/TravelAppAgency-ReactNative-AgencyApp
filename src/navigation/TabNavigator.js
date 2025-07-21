@@ -199,6 +199,11 @@ const MessageStack = () => {
         component={ChatListScreen}
         options={{ headerShown: false }}
       />
+       <Stack.Screen
+        name='ChatScreen'
+        component={ChatScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

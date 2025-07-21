@@ -138,7 +138,7 @@ const ChatScreen = ({ route }) => {
       } catch (error) {
         console.error('Error initializing chat:', error);
         let errorMessage = 'Failed to initialize chat. Please try again.';
-        
+
         if (error.message === 'User ID is missing') {
           errorMessage = 'Invalid user ID. Please try again.';
         } else if (error.message === 'User token is missing') {
@@ -146,7 +146,7 @@ const ChatScreen = ({ route }) => {
         } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         }
-        
+
         Alert.alert('Error', errorMessage, [
           {
             text: 'OK',
@@ -159,8 +159,10 @@ const ChatScreen = ({ route }) => {
     };
 
     initialize();
-    return () => {
-      agoraEngineRef.current?.destroy();
+    return async () => {
+      //agoraEngineRef.current?.destroy();
+      await agoraEngineRef.current?.destroy();
+      agoraEngineRef.current = null;
     };
   }, [route?.params?.userId]); // Add dependency on route.params.userId
 
@@ -244,146 +246,191 @@ const ChatScreen = ({ route }) => {
 
   const renderBubble = (props) => {
     const { currentMessage } = props;
-    
+    console.log(currentMessage)
     if (currentMessage.isDocument && currentMessage.file) {
       return (
-        <TouchableOpacity
-          onPress={async () => {
-            try {
-              if (currentMessage.file.uri) {
-                // Show loading indicator
-                setIsLoading(true);
-  
-                // Get the file extension
-                const fileExtension = currentMessage.file.name.split('.').pop().toLowerCase();
-                
-                // Download the file first
-                const localPath = await downloadFileFromURL(currentMessage.file.uri, currentMessage.file.name);
-                
-                // Handle different file types
-                if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'].includes(fileExtension)) {
-                  // For these file types, we can use FileViewer
-                  await FileViewer.open(localPath, {
-                    showOpenWithDialog: true,
-                    onDismiss: () => {
-                      setIsLoading(false);
-                    }
-                  });
-                } else {
-                  // For other file types, try to open with the device's default handler
-                  const supported = await Linking.canOpenURL(`file://${localPath}`);
-                  if (supported) {
-                    await Linking.openURL(`file://${localPath}`);
+        <View>
+          <TouchableOpacity
+            onPress={async () => {
+              try {
+                if (currentMessage.file.uri) {
+                  // Show loading indicator
+                  setIsLoading(true);
+
+                  // Get the file extension
+                  const fileExtension = currentMessage.file.name.split('.').pop().toLowerCase();
+
+                  // Download the file first
+                  const localPath = await downloadFileFromURL(currentMessage.file.uri, currentMessage.file.name);
+
+                  // Handle different file types
+                  if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'].includes(fileExtension)) {
+                    // For these file types, we can use FileViewer
+                    await FileViewer.open(localPath, {
+                      showOpenWithDialog: true,
+                      onDismiss: () => {
+                        setIsLoading(false);
+                      }
+                    });
                   } else {
-                    Alert.alert(
-                      'Cannot Open File',
-                      'This file type is not supported on your device.',
-                      [{ text: 'OK' }]
-                    );
+                    // For other file types, try to open with the device's default handler
+                    const supported = await Linking.canOpenURL(`file://${localPath}`);
+                    if (supported) {
+                      await Linking.openURL(`file://${localPath}`);
+                    } else {
+                      Alert.alert(
+                        'Cannot Open File',
+                        'This file type is not supported on your device.',
+                        [{ text: 'OK' }]
+                      );
+                    }
                   }
                 }
+              } catch (error) {
+                console.error('Error opening file:', error);
+                Alert.alert(
+                  'Error',
+                  'Unable to open this file. Please make sure you have an appropriate app installed to view this file type.',
+                  [{ text: 'OK' }]
+                );
+              } finally {
+                setIsLoading(false);
               }
-            } catch (error) {
-              console.error('Error opening file:', error);
-              Alert.alert(
-                'Error',
-                'Unable to open this file. Please make sure you have an appropriate app installed to view this file type.',
-                [{ text: 'OK' }]
-              );
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-          activeOpacity={0.7}
-        >
-          <View style={{
-            backgroundColor: props.position === 'right' ? '#FF455C' : '#F3F3F3',
-            borderRadius: 12,
-            padding: 10,
-            margin: 4,
-            maxWidth: 220,
-            flexDirection: 'row',
-            alignItems: 'center',
-            height: 40,
-            width: responsiveWidth(50),
-          }}>
-            <Image 
-              source={docsForChat} 
-              style={{ 
-                width: 24, 
-                height: 24, 
-                marginRight: 8, 
-                tintColor: props.position === 'right' ? '#fff' : '#7F66FF' 
-              }} 
-            />
-            <Text style={{ 
-              color: props.position === 'right' ? '#fff' : '#222', 
-              flex: 1,
-              fontFamily: 'Poppins-Regular',
-              fontSize: 14
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={{
+              backgroundColor: props.position === 'right' ? '#FF455C' : '#F3F3F3',
+              borderRadius: 12,
+              padding: 10,
+              margin: 4,
+              maxWidth: 220,
+              flexDirection: 'row',
+              alignItems: 'center',
+              height: 40,
+              width: responsiveWidth(50),
             }}>
-              {currentMessage.file.name}
-            </Text>
-          </View>
-        </TouchableOpacity>
+              <Image
+                source={docsForChat}
+                style={{
+                  width: 24,
+                  height: 24,
+                  marginRight: 8,
+                  tintColor: props.position === 'right' ? '#fff' : '#7F66FF'
+                }}
+              />
+              <Text style={{
+                color: props.position === 'right' ? '#fff' : '#222',
+                flex: 1,
+                fontFamily: 'Poppins-Regular',
+                fontSize: 14
+              }}>
+                {currentMessage.file.name}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 12,
+              color: '#888',
+              marginLeft: props.position === 'right' ? 0 : 10,
+              marginRight: props.position === 'right' ? 10 : 0,
+              marginTop: 2,
+              fontFamily: 'Poppins-Italic',
+              textAlign: props.position === 'right' ? 'right' : 'left',
+            }}
+          >
+            {`reply by ${currentMessage.user?.name || 'User'}`}
+          </Text>
+        </View>
       );
     }
-    
+
     if (currentMessage.isImage && currentMessage.image) {
       return (
-        <TouchableOpacity
-          onPress={() => {
-            setPreviewImageUri(currentMessage.image);
-            setIsImageModalVisible(true);
-          }}
-          activeOpacity={0.8}
-        >
-          <View style={{
-            backgroundColor: props.position === 'right' ? '#FF455C' : '#F3F3F3',
-            borderRadius: 12,
-            padding: 6,
-            margin: 4,
-            maxWidth: 220,
-            alignItems: 'center',
-          }}>
-            <Image source={{ uri: currentMessage.image }} style={{ width: 120, height: 120, borderRadius: 8 }} />
-          </View>
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            onPress={() => {
+              setPreviewImageUri(currentMessage.image);
+              setIsImageModalVisible(true);
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={{
+              backgroundColor: props.position === 'right' ? '#FF455C' : '#F3F3F3',
+              borderRadius: 12,
+              padding: 6,
+              margin: 4,
+              maxWidth: 220,
+              alignItems: 'center',
+            }}>
+              <Image source={{ uri: currentMessage.image }} style={{ width: 120, height: 120, borderRadius: 8 }} />
+            </View>
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 12,
+              color: '#888',
+              marginLeft: props.position === 'right' ? 0 : 10,
+              marginRight: props.position === 'right' ? 10 : 0,
+              marginTop: 2,
+              fontFamily: 'Poppins-Italic',
+              textAlign: props.position === 'right' ? 'right' : 'left',
+            }}
+          >
+            {`reply by ${currentMessage.user?.name || 'User'}`}
+          </Text>
+        </View>
       );
     }
-    
+
     return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          right: styles.bubbleRight,
-          left: styles.bubbleLeft,
-        }}
-        textStyle={{
-          right: styles.bubbleTextRight,
-          left: styles.bubbleTextLeft,
-        }}
-        timeTextStyle={{
-          right: styles.bubbleTime,
-          left: styles.bubbleTime,
-        }}
-      />
+      <View>
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            right: styles.bubbleRight,
+            left: styles.bubbleLeft,
+          }}
+          textStyle={{
+            right: styles.bubbleTextRight,
+            left: styles.bubbleTextLeft,
+          }}
+          timeTextStyle={{
+            right: styles.bubbleTime,
+            left: styles.bubbleTime,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 12,
+            color: '#888',
+            marginLeft: props.position === 'right' ? 0 : 10,
+            marginRight: props.position === 'right' ? 10 : 0,
+            marginTop: 2,
+            fontFamily: 'Poppins-Italic',
+            textAlign: props.position === 'right' ? 'right' : 'left',
+          }}
+        >
+          {`reply by ${currentMessage.user?.name || 'User'}`}
+        </Text>
+      </View>
     );
   };
   const downloadFileFromURL = async (url, fileName) => {
     try {
       console.log('Downloading file:', fileName);
-      
+
       // Create a local path for the file
       const localPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-      
+
       // Check if file already exists
       const fileExists = await RNFS.exists(localPath);
       if (fileExists) {
         console.log('File already exists locally:', localPath);
         return localPath;
       }
-      
+
       // Download the file
       const downloadResult = await RNFS.downloadFile({
         fromUrl: url,
@@ -392,7 +439,7 @@ const ChatScreen = ({ route }) => {
         discretionary: true, // Allow the system to schedule the download
         cacheable: true, // Allow caching
       }).promise;
-      
+
       if (downloadResult.statusCode === 200) {
         console.log('File downloaded successfully:', localPath);
         return localPath;
@@ -408,11 +455,11 @@ const ChatScreen = ({ route }) => {
     try {
       const cacheDir = RNFS.CachesDirectoryPath;
       const files = await RNFS.readDir(cacheDir);
-      
+
       // Get current time
       const now = new Date().getTime();
       const oneWeekAgo = now - (7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
-      
+
       // Remove files older than a week
       for (const file of files) {
         const fileTime = new Date(file.mtime).getTime();
@@ -810,8 +857,8 @@ const ChatScreen = ({ route }) => {
         });
 
         // Store the values in variables instead of state
-         const agoraToken = data.agora_token;
-         const agoraChannelId = data.agora_channel_id;
+        const agoraToken = data.agora_token;
+        const agoraChannelId = data.agora_channel_id;
         //const agoraToken = '007eJxTYMh/eLvQUO7jv/jXkq8+Hl/x8YJ85+WqcuGQbs/6PRM51k1XYDCwtLQ0NzI1TjQyMjAxTTOySDNLNDdOMzJKMUsyMTCwWOsfl9EQyMhQqfCeiZEBAkF8TobE9PyixJLU4hIGBgCdpCLj';
         //const agoraChannelId = 'agoratest';
 
@@ -854,7 +901,7 @@ const ChatScreen = ({ route }) => {
           });
           //alert('channel name ' + agoraChannelId + ' token ' + agoraToken + ' uid ' + uid);
           console.log('Successfully joined channel');
-          
+
           // Set active tab only after successful join
           setActiveTab('audio');
           await AsyncStorage.setItem('activeTab', 'audio');
@@ -875,7 +922,7 @@ const ChatScreen = ({ route }) => {
     } catch (error) {
       console.error('Error in goingToactiveTab:', error);
       let errorMessage = 'Failed to start audio call. Please try again.';
-      
+
       if (error.message === 'User token is missing') {
         errorMessage = 'Authentication error. Please login again.';
       } else if (error.message === 'Failed to get channel details from server') {
@@ -887,7 +934,7 @@ const ChatScreen = ({ route }) => {
       } else if (error.message === 'Failed to join channel') {
         errorMessage = 'Failed to connect to call. Please try again.';
       }
-      
+
       Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);
@@ -1035,16 +1082,16 @@ const ChatScreen = ({ route }) => {
   const uploadFileToStorage = async (uri, fileName, fileType) => {
     try {
       console.log('Starting file upload:', { uri, fileName, fileType });
-      
+
       // Create a reference to the file location in Firebase Storage
       const storageRef = storage().ref(`chat_files/${Date.now()}_${fileName}`);
-      
+
       let uploadTask;
-      
+
       if (Platform.OS === 'android') {
         // For Android, handle file path differently
         let fileUri = uri;
-        
+
         // If it's a content:// URI, we need to handle it differently
         if (uri.startsWith('content://')) {
           // Use the copyTo path if available
@@ -1054,9 +1101,9 @@ const ChatScreen = ({ route }) => {
           });
           fileUri = response.fileCopyUri || response.uri;
         }
-        
+
         console.log('Using file URI:', fileUri);
-        
+
         // Upload directly from file path
         uploadTask = await storageRef.putFile(fileUri, {
           contentType: fileType || 'application/octet-stream',
@@ -1072,7 +1119,7 @@ const ChatScreen = ({ route }) => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const fileBlob = await response.blob();
-          
+
           uploadTask = await storageRef.put(fileBlob, {
             contentType: fileType || 'application/octet-stream',
             customMetadata: {
@@ -1087,13 +1134,13 @@ const ChatScreen = ({ route }) => {
           });
         }
       }
-  
+
       console.log('Upload task completed:', uploadTask.state);
-  
+
       // Get the download URL
       const downloadURL = await storageRef.getDownloadURL();
       console.log('Download URL obtained:', downloadURL);
-      
+
       return {
         url: downloadURL,
         name: fileName,
@@ -1108,16 +1155,16 @@ const ChatScreen = ({ route }) => {
   // Modify handlePickDocument function
   const handlePickDocument = async () => {
     setIsAttachPopupVisible(false);
-    
+
     try {
       console.log('Starting document picker...');
-      
+
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
         copyTo: 'cachesDirectory', // This creates a local copy
         allowMultiSelection: false,
       });
-  
+
       console.log('Document picked:', {
         name: res.name,
         type: res.type,
@@ -1125,33 +1172,33 @@ const ChatScreen = ({ route }) => {
         uri: res.uri,
         fileCopyUri: res.fileCopyUri
       });
-  
+
       if (!res) {
         console.log('No document selected');
         return;
       }
-  
+
       // Validate file size (limit to 10MB)
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (res.size && res.size > maxSize) {
         Alert.alert('Error', 'File size is too large. Please select a file smaller than 10MB.');
         return;
       }
-  
+
       // Show loading indicator
       setIsLoading(true);
-  
+
       // Use fileCopyUri if available (Android), otherwise use uri
       const fileUri = res.fileCopyUri || res.uri;
       const fileName = res.name || `file_${Date.now()}`;
       const fileType = res.type || 'application/octet-stream';
-  
+
       console.log('Uploading file with URI:', fileUri);
-  
+
       // Upload file to Firebase Storage
       const uploadedFile = await uploadFileToStorage(fileUri, fileName, fileType);
       console.log('File uploaded successfully:', uploadedFile);
-  
+
       // Create message data
       const timestamp = new Date();
       const messageData = {
@@ -1163,7 +1210,7 @@ const ChatScreen = ({ route }) => {
           avatar: agentProfilePic || null
         }
       };
-  
+
       // Check if it's an image
       if (fileType && fileType.startsWith('image/')) {
         messageData.text = fileName;
@@ -1179,34 +1226,34 @@ const ChatScreen = ({ route }) => {
         };
         messageData.isDocument = true;
       }
-  
+
       // Store in Firestore
       const firestoreData = {
         ...messageData,
         createdAt: firestore.FieldValue.serverTimestamp()
       };
-  
+
       await firestore()
         .collection('chatrooms')
         .doc(chatgenidres)
         .collection('messages')
         .add(firestoreData);
-  
+
       console.log('Message stored in Firestore');
-  
+
       // Update local state for immediate UI update
       setMessages(previousMessages => GiftedChat.append(previousMessages, [messageData]));
-  
+
     } catch (err) {
       console.error('Document picker error:', err);
-      
+
       if (DocumentPicker.isCancel(err)) {
         console.log('User cancelled document picker');
         return;
       }
-  
+
       let errorMessage = 'Failed to upload file. Please try again.';
-      
+
       if (err.message) {
         if (err.message.includes('permission')) {
           errorMessage = 'Permission denied. Please check file permissions.';
@@ -1216,7 +1263,7 @@ const ChatScreen = ({ route }) => {
           errorMessage = 'Storage error. Please try again later.';
         }
       }
-  
+
       Alert.alert('Error', errorMessage, [{ text: 'OK' }]);
     } finally {
       setIsLoading(false);
@@ -1226,16 +1273,16 @@ const ChatScreen = ({ route }) => {
   // Modify handlePickImage function
   const handlePickImage = async () => {
     setIsAttachPopupVisible(false);
-    
+
     try {
       console.log('Starting image picker...');
-      
+
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.images],
         copyTo: 'cachesDirectory',
         allowMultiSelection: false,
       });
-  
+
       console.log('Image picked:', {
         name: res.name,
         type: res.type,
@@ -1243,33 +1290,33 @@ const ChatScreen = ({ route }) => {
         uri: res.uri,
         fileCopyUri: res.fileCopyUri
       });
-  
+
       if (!res) {
         console.log('No image selected');
         return;
       }
-  
+
       // Validate file size (limit to 5MB for images)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (res.size && res.size > maxSize) {
         Alert.alert('Error', 'Image size is too large. Please select an image smaller than 5MB.');
         return;
       }
-  
+
       // Show loading indicator
       setIsLoading(true);
-  
+
       // Use fileCopyUri if available (Android), otherwise use uri
       const fileUri = res.fileCopyUri || res.uri;
       const fileName = res.name || `image_${Date.now()}`;
       const fileType = res.type || 'image/jpeg';
-  
+
       console.log('Uploading image with URI:', fileUri);
-  
+
       // Upload image to Firebase Storage
       const uploadedFile = await uploadFileToStorage(fileUri, fileName, fileType);
       console.log('Image uploaded successfully:', uploadedFile);
-  
+
       // Create message data
       const timestamp = new Date();
       const messageData = {
@@ -1284,34 +1331,34 @@ const ChatScreen = ({ route }) => {
         image: uploadedFile.url,
         isImage: true
       };
-  
+
       // Store in Firestore
       const firestoreData = {
         ...messageData,
         createdAt: firestore.FieldValue.serverTimestamp()
       };
-  
+
       await firestore()
         .collection('chatrooms')
         .doc(chatgenidres)
         .collection('messages')
         .add(firestoreData);
-  
+
       console.log('Image message stored in Firestore');
-  
+
       // Update local state for immediate UI update
       setMessages(previousMessages => GiftedChat.append(previousMessages, [messageData]));
-  
+
     } catch (err) {
       console.error('Image picker error:', err);
-      
+
       if (DocumentPicker.isCancel(err)) {
         console.log('User cancelled image picker');
         return;
       }
-  
+
       let errorMessage = 'Failed to upload image. Please try again.';
-      
+
       if (err.message) {
         if (err.message.includes('permission')) {
           errorMessage = 'Permission denied. Please check file permissions.';
@@ -1321,7 +1368,7 @@ const ChatScreen = ({ route }) => {
           errorMessage = 'Storage error. Please try again later.';
         }
       }
-  
+
       Alert.alert('Error', errorMessage, [{ text: 'OK' }]);
     } finally {
       setIsLoading(false);
@@ -1364,19 +1411,19 @@ const ChatScreen = ({ route }) => {
   // Add useFocusEffect to handle back navigation
   useFocusEffect(
     useCallback(() => {
-        const backAction = () => {
-          handleGoBack();
-           return true
-          };
-      
-          const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction,
-          );
-      
-          return () => backHandler.remove();
-    }, [ handleGoBack])
-);
+      const backAction = () => {
+        handleGoBack();
+        return true
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+
+      return () => backHandler.remove();
+    }, [handleGoBack])
+  );
 
   if (isLoading) {
     return (
@@ -1394,16 +1441,16 @@ const ChatScreen = ({ route }) => {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(90) }}>
           <View style={styles.headerTitleContainer}>
             {userProfilePic ? (
-            <Image
-              source={{ uri: userProfilePic }}
-              style={styles.profileIcon}
-            />
-          ) : (
-            <Image
-              source={defaultUserImg}
-              style={styles.profileIcon}
-            />
-          )}
+              <Image
+                source={{ uri: userProfilePic }}
+                style={styles.profileIcon}
+              />
+            ) : (
+              <Image
+                source={defaultUserImg}
+                style={styles.profileIcon}
+              />
+            )}
             <Text style={[styles.headerTitle, { marginLeft: 10 }]}>{userName || "Users"}</Text>
           </View>
           <GestureTouchableOpacity onPress={() => requestToTabSwitch(activeTab === 'chat' ? 'audio' : 'chat')}>
@@ -1484,7 +1531,7 @@ const ChatScreen = ({ route }) => {
               <Text style={styles.attachLabel}>Images</Text>
             </GestureTouchableOpacity>
             <TouchableOpacity onPress={() => setIsAttachPopupVisible(false)}>
-              <Text style={{ fontSize: responsiveFontSize(2), fontWeight: 'bold', color: '#222', marginTop: -10,zIndex:20 }}>✕</Text>
+              <Text style={{ fontSize: responsiveFontSize(2), fontWeight: 'bold', color: '#222', marginTop: -10, zIndex: 20 }}>✕</Text>
             </TouchableOpacity>
           </View>
         </View>
