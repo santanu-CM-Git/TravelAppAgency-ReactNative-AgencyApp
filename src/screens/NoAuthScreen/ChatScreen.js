@@ -161,6 +161,8 @@ const ChatScreen = ({ route }) => {
     initialize();
     return async () => {
       //agoraEngineRef.current?.destroy();
+      leaveChannel();
+      KeepAwake.deactivate();
       await agoraEngineRef.current?.destroy();
       agoraEngineRef.current = null;
     };
