@@ -49,7 +49,7 @@ const itemWidth = width * 0.8; // 80% of screen width
 const imageHeight = itemWidth * 0.5; // Maintain a 4:3 aspect ratio
 
 
-export default function HomeScreen({  }) {
+export default function HomeScreen({ }) {
   const navigation = useNavigation();
   const carouselRef = useRef(null);
   const dispatch = useDispatch();
@@ -132,7 +132,7 @@ export default function HomeScreen({  }) {
           onPress: () => null,
           style: 'cancel',
         },
-        {text: 'YES', onPress: () => BackHandler.exitApp()},
+        { text: 'YES', onPress: () => BackHandler.exitApp() },
       ]);
       return true;
     };
@@ -558,13 +558,16 @@ export default function HomeScreen({  }) {
       <View style={styles.homeHeaderView}>
         <View style={styles.nameSection}>
           <View style={styles.collumnView}>
-            <Text style={styles.username}>HI, {userInfo?.name}</Text>
+            <Text style={styles.username}>
+              HI, {userInfo?.name}
+              {userInfo?.parent_data ? ` (${userInfo.parent_data.name})` : ''}
+            </Text>
             <View style={styles.locationView}>
               <Image
                 source={markerImg}
                 style={styles.markerIcon}
               />
-              <Text style={[styles.locationname, { marginLeft: 5 }]} numberOfLines={2}>{userInfo?.address}</Text>
+              <Text style={[styles.locationname, { marginLeft: 5 }]} numberOfLines={2}>{userInfo?.address ? userInfo?.address : userInfo?.parent_data?.address}</Text>
             </View>
           </View>
         </View>
@@ -1052,7 +1055,7 @@ const styles = StyleSheet.create({
     height: 15,
     resizeMode: 'contain'
   },
-  timeimage2:{
+  timeimage2: {
     width: 13,
     height: 13,
     resizeMode: 'contain'

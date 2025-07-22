@@ -98,16 +98,16 @@ const MenuScreen = ({ route }) => {
     useFocusEffect(
         useCallback(() => {
             const backAction = () => {
-               navigation.goBack()
-               return true
-              };
-          
-              const backHandler = BackHandler.addEventListener(
+                navigation.goBack()
+                return true
+            };
+
+            const backHandler = BackHandler.addEventListener(
                 'hardwareBackPress',
                 backAction,
-              );
-          
-              return () => backHandler.remove();
+            );
+
+            return () => backHandler.remove();
         }, [navigation])
     );
 
@@ -202,10 +202,13 @@ const MenuScreen = ({ route }) => {
                         </Svg>
                         <View style={styles.imageContainer}>
 
-                            <Image source={{ uri: userInfo.profile_photo_url }} style={styles.imageStyle} />
+                            <Image source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }} style={styles.imageStyle} />
                         </View>
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={styles.username}>{userInfo?.name}</Text>
+                            <Text style={styles.username}>
+                                HI, {userInfo?.name}
+                                {userInfo?.parent_data ? ` (${userInfo.parent_data.name})` : ''}
+                            </Text>
                         </View>
                     </View>
                     <View style={styles.menucontainer}>

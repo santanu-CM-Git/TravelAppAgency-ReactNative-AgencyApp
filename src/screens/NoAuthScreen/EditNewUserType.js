@@ -42,10 +42,10 @@ const EditNewUserType = ({ route }) => {
     const options = [
         'Booking',
         'Messages',
-        'Accounts and transactions',
-        'Account settings',
+        'Accounts',
         'Team',
-        'Banks'
+        'Bank',
+        'Packages',
     ];
 
     const toggleSelection = (item) => {

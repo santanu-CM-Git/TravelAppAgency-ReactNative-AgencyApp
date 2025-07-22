@@ -85,7 +85,7 @@ const OtpScreen = ({ route }) => {
     const goToNextPage = (code) => {
         setIsLoading(true)
         //console.log(comingOTP,'comingOTPcomingOTP');
-        
+
         if (code == comingOTP) {
             const option = {
                 "country_code": route?.params?.countrycode,
@@ -112,11 +112,16 @@ const OtpScreen = ({ route }) => {
                         //     position: 'top',
                         //     topOffset: Platform.OS == 'ios' ? 55 : 20
                         // });
-                        if (res.data?.data?.country) {
+                        if (res.data?.data?.parent_id != null) {
                             login(res.data?.token)
                         } else {
-                            navigation.navigate('PersonalInformation', { token: res.data?.token, name: res.data?.data?.name})
+                            if (res.data?.data?.country) {
+                                login(res.data?.token)
+                            } else {
+                                navigation.navigate('PersonalInformation', { token: res.data?.token, name: res.data?.data?.name })
+                            }
                         }
+
                     } else {
                         console.log('not okk')
                         setIsLoading(false)

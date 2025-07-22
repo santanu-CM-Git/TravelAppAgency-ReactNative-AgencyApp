@@ -128,7 +128,7 @@ const ChatScreen = ({ route }) => {
         setAgentProfilePic(data.agent.profile_photo_url);
         setUserProfilePic(data.customer.profile_photo_url);
         setAgentId(data.agent.user_id);
-        setAgentName(data.agent.name);
+        setAgentName(data.username);
         setUserName(data.customer.full_name);
 
         // Initialize video SDK
@@ -835,10 +835,10 @@ const ChatScreen = ({ route }) => {
           throw new Error('User token is missing');
         }
 
-        console.log('Fetching channel details for userId:', userId);
+        console.log('Fetching channel details for userId:', route?.params?.userId);
         const response = await axios.post(`${API_URL}/agent/message`,
           {
-            customer_id: userId
+            customer_id: route?.params?.userId
           }, {
           headers: {
             Accept: 'application/json',
@@ -945,7 +945,7 @@ const ChatScreen = ({ route }) => {
     //await goingToactiveTab(name)
     setIsLoading(true);
     const option = {
-      "customer_id": userId,
+      "customer_id": route?.params?.userId,
       "flag": name
     };
     // console.log(option);
@@ -994,7 +994,7 @@ const ChatScreen = ({ route }) => {
   const requestToCancel = async () => {
     const storedTab = await AsyncStorage.getItem('activeTab');
     const option = {
-      "customer_id": userId,
+      "customer_id": route?.params?.userId,
       "flag": storedTab,
       "screen": storedTab
     };
@@ -1388,7 +1388,7 @@ const ChatScreen = ({ route }) => {
       const lastMessage = messages.length > 0 ? messages[0].text : '';
 
       const response = await axios.post(`${API_URL}/agent/message`, {
-        customer_id: userId,
+        customer_id: route?.params?.userId,
         last_message: lastMessage
       }, {
         headers: {

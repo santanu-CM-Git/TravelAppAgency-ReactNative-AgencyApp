@@ -79,9 +79,9 @@ const ProfileScreen = ({ route }) => {
         navigation.goBack();
         return true;
       };
-  
+
       const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-  
+
       return () => backHandler.remove(); // Proper cleanup
     }, [navigation])
   );
@@ -99,17 +99,21 @@ const ProfileScreen = ({ route }) => {
           <MaterialIcons name="arrow-back" size={25} color="#000" onPress={() => navigation.goBack()} />
           <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: responsiveFontSize(2.5), color: '#2F2F2F', marginLeft: responsiveWidth(5) }}>Profile</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('ProfileEditScreen')}>
-          <Image
-            source={editImg}
-            style={styles.editIcon}
-          />
-        </TouchableOpacity>
+        {userInfo?.parent_data == null ?
+          <TouchableOpacity onPress={() => navigation.navigate('ProfileEditScreen')}>
+            <Image
+              source={editImg}
+              style={styles.editIcon}
+            />
+          </TouchableOpacity>
+          :
+          null}
+
       </View>
       <View style={styles.photocontainer}>
         {/* Cover Photo Section */}
         <View style={styles.coverPhotoContainer}>
-          <Image source={{ uri: userInfo?.cover_photo_url }} style={styles.coverPhotoImage} />
+          <Image source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.cover_photo_url : userInfo?.cover_photo_url }} style={styles.coverPhotoImage} />
         </View>
         {/* SVG for Circular Ripple with Bottom Fade */}
         <Svg height="250" width="250" style={styles.svg}>
@@ -135,7 +139,7 @@ const ProfileScreen = ({ route }) => {
         <View style={styles.profileContainer}>
           <View style={styles.profilePicWrapper}>
             <Image
-              source={{ uri: userInfo?.profile_photo_url }} // Replace with actual profile image
+              source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }}// Replace with actual profile image
               style={styles.profilePic}
             />
             {/* Profile Picture Camera Icon */}
@@ -146,7 +150,10 @@ const ProfileScreen = ({ route }) => {
         </View>
       </View>
       <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: responsiveHeight(5) }}>
-        <Text style={styles.username}>{userInfo?.name}</Text>
+        <Text style={styles.username}>
+         {userInfo?.name}
+          {userInfo?.parent_data ? ` (${userInfo.parent_data.name})` : ''}
+        </Text>
       </View>
       <View style={styles.wrapper}>
         {/* <View style={styles.mainView}>
@@ -178,13 +185,13 @@ const ProfileScreen = ({ route }) => {
 
           <View style={styles.contactRow}>
             <FontAwesome name="map-marker" size={16} color="red" />
-            <Text style={styles.contactText}>{userInfo?.address}</Text>
+            <Text style={styles.contactText}>{userInfo?.parent_data ? userInfo?.parent_data?.address : userInfo?.address}</Text>
           </View>
 
           {/* About Me Section */}
           <Text style={styles.aboutTitle}>About Me</Text>
           <Text style={styles.aboutText}>
-            {userInfo?.tag_line}
+            {userInfo?.parent_data ?userInfo?.parent_data?.tag_line:userInfo?.tag_line}
           </Text>
         </View>
       </View>
