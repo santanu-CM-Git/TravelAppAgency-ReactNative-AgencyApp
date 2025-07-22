@@ -22,17 +22,17 @@ const PaymentFailed = ({ route }) => {
     }, []);
 
     useFocusEffect(
-            useCallback(() => {
-              const onBackPress = () => {
-                navigation.goBack();
-                return true; // Prevents default back behavior
-              };
-        
-              BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        
-              return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-            }, [navigation])
-          );
+        useCallback(() => {
+          const onBackPress = () => {
+            navigation.goBack();
+            return true;
+          };
+      
+          const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      
+          return () => backHandler.remove(); // Proper cleanup
+        }, [navigation])
+      );
 
     return (
         <SafeAreaView style={styles.container}>

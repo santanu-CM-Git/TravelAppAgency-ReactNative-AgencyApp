@@ -69,12 +69,12 @@ const ProfileEditScreen = ({ route }) => {
     useCallback(() => {
       const onBackPress = () => {
         navigation.goBack();
-        return true; // Prevents default back behavior
+        return true;
       };
-
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  
+      return () => backHandler.remove(); // Proper cleanup
     }, [navigation])
   );
 
