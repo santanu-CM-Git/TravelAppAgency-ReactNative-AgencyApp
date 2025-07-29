@@ -90,7 +90,7 @@ const OtpScreen = ({ route }) => {
             const option = {
                 "country_code": route?.params?.countrycode,
                 "mobile": route?.params?.phone,
-                "fcm": route?.params?.fcmToken,
+                "fcm": route?.params?.fcmToken ||'fdgfdgfd',
                 //"deviceid": deviceId,
             }
             //console.log(option);

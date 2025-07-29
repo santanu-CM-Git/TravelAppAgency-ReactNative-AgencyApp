@@ -49,17 +49,27 @@ const LoginScreen = ({  }) => {
   const { login, userToken } = useContext(AuthContext);
 
   const getFCMToken = async () => {
-    try {
-      // if (Platform.OS == 'android') {
-      await messaging().registerDeviceForRemoteMessages();
-      // }
-      const token = await messaging().getToken();
-      AsyncStorage.setItem('fcmToken', token)
-      //console.log(token, 'fcm token');
-    } catch (e) {
-      console.log(e);
+  try {
+    // Request permissions on iOS
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (!enabled) {
+      console.log('Notification permissions not granted');
+      return;
     }
-  };
+
+    await messaging().registerDeviceForRemoteMessages();
+
+    const token = await messaging().getToken();
+    console.log('FCM Token:', token);
+    await AsyncStorage.setItem('fcmToken', token);
+  } catch (e) {
+    console.log('FCM Token Error:', e);
+  }
+};
 
   useEffect(() => {
     //getDeviceInfo()

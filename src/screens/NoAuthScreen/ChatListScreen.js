@@ -24,7 +24,6 @@ import {
 import Modal from "react-native-modal";
 import { AuthContext } from '../../context/AuthContext';
 import { getProducts } from '../../store/productSlice'
-import FastImage from '@d11/react-native-fast-image';
 import moment from 'moment-timezone';
 import CustomButton from '../../components/CustomButton'
 import axios from 'axios';
@@ -213,8 +212,8 @@ export default function ChatListScreen({  }) {
                             userId: item?.customer?.id
                         })}
                     >
-                        <FastImage 
-                            source={{ uri: item.customer.profile_photo_url }} 
+                         <Image
+                            source={{ uri: item.customer.profile_photo_url }}
                             style={styles.avatar}
                             defaultSource={productImg}
                         />
