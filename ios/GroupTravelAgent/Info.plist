@@ -44,7 +44,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to your camera capturing photos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app needs location access to provide location-based services.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This App needs access to your microphone to enable audio during audio calls so you can hear and be heard.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

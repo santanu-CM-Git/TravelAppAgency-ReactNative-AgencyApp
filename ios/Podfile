@@ -35,7 +35,13 @@ target 'GroupTravelAgent' do
  
   # Setup react-native-permissions
   setup_permissions([
-    'Camera', 'PhotoLibrary', 'PhotoLibraryAddOnly', 'Notifications', 'MediaLibrary','Microphone','LocationAlways','LocationAccuracy','LocationWhenInUse'
+    'Camera',
+    #'PhotoLibrary',
+    'Notifications',
+    'Microphone',
+    #'LocationAlways',
+    #'LocationAccuracy',
+    #'LocationWhenInUse'
   ])
  
   post_install do |installer|
