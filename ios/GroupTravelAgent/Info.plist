@@ -51,6 +51,8 @@
 	<string>This App needs to access your Photo Library to upload media.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This App needs to access your Photo Library to upload media.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>We need to send you notifications for updates and alerts.</string>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>This App would like to send you notifications to keep you updated.</string>
 	<key>RCTNewArchEnabled</key>
