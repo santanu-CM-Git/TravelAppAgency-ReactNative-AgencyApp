@@ -608,6 +608,279 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
         }
     };
 
+
+    // const submitForm = async () => {
+    //     console.log('=== submitForm called ===');
+    //     console.log('hasBankAccount:', hasBankAccount);
+        
+    //     if (hasBankAccount === false) {
+    //         console.log('Bank account check failed, showing modal');
+    //         setShowBankModal(true);
+    //         return;
+    //     }
+        
+    //     console.log('Starting form submission process...');
+        
+    //     try {
+    //         setIsLoading(true);
+    //         console.log('Loading state set to true');
+    
+    //         // Basic validation with detailed logging
+    //         console.log('=== Validation Check ===');
+    //         console.log('packageName:', packageName);
+    //         console.log('packageDescription:', packageDescription);
+    //         console.log('selectedOption:', selectedOption);
+    //         console.log('slot:', slot);
+    //         console.log('startDate:', startDate);
+    //         console.log('endDate:', endDate);
+    //         console.log('expireDate:', expireDate);
+    //         console.log('price:', price);
+    //         console.log('discountedPrice:', discountedPrice);
+    //         console.log('childPrice:', childPrice);
+    //         console.log('coverPhoto:', coverPhoto);
+    //         console.log('days:', days);
+    
+    //         if (!packageName) {
+    //             console.log('Package name validation failed');
+    //             setPackageNameError('Please enter package name.');
+    //             setIsLoading(false);
+    //             return;
+    //         }
+            
+    //         if (!packageDescription) {
+    //             console.log('Package description validation failed');
+    //             setPackageDescriptionError('Please enter description.');
+    //             setIsLoading(false);
+    //             return;
+    //         }
+            
+    //         if (selectedOption === 'fixedDate') {
+    //             console.log('Fixed date validation...');
+    //             if (!slot) {
+    //                 console.log('Slot validation failed');
+    //                 setSlotError('Please enter number of slots.');
+    //                 setIsLoading(false);
+    //                 return;
+    //             }
+    //             if (!startDate || !endDate) {
+    //                 console.log('Date validation failed - startDate:', startDate, 'endDate:', endDate);
+    //                 Toast.show({
+    //                     type: 'error',
+    //                     text1: 'Error',
+    //                     text2: 'Please select both start and end dates'
+    //                 });
+    //                 setIsLoading(false);
+    //                 return;
+    //             }
+    //         } else {
+    //             console.log('Custom date validation...');
+    //             if (!expireDate) {
+    //                 console.log('Expire date validation failed');
+    //                 Toast.show({
+    //                     type: 'error',
+    //                     text1: 'Error',
+    //                     text2: 'Please select expire date'
+    //                 });
+    //                 setIsLoading(false);
+    //                 return;
+    //             }
+    //         }
+            
+    //         if (!price) {
+    //             console.log('Price validation failed');
+    //             setPriceError('Please enter price.');
+    //             setIsLoading(false);
+    //             return;
+    //         }
+            
+    //         if (!discountedPrice) {
+    //             console.log('Discounted price validation failed');
+    //             setDiscountedPriceError('Please enter discounted price.');
+    //             setIsLoading(false);
+    //             return;
+    //         }
+            
+    //         if (!childPrice) {
+    //             console.log('Child price validation failed');
+    //             setChildPriceError('Please enter child price.');
+    //             setIsLoading(false);
+    //             return;
+    //         }
+            
+    //         if (!coverPhoto) {
+    //             console.log('Cover photo validation failed');
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Error',
+    //                 text2: 'Cover photo is required'
+    //             });
+    //             setIsLoading(false);
+    //             return;
+    //         }
+    
+    //         // Validate itinerary descriptions
+    //         console.log('Validating itinerary descriptions...');
+    //         const hasEmptyDescription = days.some(day => !day.description.trim());
+    //         if (hasEmptyDescription) {
+    //             console.log('Itinerary validation failed - some days have empty descriptions');
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Error',
+    //                 text2: 'Please add description for all days in itinerary'
+    //             });
+    //             setIsLoading(false);
+    //             return;
+    //         }
+    
+    //         console.log('=== All validations passed, preparing FormData ===');
+    
+    //         // Prepare form data
+    //         const formData = new FormData();
+    
+    //         // Add basic package info
+    //         console.log('Adding basic package info to FormData...');
+    //         console.log('route params:', route?.params);
+            
+    //         formData.append('customer_id', route?.params?.customerId);
+    //         formData.append('name', packageName);
+    //         formData.append('location_id', route?.params?.locationId);
+    //         formData.append('location', route?.params?.locationName);
+    //         formData.append('description', packageDescription);
+    //         formData.append('price', price);
+    //         formData.append('discounted_price', discountedPrice);
+    //         formData.append('children_price', childPrice);
+    //         formData.append('date_type', selectedOption === 'fixedDate' ? 0 : 1);
+    
+    //         if (selectedOption === 'fixedDate') {
+    //             console.log('Adding fixed date data...');
+    //             formData.append('seat_slots', slot);
+    //             formData.append('start_date', startDate.toISOString().split('T')[0]);
+    //             formData.append('end_date', endDate.toISOString().split('T')[0]);
+    //         } else {
+    //             console.log('Adding custom date data...');
+    //             formData.append('end_date', expireDate.toISOString().split('T')[0]);
+    //         }
+    
+    //         // Add cover photo
+    //         console.log('Adding cover photo...');
+    //         formData.append('cover_photo', {
+    //             uri: coverPhoto.uri,
+    //             type: coverPhoto.type || 'image/jpeg',
+    //             name: coverPhoto.name || 'cover.jpg'
+    //         });
+    
+    //         // Add itinerary data
+    //         console.log('Adding itinerary data...');
+    //         days.forEach((day, dayIndex) => {
+    //             formData.append(`itinerary[${dayIndex}][day]`, day.id);
+    //             formData.append(`itinerary[${dayIndex}][description]`, day.description);
+    
+    //             // Add images for this day
+    //             day.images.forEach((image, imageIndex) => {
+    //                 formData.append(`itinerary[${dayIndex}][images][${imageIndex}]`, {
+    //                     uri: image,
+    //                     type: 'image/jpeg',
+    //                     name: `day${day.id}_image${imageIndex}.jpg`
+    //                 });
+    //             });
+    //         });
+    
+    //         // Add refund policies
+    //         console.log('Adding refund policies...');
+    //         policies.forEach((day, dayIndex) => {
+    //             formData.append(`refund[${dayIndex}][condition]`, day.day);
+    //             formData.append(`refund[${dayIndex}][refund]`, day.percentage);
+    //         });
+    
+    //         // Add required documents
+    //         console.log('Adding required documents...');
+    //         formData.append('document', JSON.stringify(selectedItems));
+    
+    //         // Add package inclusions and exclusions
+    //         console.log('Adding inclusions and exclusions...');
+    //         formData.append('package_inclusion', JSON.stringify(selectedItemsInclusions));
+    //         formData.append('package_exclusion', JSON.stringify(selectedItemsExclusion));
+    
+    //         console.log('FormData prepared successfully');
+    
+    //         // Make API call
+    //         console.log('Getting user token...');
+    //         const userToken = await AsyncStorage.getItem('userToken');
+    //         console.log('userToken retrieved:', userToken ? 'Yes' : 'No');
+            
+    //         if (!userToken) {
+    //             console.log('ERROR: No user token found');
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Error',
+    //                 text2: 'Authentication token not found. Please login again.'
+    //             });
+    //             setIsLoading(false);
+    //             return;
+    //         }
+    
+    //         console.log('Making API call to:', `${API_URL}/agent/package-create`);
+            
+    //         const response = await axios.post(`${API_URL}/agent/package-create`, formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //                 'Authorization': 'Bearer ' + userToken
+    //             }
+    //         });
+    
+    //         console.log('API Response:', response.data);
+            
+    //         if (response.data.status == true) {
+    //             console.log('Package created successfully');
+    //             Toast.show({
+    //                 type: 'success',
+    //                 text1: '',
+    //                 text2: response.data.message || 'Package created successfully!',
+    //                 position: 'top',
+    //                 topOffset: Platform.OS == 'ios' ? 55 : 20
+    //             });
+    //             navigation.goBack();
+    //         } else {
+    //             console.log('API returned false status');
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Error',
+    //                 text2: response.data.message || 'Failed to create package',
+    //                 position: 'top',
+    //                 topOffset: Platform.OS == 'ios' ? 55 : 20
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error('=== ERROR in submitForm ===');
+    //         console.error('Error details:', error);
+    //         console.error('Error response:', error.response?.data);
+    //         console.error('Error status:', error.response?.status);
+    //         console.error('Error headers:', error.response?.headers);
+            
+    //         if (error.response?.data?.errors) {
+    //             // Handle validation errors
+    //             const errors = error.response.data.errors;
+    //             console.log('Validation errors:', errors);
+    //             Object.keys(errors).forEach(key => {
+    //                 Toast.show({
+    //                     type: 'error',
+    //                     text1: 'Validation Error',
+    //                     text2: errors[key][0]
+    //                 });
+    //             });
+    //         } else {
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Error',
+    //                 text2: error.response?.data?.message || 'Something went wrong'
+    //             });
+    //         }
+    //     } finally {
+    //         console.log('Setting loading to false');
+    //         setIsLoading(false);
+    //     }
+    // };
+
     if (isLoading) {
         return (
             <Loader />
@@ -660,6 +933,22 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                 value={packageName}
                                 inputType={'others'}
                                 onChangeText={(text) => changePackageName(text)}
+                                placeholderTextColor="#808080"
+                            />
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.header}>Description</Text>
+                            <Text style={styles.requiredheader}>*</Text>
+                        </View>
+                        {packageDescriptionError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{packageDescriptionError}</Text> : <></>}
+                        <View style={styles.inputView}>
+                            <InputField
+                                label={'Enter package Description'}
+                                keyboardType=" "
+                                value={packageDescription}
+                                //helperText={'Please enter lastname'}
+                                inputType={'address'}
+                                onChangeText={(text) => changePackageDesc(text)}
                                 placeholderTextColor="#808080"
                             />
                         </View>
