@@ -9,7 +9,7 @@ import OfflineNotice from './src/utils/OfflineNotice';
 import Toast from 'react-native-toast-message';
 import SplashScreen from 'react-native-splash-screen';
 import messaging from '@react-native-firebase/messaging';
-import { requestPermissions, setupNotificationHandlers } from './src/utils/NotificationService';
+import { requestNotificationPopup, setupNotificationHandlers } from './src/utils/NotificationService';
 import { navigate } from './src/navigation/NavigationService'; // Import the navigation function
 import { requestCameraAndAudioPermissions } from './src/utils/PermissionHandler';
 
@@ -26,7 +26,7 @@ function App() {
     }
 
     // Request permissions and set up notifications
-    requestPermissions().then(() => {
+    requestNotificationPopup().then(() => {
       const unsubscribeForeground = setupNotificationHandlers(setNotifications, setnotifyStatus);
 
       // Handle notification when the app is opened from a background state

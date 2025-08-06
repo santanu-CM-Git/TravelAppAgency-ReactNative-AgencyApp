@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Group Travel Agent</string>
+    <string name="app_name">Group Tour Agent</string>
      <string name="facebook_app_id">974564787686868d</string>
     <string name="facebook_client_token">46bac1e829d0197f7957c40fe346b6f4d</string>
     <!-- add for truecaller login -->

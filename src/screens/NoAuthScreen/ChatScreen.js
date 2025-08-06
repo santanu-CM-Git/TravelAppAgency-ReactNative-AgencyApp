@@ -28,7 +28,7 @@ import axios from 'axios'
 import DocumentPicker from 'react-native-document-picker';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
-
+import { PERMISSIONS, request, check, RESULTS } from 'react-native-permissions';
 
 const ChatScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -555,7 +555,7 @@ const ChatScreen = ({ route }) => {
 
   const setupVideoSDKEngine = async () => {
     try {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' || Platform.OS === 'ios') {
         await getPermission();
       }
 
@@ -675,13 +675,25 @@ const ChatScreen = ({ route }) => {
 
   const getPermission = async () => {
     try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-      return granted;
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        ]);
+        return granted;
+      } else {
+        //const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
+        const micStatus = await check(PERMISSIONS.IOS.MICROPHONE);
+  
+        // if (cameraStatus !== RESULTS.GRANTED) {
+        //   await request(PERMISSIONS.IOS.CAMERA);
+        // }
+  
+        if (micStatus !== RESULTS.GRANTED) {
+          await request(PERMISSIONS.IOS.MICROPHONE);
+        }
+      }
     } catch (err) {
-      console.warn(err);
+      console.warn('Permission error:', err);
     }
   };
 
@@ -1502,14 +1514,20 @@ const ChatScreen = ({ route }) => {
             <GestureTouchableOpacity onPress={() => toggleMic()}>
               <Image
                 source={micOn ? audioonIcon : audiooffIcon}
-                style={styles.iconStyle}
+                style={[styles.iconStyle,{marginRight: responsiveWidth(2)}]}
               />
             </GestureTouchableOpacity>
             <GestureTouchableOpacity onPress={() => toggleSpeaker()}>
               <Image
                 source={speakerOn ? speakeronIcon : speakeroffIcon}
-                style={styles.iconStyle}
+                style={[styles.iconStyle,{marginRight: responsiveWidth(2)}]}
               />
+            </GestureTouchableOpacity>
+            {/* 🔴 End Button */}
+            <GestureTouchableOpacity onPress={() => requestToTabSwitch('chat')}>
+              <View style={styles.endButton}>
+                <Text style={styles.endButtonText}>End</Text>
+              </View>
             </GestureTouchableOpacity>
           </View>
         </LinearGradient>
@@ -1866,5 +1884,19 @@ const styles = StyleSheet.create({
     color: '#222',
     fontFamily: 'Poppins-Medium',
     marginTop: 2,
+  },
+  endButton: {
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  endButtonText: {
+    color: 'white',
+    fontFamily: 'Poppins-Medium',
+    fontSize: responsiveFontSize(1.5),
   },
 });
