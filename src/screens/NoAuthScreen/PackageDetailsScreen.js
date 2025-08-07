@@ -428,7 +428,7 @@ export default function PackageDetailsScreen({ route }) {
                                 <Text style={styles.travelerDate}>{moment(item?.start_date).format("DD MMM YYYY")} - {moment(item?.end_date).format("DD MMM YYYY")}</Text>
                             </View>
                             <View style={styles.travelerSlotContainer}>
-                                <Text style={styles.travelerSlotNumber}>{item?.adult + item?.children}</Text>
+                                <Text style={styles.travelerSlotNumber}>{Number(item?.adult) + Number(item?.children)}</Text>
                                 <Text style={styles.travelerSlotText}>Slot</Text>
                             </View>
                         </View>
