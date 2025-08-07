@@ -1367,7 +1367,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
 
             <View style={styles.buttonwrapper}>
                 <CustomButton
-                    label={"Send to customer"}
+                    label={"Create Package"}
                     onPress={submitForm}
                     disabled={isLoading || hasBankAccount === false}
                 />
