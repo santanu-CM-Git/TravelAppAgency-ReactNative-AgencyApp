@@ -78,7 +78,7 @@ const MyBookingList = ({ route }) => {
             });
 
             if (response.data && response.data.response) {
-                console.log(response.data.data,'fetch booking details')
+                console.log(JSON.stringify(response.data.data),'fetch booking details')
                 setBookingData(response.data.data);
                 setFilteredBookingData(response.data.data);
             } else {

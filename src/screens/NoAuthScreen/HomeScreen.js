@@ -212,12 +212,13 @@ export default function HomeScreen({ }) {
 
       if (response.data && response.data.response) {
         const allBookings = response.data.data || [];
+        console.log(JSON.stringify(allBookings),'allBookingsallBookingsallBookings')
         // Filter out bookings with status 'cancelled' or 'rejected'
         const filteredBookings = allBookings.filter(
           booking => booking.status !== 'cancelled' && booking.status !== 'rejected'
         );
-        const lastTen = filteredBookings.slice(-10);
-        setBookingData(lastTen);
+        const lastTen = allBookings.slice(-10);
+        setBookingData(filteredBookings);
       } else {
         Toast.show({
           type: 'error',
