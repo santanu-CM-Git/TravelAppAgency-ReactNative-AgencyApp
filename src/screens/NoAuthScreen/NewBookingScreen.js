@@ -281,15 +281,15 @@ const NewBookingScreen = ({ route }) => {
             });
         }
 
-        if (!travelersstatusvaluechild) {
-            isValid = false;
-            Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Please select number of child travelers',
-                position: 'top'
-            });
-        }
+        // if (!travelersstatusvaluechild) {
+        //     isValid = false;
+        //     Toast.show({
+        //         type: 'error',
+        //         text1: 'Error',
+        //         text2: 'Please select number of child travelers',
+        //         position: 'top'
+        //     });
+        // }
 
         if (isValid) {
             setIsLoading(true);
@@ -305,7 +305,7 @@ const NewBookingScreen = ({ route }) => {
                 end_date: moment(endDate).format('YYYY-MM-DD'),
                 payment_status: paymentstatusvalue,
                 adult: travelersstatusvalue,
-                children: travelersstatusvaluechild
+                children: travelersstatusvaluechild || '0'
             };
 
             // Here you would typically make an API call to submit the booking
