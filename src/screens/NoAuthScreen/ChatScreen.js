@@ -29,6 +29,7 @@ import DocumentPicker from 'react-native-document-picker';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, check, RESULTS } from 'react-native-permissions';
+import { requestNotificationPermission, checkNotificationPermission } from '../../utils/NotificationService';
 
 const ChatScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -63,6 +64,7 @@ const ChatScreen = ({ route }) => {
   const [isAttachPopupVisible, setIsAttachPopupVisible] = useState(false);
   const [previewImageUri, setPreviewImageUri] = useState(null);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(false);
 
   // useEffect(() => {
   //   // console.log(routepage.name);
@@ -134,6 +136,27 @@ const ChatScreen = ({ route }) => {
         // Initialize video SDK
         await setupVideoSDKEngine();
         KeepAwake.activate();
+
+        // Check and request notification permissions
+        await requestNotificationPermissions();
+        
+        // Show notification permission alert if not granted
+        if (!notificationStatus) {
+          Alert.alert(
+            'Enable Notifications',
+            'Stay updated with important messages and calls by enabling notifications.',
+            [
+              {
+                text: 'Not Now',
+                style: 'cancel',
+              },
+              {
+                text: 'Enable',
+                onPress: () => requestNotificationPermissions(),
+              },
+            ]
+          );
+        }
 
       } catch (error) {
         console.error('Error initializing chat:', error);
@@ -694,6 +717,63 @@ const ChatScreen = ({ route }) => {
       }
     } catch (err) {
       console.warn('Permission error:', err);
+    }
+  };
+
+  const requestNotificationPermissions = async () => {
+    try {
+      // For iOS, use Firebase messaging permission request
+      if (Platform.OS === 'ios') {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if (enabled) {
+          console.log('iOS notification permission granted');
+          setNotificationStatus(true);
+        } else {
+          console.log('iOS notification permission denied');
+          setNotificationStatus(false);
+        }
+        return;
+      }
+
+      // For Android, use react-native-permissions with proper error handling
+      try {
+        const currentPermission = await checkNotificationPermission();
+        
+        // If permission is not granted, request it
+        if (currentPermission !== 'granted') {
+          const permissionResult = await requestNotificationPermission();
+          
+          if (permissionResult === 'granted') {
+            console.log('Android notification permission granted');
+            setNotificationStatus(true);
+          } else {
+            console.log('Android notification permission denied');
+            setNotificationStatus(false);
+          }
+        } else {
+          console.log('Android notification permission already granted');
+          setNotificationStatus(true);
+        }
+      } catch (permissionError) {
+        console.error('Permission check/request error:', permissionError);
+        // Fallback: try to check using Firebase messaging
+        try {
+          const authStatus = await messaging().hasPermission();
+          const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
+                         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          setNotificationStatus(enabled);
+        } catch (firebaseError) {
+          console.error('Firebase permission check error:', firebaseError);
+          setNotificationStatus(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      setNotificationStatus(false);
     }
   };
 
@@ -1439,6 +1519,39 @@ const ChatScreen = ({ route }) => {
     }, [handleGoBack])
   );
 
+  // Check notification permission when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const checkNotificationPermissionStatus = async () => {
+        try {
+          if (Platform.OS === 'ios') {
+            const authStatus = await messaging().hasPermission();
+            const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
+                           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+            setNotificationStatus(enabled);
+          } else {
+            try {
+              const currentPermission = await checkNotificationPermission();
+              setNotificationStatus(currentPermission === 'granted');
+            } catch (permissionError) {
+              console.error('Permission check error:', permissionError);
+              // Fallback to Firebase messaging
+              const authStatus = await messaging().hasPermission();
+              const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
+                             authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+              setNotificationStatus(enabled);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking notification permission:', error);
+          setNotificationStatus(false);
+        }
+      };
+
+      checkNotificationPermissionStatus();
+    }, [])
+  );
+
   if (isLoading) {
     return (
       <Loader />
@@ -1452,25 +1565,28 @@ const ChatScreen = ({ route }) => {
         <GestureTouchableOpacity onPress={handleGoBack}>
           <Ionicons name="chevron-back" size={28} color="#222" />
         </GestureTouchableOpacity>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(90) }}>
-          <View style={styles.headerTitleContainer}>
-            {userProfilePic ? (
-              <Image
-                source={{ uri: userProfilePic }}
-                style={styles.profileIcon}
-              />
-            ) : (
-              <Image
-                source={defaultUserImg}
-                style={styles.profileIcon}
-              />
-            )}
-            <Text style={[styles.headerTitle, { marginLeft: 10 }]}>{userName || "Users"}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(90) }}>
+            <View style={styles.headerTitleContainer}>
+              {userProfilePic ? (
+                <Image
+                  source={{ uri: userProfilePic }}
+                  style={styles.profileIcon}
+                />
+              ) : (
+                <Image
+                  source={defaultUserImg}
+                  style={styles.profileIcon}
+                />
+              )}
+              <Text style={[styles.headerTitle, { marginLeft: 10 }]}>{userName || "Users"}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    
+              <GestureTouchableOpacity onPress={() => requestToTabSwitch(activeTab === 'chat' ? 'audio' : 'chat')}>
+                <Image source={activeTab === 'chat' ? chatCallIcon : messageImg} style={[styles.headerCallIcon, { marginRight: 10 }]} tintColor={'#FF455C'} />
+              </GestureTouchableOpacity>
+            </View>
           </View>
-          <GestureTouchableOpacity onPress={() => requestToTabSwitch(activeTab === 'chat' ? 'audio' : 'chat')}>
-            <Image source={activeTab === 'chat' ? chatCallIcon : messageImg} style={[styles.headerCallIcon, { marginRight: 10 }]} tintColor={'#FF455C'} />
-          </GestureTouchableOpacity>
-        </View>
       </View>
       {/* <View style={styles.chatContainer}> */}
       {activeTab === 'chat' ? (
@@ -1898,5 +2014,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-Medium',
     fontSize: responsiveFontSize(1.5),
+  },
+  notificationPermissionIndicator: {
+    backgroundColor: '#FF455C',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#fff'
+  },
+  notificationPermissionText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold'
   },
 });

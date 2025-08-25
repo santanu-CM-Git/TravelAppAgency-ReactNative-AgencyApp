@@ -43,6 +43,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Toast from 'react-native-toast-message';
+import { requestNotificationPermission, checkNotificationPermission } from '../../utils/NotificationService';
 
 const { width } = Dimensions.get('window');
 const itemWidth = width * 0.8; // 80% of screen width
@@ -91,8 +92,68 @@ export default function HomeScreen({ }) {
     }
   };
 
+  const requestNotificationPermissions = async () => {
+    try {
+      // For iOS, use Firebase messaging permission request
+      if (Platform.OS === 'ios') {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if (enabled) {
+          console.log('iOS notification permission granted');
+          setNotificationStatus(true);
+        } else {
+          console.log('iOS notification permission denied');
+          setNotificationStatus(false);
+        }
+        return;
+      }
+
+      // For Android, use react-native-permissions with proper error handling
+      try {
+        const currentPermission = await checkNotificationPermission();
+
+        // If permission is not granted, request it
+        if (currentPermission !== 'granted') {
+          const permissionResult = await requestNotificationPermission();
+
+          if (permissionResult === 'granted') {
+            console.log('Android notification permission granted');
+            setNotificationStatus(true);
+          } else {
+            console.log('Android notification permission denied');
+            setNotificationStatus(false);
+          }
+        } else {
+          console.log('Android notification permission already granted');
+          setNotificationStatus(true);
+        }
+      } catch (permissionError) {
+        console.error('Permission check/request error:', permissionError);
+        // Fallback: try to check using Firebase messaging
+        try {
+          const authStatus = await messaging().hasPermission();
+          const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          setNotificationStatus(enabled);
+        } catch (firebaseError) {
+          console.error('Firebase permission check error:', firebaseError);
+          setNotificationStatus(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      setNotificationStatus(false);
+    }
+  };
+
   useEffect(() => {
     getFCMToken()
+    // Request notification permissions
+    requestNotificationPermissions();
+
     if (Platform.OS == 'android' || Platform.OS === 'ios') {
       /* this is app foreground notification */
       const unsubscribe = messaging().onMessage(async remoteMessage => {
@@ -212,7 +273,7 @@ export default function HomeScreen({ }) {
 
       if (response.data && response.data.response) {
         const allBookings = response.data.data || [];
-        console.log(JSON.stringify(allBookings),'allBookingsallBookingsallBookings')
+        console.log(JSON.stringify(allBookings), 'allBookingsallBookingsallBookings')
         // Filter out bookings with status 'cancelled' or 'rejected'
         const filteredBookings = allBookings.filter(
           booking => booking.status !== 'cancelled' && booking.status !== 'rejected'
@@ -572,7 +633,9 @@ export default function HomeScreen({ }) {
             </View>
           </View>
         </View>
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Notification')}>
+        <TouchableWithoutFeedback onPress={() => {
+          navigation.navigate('Notification');
+        }}>
           <View style={styles.iconSection}>
             <Image
               source={notificationImg}
@@ -826,12 +889,31 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   iconSection: {
-    marginTop: responsiveHeight(3)
+    marginTop: responsiveHeight(3),
+    position: 'relative'
   },
   notificationIcon: {
     height: 25,
     width: 25,
     resizeMode: 'contain'
+  },
+  notificationPermissionIndicator: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: '#FF455C',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff'
+  },
+  notificationPermissionText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold'
   },
   markerIcon: {
     height: 15,
