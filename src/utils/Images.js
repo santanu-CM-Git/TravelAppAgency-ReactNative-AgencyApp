@@ -124,3 +124,4 @@ export const editIcon = require("../assets/images/editIcon.png");
 export const chatCallIcon = require("../assets/images/chat-callIcon.png");
 export const docsForChat = require("../assets/images/docsForChat.png");
 export const imageForChat = require("../assets/images/imageForChat.png");
+export const splashIcon = require("../assets/images/splash-icon.png");
