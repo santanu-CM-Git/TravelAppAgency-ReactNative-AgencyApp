@@ -43,6 +43,13 @@ const ProfileScreen = ({ route }) => {
   const { login, userToken } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([])
 
+  // Calculate responsive dimensions for circular ripple
+  const profileImageSize = responsiveWidth(20); // 20% of screen width
+  const svgSize = profileImageSize * 2.5; // Adjusted for better proportion
+  const centerPoint = svgSize / 2;
+  const innerCircleRadius = profileImageSize * 0.56; // Slightly smaller for this layout
+  const outerCircleRadius = profileImageSize * 0.69; // Adjusted for this layout
+
   const fetchProfileDetails = () => {
     AsyncStorage.getItem('userToken', (err, usertoken) => {
       axios.post(`${API_URL}/agent/profile-details`, {}, {
@@ -115,37 +122,57 @@ const ProfileScreen = ({ route }) => {
         <View style={styles.coverPhotoContainer}>
           <Image source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.cover_photo_url : userInfo?.cover_photo_url }} style={styles.coverPhotoImage} />
         </View>
-        {/* SVG for Circular Ripple with Bottom Fade */}
-        <Svg height="250" width="250" style={styles.svg}>
-          <Defs>
-            {/* Gradient Mask to Fade Top */}
-            <LinearGradient id="fadeGradient" x1="0" y1="1" x2="0" y2="0">
-              <Stop offset="0%" stopColor="white" stopOpacity="1" />
-              <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
-              <Stop offset="100%" stopColor="white" stopOpacity="0" />
-            </LinearGradient>
+        
+        {/* Responsive SVG for Circular Ripple with Top Fade */}
+        <View style={[styles.svgContainer, { width: svgSize, height: svgSize }]}>
+          <Svg height={svgSize} width={svgSize} style={[styles.svg, {  }]}>
+            <Defs>
+              {/* Gradient Mask to Fade Top */}
+              <LinearGradient id="fadeGradient" x1="0" y1="1" x2="0" y2="0">
+                <Stop offset="0%" stopColor="white" stopOpacity="1" />
+                <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
+                <Stop offset="100%" stopColor="white" stopOpacity="0" />
+              </LinearGradient>
 
-            {/* Masking the Circles */}
-            <Mask id="circleMask">
-              <Rect x="0" y="90" width="250" height="160" fill="url(#fadeGradient)" />
-            </Mask>
-          </Defs>
+              {/* Masking the Circles */}
+              <Mask id="circleMask">
+                <Rect x="0" y={svgSize * 0.36} width={svgSize} height={svgSize * 0.64} fill="url(#fadeGradient)" />
+              </Mask>
+            </Defs>
 
-          {/* Outer Circles with Mask */}
-          <Circle cx="125" cy="125" r="55" stroke="#FF7788" strokeWidth="2" fill="none" mask="url(#circleMask)" />
-          <Circle cx="125" cy="125" r="45" stroke="#FF99AA" strokeWidth="2" fill="none" mask="url(#circleMask)" />
-        </Svg>
+            {/* Outer Circles with Mask - Now Responsive */}
+            <Circle 
+              cx={centerPoint} 
+              cy={centerPoint} 
+              r={outerCircleRadius} 
+              stroke="#FF7788" 
+              strokeWidth="2" 
+              fill="none" 
+              mask="url(#circleMask)" 
+            />
+            <Circle 
+              cx={centerPoint} 
+              cy={centerPoint} 
+              r={innerCircleRadius} 
+              stroke="#FF99AA" 
+              strokeWidth="2" 
+              fill="none" 
+              mask="url(#circleMask)" 
+            />
+          </Svg>
+        </View>
+        
         {/* Profile Picture Section */}
         <View style={styles.profileContainer}>
           <View style={styles.profilePicWrapper}>
             <Image
-              source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }}// Replace with actual profile image
-              style={styles.profilePic}
+              source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }}
+              style={[styles.profilePic, {
+                width: profileImageSize * 1,
+                height: profileImageSize * 1,
+                borderRadius: (profileImageSize * 1) / 2,
+              }]}
             />
-            {/* Profile Picture Camera Icon */}
-            {/* <TouchableOpacity style={styles.cameraIconProfile}>
-                <Image source={plus} style={styles.iconStyle2} />
-              </TouchableOpacity> */}
           </View>
         </View>
       </View>
@@ -156,26 +183,6 @@ const ProfileScreen = ({ route }) => {
         </Text>
       </View>
       <View style={styles.wrapper}>
-        {/* <View style={styles.mainView}>
-            <View style={styles.imageContainer}>
-              {isPicUploadLoading ? (
-                <ActivityIndicator size="small" color="#417AA4" style={styles.loader} />
-              ) : (
-                pickedDocument == null ? (
-                  imageFile != null ? (
-                    <Image source={{ uri: imageFile }} style={styles.imageStyle} />
-                  ) : (
-                    <Image source={userPhoto} style={styles.imageStyle} />
-                  )
-                ) : (
-                  <Image source={{ uri: pickedDocument.uri }} style={styles.imageStyle} />
-                )
-              )}
-            </View>
-            <TouchableOpacity style={styles.plusIcon} onPress={pickDocument}>
-              <Image source={plus} style={styles.iconStyle} />
-            </TouchableOpacity>
-          </View> */}
         <View style={styles.aboutContainer}>
           {/* Contact Info */}
           <View style={styles.contactRow}>
@@ -278,22 +285,26 @@ const styles = StyleSheet.create({
   iconStyle2: {
     height: 20, width: 20, resizeMode: 'contain'
   },
+  // Added new responsive svgContainer style
+  svgContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    alignSelf: 'center',
+    zIndex: 2,
+  },
   profileContainer: {
     alignItems: "center",
     position: 'absolute',
     bottom: -10,
-    // right: 150,
-    // left: 150,
     zIndex: 3,
     alignSelf: 'center',
   },
   profilePicWrapper: {
     position: "relative",
   },
+  // Modified profilePic style - removed fixed dimensions
   profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
     backgroundColor: "#fff",
     borderWidth: 3,
     borderColor: "#fff",
@@ -356,7 +367,7 @@ const styles = StyleSheet.create({
   },
   svg: {
     position: 'absolute',
-    bottom: -responsiveHeight(12.5),
+    bottom: -responsiveHeight(9),
     zIndex: 2,
   },
   coverPhotoImage: {

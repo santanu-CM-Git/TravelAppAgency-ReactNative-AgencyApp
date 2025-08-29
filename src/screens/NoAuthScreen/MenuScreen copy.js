@@ -55,12 +55,6 @@ const MenuScreen = ({ route }) => {
     const { login, userToken, logout } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(true)
 
-    // Add these calculations before your JSX (inside the component)
-    const profileImageSize = responsiveWidth(20); // 20% of screen width
-    const svgSize = profileImageSize * 2.5; // Adjusted for better proportion
-    const centerPoint = svgSize / 2;
-    const innerCircleRadius = profileImageSize * 0.65;
-    const outerCircleRadius = profileImageSize * 0.8;
 
     const navigationFunction = (item) => {
         if (item === 'Logout') {
@@ -186,62 +180,30 @@ const MenuScreen = ({ route }) => {
                 </View>
                 <View style={styles.wrapper}>
                     <View style={styles.mainView}>
-                        {/* Responsive SVG for Circular Ripple with Bottom Fade */}
-                        <View style={[styles.svgContainer, { width: svgSize, height: svgSize }]}>
-                            <Svg height={svgSize} width={svgSize} style={[styles.svg]}>
-                                <Defs>
-                                    {/* Gradient Mask to Fade Bottom */}
-                                    <LinearGradient id="fadeGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <Stop offset="0%" stopColor="white" stopOpacity="1" />
-                                        <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
-                                        <Stop offset="100%" stopColor="white" stopOpacity="0" />
-                                    </LinearGradient>
+                        {/* SVG for Circular Ripple with Bottom Fade */}
+                        <Svg height="250" width="250" style={styles.svg}>
+                            <Defs>
+                                {/* Gradient Mask to Fade Bottom */}
+                                <LinearGradient id="fadeGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <Stop offset="0%" stopColor="white" stopOpacity="1" />
+                                    <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
+                                    <Stop offset="100%" stopColor="white" stopOpacity="0" />
+                                </LinearGradient>
 
-                                    {/* Masking the Circles */}
-                                    <Mask id="circleMask">
-                                        <Rect x="0" y="0" width={svgSize} height={svgSize * 0.64} fill="url(#fadeGradient)" />
-                                    </Mask>
-                                </Defs>
+                                {/* Masking the Circles */}
+                                <Mask id="circleMask">
+                                    <Rect x="0" y="0" width="250" height="160" fill="url(#fadeGradient)" />
+                                </Mask>
+                            </Defs>
 
-                                {/* Outer Circles with Mask - Now Responsive */}
-                                <Circle
-                                    cx={centerPoint}
-                                    cy={centerPoint}
-                                    r={outerCircleRadius}
-                                    stroke="#FF7788"
-                                    strokeWidth="2"
-                                    fill="none"
-                                    mask="url(#circleMask)"
-                                />
-                                <Circle
-                                    cx={centerPoint}
-                                    cy={centerPoint}
-                                    r={innerCircleRadius}
-                                    stroke="#FF99AA"
-                                    strokeWidth="2"
-                                    fill="none"
-                                    mask="url(#circleMask)"
-                                />
-                            </Svg>
+                            {/* Outer Circles with Mask */}
+                            <Circle cx="125" cy="125" r="60" stroke="#FF7788" strokeWidth="2" fill="none" mask="url(#circleMask)" />
+                            <Circle cx="125" cy="125" r="50" stroke="#FF99AA" strokeWidth="2" fill="none" mask="url(#circleMask)" />
+                        </Svg>
+                        <View style={styles.imageContainer}>
 
-                            {/* Profile Image Container - Positioned in center of SVG */}
-                            <View style={[styles.imageContainer, {
-                                position: 'absolute',
-                                top: centerPoint - (profileImageSize / 2),
-                                left: centerPoint - (profileImageSize / 2),
-                                right: centerPoint - (profileImageSize / 2),
-                            }]}>
-                                <Image
-                                    source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }}
-                                    style={[styles.imageStyle, {
-                                        width: profileImageSize * 0.9,
-                                        height: profileImageSize * 0.9,
-                                        borderRadius: (profileImageSize * 0.9) / 2,
-                                    }]}
-                                />
-                            </View>
+                            <Image source={{ uri: userInfo?.parent_data ? userInfo?.parent_data?.profile_photo_url : userInfo.profile_photo_url }} style={styles.imageStyle} />
                         </View>
-
                         <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={styles.username}>
                                 HI, {userInfo?.name}
@@ -297,20 +259,25 @@ const styles = StyleSheet.create({
     },
     mainView: {
         alignSelf: 'center',
-        marginTop: responsiveHeight(0),
+        marginTop: responsiveHeight(2),
         justifyContent: 'center',
         alignItems: 'center'
     },
     imageContainer: {
+        height: 90,
+        width: 90,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'transparent',
+        marginBottom: 10,
     },
     loader: {
         position: 'absolute',
     },
     imageStyle: {
-        resizeMode: 'cover',
+        height: 80,
+        width: 80,
+        borderRadius: 40,
+        marginBottom: 10
     },
     editIcon: {
         height: 25,
@@ -370,11 +337,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     svg: {
-       
-    },
-    svgContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
+        position: 'absolute',
+        bottom: -responsiveHeight(5)
     },
 });

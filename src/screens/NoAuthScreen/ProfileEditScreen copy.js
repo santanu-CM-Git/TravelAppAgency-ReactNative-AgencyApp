@@ -11,8 +11,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  BackHandler,
-  ActivityIndicator
+  BackHandler
 } from 'react-native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -57,13 +56,6 @@ const ProfileEditScreen = ({ route }) => {
   const [isLoading, setIsLoading] = useState(true)
   const { login, userToken } = useContext(AuthContext);
 
-  // Calculate responsive dimensions for circular ripple
-  const profileImageSize = responsiveWidth(20); // 20% of screen width
-  const svgSize = profileImageSize * 2.5; // Adjusted for better proportion
-  const centerPoint = svgSize / 2;
-  const innerCircleRadius = profileImageSize * 0.56; // Slightly smaller for this layout
-  const outerCircleRadius = profileImageSize * 0.69; // Adjusted for this layout
-
   const changeFirstname = (text) => {
     setFirstname(text)
     if (text) {
@@ -94,6 +86,17 @@ const ProfileEditScreen = ({ route }) => {
 
       const pickedDocument = result[0];
       setPickedDocument(pickedDocument);
+
+      // const formData = new FormData();
+      // if (pickedDocument) {
+      //   formData.append("profile_pic", {
+      //     uri: pickedDocument.uri,
+      //     type: pickedDocument.type || 'image/jpeg',
+      //     name: pickedDocument.name || 'photo.jpg',
+      //   });
+      // } else {
+      //   formData.append("profile_pic", "");
+      // }
 
     } catch (err) {
       setIsPicUploadLoading(false);
@@ -226,6 +229,7 @@ const ProfileEditScreen = ({ route }) => {
               });
               navigation.navigate('ProfileScreen')
             } else {
+              //console.log('not okk')
               setIsLoading(false)
               Alert.alert('Oops..', "Something went wrong.", [
                 {
@@ -280,6 +284,15 @@ const ProfileEditScreen = ({ route }) => {
         </View>
         <View style={styles.photocontainer}>
           {/* Cover Photo Section */}
+          {/* <View style={styles.coverPhotoContainer}>
+            <TouchableOpacity style={styles.addCoverButton}>
+              <Image source={addIconImg} style={styles.iconStyle2} />
+              <Text style={styles.addCoverText}>Add Cover Photo</Text>
+            </TouchableOpacity>
+             <TouchableOpacity style={styles.cameraIconCover}>
+              <Image source={plus} style={styles.iconStyle2} />
+            </TouchableOpacity>
+          </View> */}
           <View style={styles.coverPhotoContainer}>
             {coverPhoto || coverFile ? (
               <Image source={{ uri: coverFile ? coverFile : coverPhoto.uri }} style={styles.coverPhotoImage} />
@@ -293,72 +306,44 @@ const ProfileEditScreen = ({ route }) => {
               <Image source={plus} style={styles.iconStyle2} />
             </TouchableOpacity>
           </View>
-          
-          {/* Responsive SVG for Circular Ripple with Top Fade */}
-          <View style={[styles.svgContainer, { width: svgSize, height: svgSize }]}>
-            <Svg height={svgSize} width={svgSize} style={[styles.svg, { }]}>
-              <Defs>
-                {/* Gradient Mask to Fade Top */}
-                <LinearGradient id="fadeGradient" x1="0" y1="1" x2="0" y2="0">
-                  <Stop offset="0%" stopColor="white" stopOpacity="1" />
-                  <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
-                  <Stop offset="100%" stopColor="white" stopOpacity="0" />
-                </LinearGradient>
+          {/* SVG for Circular Ripple with Bottom Fade */}
+          <Svg height="250" width="250" style={styles.svg}>
+            <Defs>
+              {/* Gradient Mask to Fade Top */}
+              <LinearGradient id="fadeGradient" x1="0" y1="1" x2="0" y2="0">
+                <Stop offset="0%" stopColor="white" stopOpacity="1" />
+                <Stop offset="80%" stopColor="white" stopOpacity="0.3" />
+                <Stop offset="100%" stopColor="white" stopOpacity="0" />
+              </LinearGradient>
 
-                {/* Masking the Circles */}
-                <Mask id="circleMask">
-                  <Rect x="0" y={svgSize * 0.36} width={svgSize} height={svgSize * 0.64} fill="url(#fadeGradient)" />
-                </Mask>
-              </Defs>
+              {/* Masking the Circles */}
+              <Mask id="circleMask">
+                <Rect x="0" y="90" width="250" height="160" fill="url(#fadeGradient)" />
+              </Mask>
+            </Defs>
 
-              {/* Outer Circles with Mask - Now Responsive */}
-              <Circle 
-                cx={centerPoint} 
-                cy={centerPoint} 
-                r={outerCircleRadius} 
-                stroke="#FF7788" 
-                strokeWidth="2" 
-                fill="none" 
-                mask="url(#circleMask)" 
-              />
-              <Circle 
-                cx={centerPoint} 
-                cy={centerPoint} 
-                r={innerCircleRadius} 
-                stroke="#FF99AA" 
-                strokeWidth="2" 
-                fill="none" 
-                mask="url(#circleMask)" 
-              />
-            </Svg>
-          </View>
-          
+            {/* Outer Circles with Mask */}
+            <Circle cx="125" cy="125" r="55" stroke="#FF7788" strokeWidth="2" fill="none" mask="url(#circleMask)" />
+            <Circle cx="125" cy="125" r="45" stroke="#FF99AA" strokeWidth="2" fill="none" mask="url(#circleMask)" />
+          </Svg>
           {/* Profile Picture Section */}
           <View style={styles.profileContainer}>
             <View style={styles.profilePicWrapper}>
+              {/* <Image
+                source={userPhoto} // Replace with actual profile image
+                style={styles.profilePic}
+              /> */}
               {isPicUploadLoading ? (
                 <ActivityIndicator size="small" color="#417AA4" style={styles.loader} />
               ) : (
                 pickedDocument == null ? (
                   imageFile != null ? (
-                    <Image source={{ uri: imageFile }} style={[styles.profilePic, {
-                      width: profileImageSize * 1,
-                      height: profileImageSize * 1,
-                      borderRadius: (profileImageSize * 1) / 2,
-                    }]} />
+                    <Image source={{ uri: imageFile }} style={styles.profilePic} />
                   ) : (
-                    <Image source={userPhoto} style={[styles.profilePic, {
-                      width: profileImageSize * 1,
-                      height: profileImageSize * 1,
-                      borderRadius: (profileImageSize * 1) / 2,
-                    }]} />
+                    <Image source={userPhoto} style={styles.profilePic} />
                   )
                 ) : (
-                  <Image source={{ uri: pickedDocument.uri }} style={[styles.profilePic, {
-                    width: profileImageSize * 1,
-                    height: profileImageSize * 1,
-                    borderRadius: (profileImageSize * 1) / 2,
-                  }]} />
+                  <Image source={{ uri: pickedDocument.uri }} style={styles.profilePic} />
                 )
               )}
               {/* Profile Picture Camera Icon */}
@@ -404,6 +389,29 @@ const ProfileEditScreen = ({ route }) => {
               <Text style={styles.header}>Location</Text>
               <Text style={styles.requiredheader}>*</Text>
             </View>
+            {/* <View style={styles.inputView}>
+              <InputField
+                label={'Location'}
+                keyboardType=" "
+                value={location}
+                //helperText={'Please enter lastname'}
+                inputType={'nonedit'}
+                onChangeText={(text) => setLocation(text)}
+              />
+            </View> */}
+            {/* <View style={[styles.inputContainer, { backgroundColor: '#F4F5F5' }]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Location"
+                placeholderTextColor="#A0A0A0"
+                value={location}
+                onChangeText={(text) => setLocation(text)}
+                editable={false}
+                scrollEnabled={true}
+                multiline={false}
+                textAlign="left"
+              />
+            </View> */}
 
             <View style={[styles.inputContainer, { backgroundColor: '#F4F5F5' }]}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -703,14 +711,6 @@ const styles = StyleSheet.create({
   iconStyle2: {
     height: 20, width: 20, resizeMode: 'contain'
   },
-  // Added new responsive svgContainer style
-  svgContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    alignSelf: 'center',
-    zIndex: 2,
-  },
   profileContainer: {
     alignItems: "center",
     position: 'absolute',
@@ -722,8 +722,10 @@ const styles = StyleSheet.create({
   profilePicWrapper: {
     position: "relative",
   },
-  // Modified profilePic style - removed fixed dimensions
   profilePic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: "#fff",
     borderWidth: 3,
     borderColor: "#fff",
@@ -759,7 +761,7 @@ const styles = StyleSheet.create({
   },
   svg: {
     position: 'absolute',
-    bottom: -responsiveHeight(9),
+    bottom: -responsiveHeight(12.5),
     zIndex: 2,
   },
   coverPhotoImage: {
