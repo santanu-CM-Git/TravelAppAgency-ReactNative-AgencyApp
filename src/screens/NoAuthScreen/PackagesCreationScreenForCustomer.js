@@ -1332,7 +1332,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                             </ScrollView>
                         )}
                         <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
-                            <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center' }}>
+                            <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center',marginLeft:-responsiveWidth(7) }}>
                                 <CustomButton
                                     label={`Save ${selectedDay?.name} - Itinerary`}
                                     onPress={handleModalSubmit}
