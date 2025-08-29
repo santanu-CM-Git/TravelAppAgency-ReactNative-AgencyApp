@@ -438,22 +438,16 @@ export default function HomeScreen({ }) {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchProfileDetails();
+      // Always call all three functions on refresh
+      await fetchQuoteRequest(1);
+      await fetchBookings();
       await fetchDashboardData();
-      if (activeTab === 'New booking') {
-        await fetchBookings();
-      } else {
-        setQuoteRequest([]);
-        setPageno(1);
-        setHasMore(true);
-        await fetchQuoteRequest(1);
-      }
     } catch (e) {
-      // Optionally handle error
+      console.log('Refresh error:', e);
     } finally {
       setRefreshing(false);
     }
-  }, [activeTab, fetchQuoteRequest]);
+  }, [fetchQuoteRequest]);
 
   const renderQuoteRequest = ({ item }) => {
     return (
@@ -644,7 +638,16 @@ export default function HomeScreen({ }) {
           </View>
         </TouchableWithoutFeedback>
       </View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FF455C"
+            colors={['#FF455C']}
+          />
+        }
+      >
         <View style={styles.filtercontainer}>
           {/* Total Earning */}
           <View style={styles.statCard}>
@@ -820,14 +823,6 @@ export default function HomeScreen({ }) {
                   </View>
                 </Swipeable>
               )}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  tintColor="#FF455C"
-                  colors={['#FF455C']}
-                />
-              }
             />
             :
             <FlatList
@@ -846,14 +841,6 @@ export default function HomeScreen({ }) {
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}
               ListFooterComponent={renderFooter}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  tintColor="#FF455C"
-                  colors={['#FF455C']}
-                />
-              }
             />
           }
         </View>
