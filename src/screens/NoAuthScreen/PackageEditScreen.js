@@ -314,7 +314,10 @@ const PackageEditScreen = ({ route }) => {
             const res = await DocumentPicker.pickSingle({
                 type: [DocumentPicker.types.images],
             });
+            console.log('Selected cover photo:', res);
             setCoverPhoto(res);
+            // Clear the existing cover photo URL when a new one is selected
+            setCoverPhotoUrl(null);
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
                 // User cancelled the picker
@@ -322,6 +325,11 @@ const PackageEditScreen = ({ route }) => {
                 console.warn('Error picking document:', err);
             }
         }
+    };
+
+    const clearCoverPhoto = () => {
+        setCoverPhoto(null);
+        setCoverPhotoUrl(null);
     };
 
     const pickImages = async () => {
@@ -408,11 +416,18 @@ const PackageEditScreen = ({ route }) => {
 
             // Add cover photo if changed
             if (coverPhoto) {
+                console.log('Adding cover photo to form data:', coverPhoto);
                 formData.append('cover_photo', {
                     uri: coverPhoto.uri,
                     type: coverPhoto.type || 'image/jpeg',
                     name: coverPhoto.name || 'cover.jpg'
                 });
+            } else if (!coverPhotoUrl) {
+                // If no cover photo is selected and no existing URL, send empty to remove
+                console.log('Removing cover photo');
+                formData.append('cover_photo', '');
+            } else {
+                console.log('Keeping existing cover photo:', coverPhotoUrl);
             }
 
             // Add dates
@@ -452,10 +467,12 @@ const PackageEditScreen = ({ route }) => {
             // Add package inclusions and exclusions
             formData.append('package_inclusion', JSON.stringify(selectedItemsInclusions));
             formData.append('package_exclusion', JSON.stringify(selectedItemsExclusion));
-
+            formData.append('package_id',packageId);
+            console.log(formData, 'formData')
+        
             // Make API call
             const userToken = await AsyncStorage.getItem('userToken');
-            const response = await axios.post(`${API_URL}/agent/package-update/${packageId}`, formData, {
+            const response = await axios.post(`${API_URL}/agent/package-update`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + userToken
@@ -491,6 +508,7 @@ const PackageEditScreen = ({ route }) => {
                         text2: errors[key][0]
                     });
                 });
+                console.log(errors[key][0], 'errors');
             } else {
                 Toast.show({
                     type: 'error',
@@ -514,7 +532,14 @@ const PackageEditScreen = ({ route }) => {
             <ScrollView keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1 }} style={{ marginBottom: responsiveHeight(4) }}>
                 <View style={styles.photocontainer}>
                     <View style={styles.coverPhotoContainer}>
-                        {coverPhotoUrl ? (
+                        {coverPhoto ? (
+                            <View style={styles.coverPhotoWrapper}>
+                                <Image source={{ uri: coverPhoto.uri }} style={styles.coverPhotoImage} />
+                                <View style={styles.newPhotoIndicator}>
+                                    <Text style={styles.newPhotoText}>New</Text>
+                                </View>
+                            </View>
+                        ) : coverPhotoUrl ? (
                             <Image source={{ uri: coverPhotoUrl }} style={styles.coverPhotoImage} />
                         ) : (
                             <TouchableOpacity style={styles.addCoverButton} activeOpacity={0.7} onPress={handleCoverPhotoPick}>
@@ -525,6 +550,11 @@ const PackageEditScreen = ({ route }) => {
                         <TouchableOpacity style={styles.cameraIconCover} onPress={handleCoverPhotoPick}>
                             <Image source={plus} style={styles.iconStyle2} />
                         </TouchableOpacity>
+                        {/* {(coverPhoto || coverPhotoUrl) && (
+                            <TouchableOpacity style={styles.clearCoverButton} onPress={clearCoverPhoto}>
+                                <FontAwesome name="trash" size={16} color="#FF455C" />
+                            </TouchableOpacity>
+                        )} */}
                     </View>
                 </View>
                 <View style={styles.wrapper}>
@@ -1175,6 +1205,18 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 3,
     },
+    clearCoverButton: {
+        position: "absolute",
+        left: 10,
+        bottom: 10,
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        padding: 8,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+    },
     profileContainer: {
         alignItems: "center",
         position: 'absolute',
@@ -1462,5 +1504,24 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
+    },
+    coverPhotoWrapper: {
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+    },
+    newPhotoIndicator: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#FF455C',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    newPhotoText: {
+        color: '#fff',
+        fontSize: 12,
+        fontFamily: 'Poppins-Bold',
     },
 }); 
