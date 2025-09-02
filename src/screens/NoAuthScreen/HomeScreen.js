@@ -529,6 +529,25 @@ export default function HomeScreen({ }) {
 
   }
 
+  const handleRejectWithConfirmation = (id) => {
+    Alert.alert(
+      'Confirm Rejection',
+      'Are you sure you want to reject this booking?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: () => actionButton('reject', id),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const actionButton = async (forwhat, id) => {
     console.log(forwhat, id, "dsfdsfdsfdsfdsfds");
     try {
@@ -752,7 +771,7 @@ export default function HomeScreen({ }) {
                       return (
                         <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
                           <View style={styles.buttonContainer}>
-                            <TouchableWithoutFeedback onPress={() => actionButton('reject', item?.id)}>
+                            <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
                               <Image
                                 source={declineButton}
                                 style={styles.buttonIcon}
@@ -774,7 +793,7 @@ export default function HomeScreen({ }) {
                                 style={[styles.buttonIcon, { marginLeft: 10 }]}
                               />
                             </TouchableWithoutFeedback>
-                            <TouchableWithoutFeedback onPress={() => actionButton('reject', item?.id)}>
+                            <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
                               <Image
                                 source={declineButton}
                                 style={styles.buttonIcon}

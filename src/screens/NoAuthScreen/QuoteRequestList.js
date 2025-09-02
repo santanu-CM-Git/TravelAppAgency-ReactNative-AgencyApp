@@ -302,7 +302,7 @@ const QuoteRequestList = ({ route }) => {
                     }
                     ListEmptyComponent={() => (
                         <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>No request found.</Text>
+                            <Text style={styles.emptyText}>No packages found.</Text>
                         </View>
                     )}
                 />
