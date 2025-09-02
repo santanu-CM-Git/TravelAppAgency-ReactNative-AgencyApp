@@ -473,6 +473,68 @@ const PackagesCreationScreen = ({ route }) => {
 
     useFocusEffect(
         useCallback(() => {
+            // Refresh screen data when user comes back to this screen
+            const refreshScreen = () => {
+                // Reset all form fields to initial state
+                setPackageDescription('');
+                setPackageDescriptionError('');
+                setlocation('');
+                setLocationId('');
+                setlocationError('');
+                setlong('');
+                setlat('');
+                setSlot('');
+                setSlotError('');
+                setPrice('');
+                setPriceError('');
+                setDiscountedPrice('');
+                setDiscountedPriceError('');
+                setChildPrice('');
+                setChildPriceError('');
+                setEmail('');
+                setEmailError('');
+                setPickedDocument(null);
+                setImageFile(null);
+                setCoverPhoto(null);
+                setPackageValue(null);
+                setYearIsFocus(false);
+                setDate('DD - MM  - YYYY');
+                setSelectedDOB(MAX_DATE);
+                setdobError('');
+                setOpen(false);
+                setSelectedOption('fixedDate');
+                setExpireDate(null);
+                setShowExpireDatePicker(false);
+                setSelectedItems([]);
+                setSelectedItemsInclusions([]);
+                setSelectedItemsExclusion([]);
+                setModalVisible(false);
+                setDays([{
+                    id: 1,
+                    name: "Day 1",
+                    description: "",
+                    images: []
+                }]);
+                setSelectedDay(null);
+                setDescription("");
+                setSelectedImages([]);
+                setStartDate(null);
+                setEndDate(null);
+                setShowStartDatePicker(false);
+                setShowEndDatePicker(false);
+                setPackageName('');
+                setPackageNameError('');
+                setCalculatedDays(0);
+                setPolicies([{ id: 1, day: "", percentage: "" }]);
+                
+                // Fetch fresh data
+                fetchalllocation();
+                checkBankAccount();
+            };
+
+            // Call refresh function when screen comes into focus
+            refreshScreen();
+
             const backAction = () => {
                navigation.goBack()
                return true
