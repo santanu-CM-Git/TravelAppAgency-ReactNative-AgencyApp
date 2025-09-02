@@ -1,5 +1,4 @@
 import React, { useContext, useState, useRef, useCallback, useEffect } from 'react';
-import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
 import {
     SafeAreaView,
     ScrollView,
@@ -44,7 +43,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PackagesCreationScreen = ({ route }) => {
     const navigation = useNavigation();
     const autocompleteRef = useRef(null);
-    const richText = useRef();
     const [packageDescription, setPackageDescription] = useState('');
     const [packageDescriptionError, setPackageDescriptionError] = useState('')
     const [location, setlocation] = useState('');
@@ -130,6 +128,12 @@ const PackagesCreationScreen = ({ route }) => {
     const [endDate, setEndDate] = useState(null);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
+    const [packageName, setPackageName] = useState('');
+    const [packageNameError, setPackageNameError] = useState('');
+
+    const [hasBankAccount, setHasBankAccount] = useState(null); // null = loading, false = no, true = yes
+    const [showBankModal, setShowBankModal] = useState(false);
 
     const addDay = () => {
         const newDay = {
@@ -311,6 +315,15 @@ const PackagesCreationScreen = ({ route }) => {
         }
     }
 
+    const changePackageName = (text) => {
+        setPackageName(text);
+        if (text) {
+            setPackageNameError('');
+        } else {
+            setPackageNameError('Please enter package name.');
+        }
+    }
+
     const fetchalllocation = () => {
         axios.get(`${API_URL}/location`, {
             headers: {
@@ -332,9 +345,39 @@ const PackagesCreationScreen = ({ route }) => {
                 console.log(`location error ${e}`)
             });
     }
+
+    const checkBankAccount = async () => {
+        try {
+            setIsLoading(true);
+            const userToken = await AsyncStorage.getItem('userToken');
+            const res = await axios.post(
+                `${API_URL}/agent/razorpay-bank-account-fetch`,
+                {},
+                {
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": 'application/json'
+                    }
+                }
+            );
+            if (res.data && res.data.data) {
+                setHasBankAccount(true);
+            } else {
+                setHasBankAccount(false);
+                setShowBankModal(true);
+            }
+        } catch (e) {
+            setHasBankAccount(false);
+            setShowBankModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchalllocation();
-    }, [])
+        checkBankAccount();
+    }, []);
 
     useFocusEffect(
         useCallback(() => {
@@ -367,10 +410,19 @@ const PackagesCreationScreen = ({ route }) => {
     };
 
     const submitForm = async () => {
+        if (hasBankAccount === false) {
+            setShowBankModal(true);
+            return;
+        }
         try {
             setIsLoading(true);
 
             // Basic validation
+            if (!packageName) {
+                setPackageNameError('Please enter package name.');
+                setIsLoading(false);
+                return;
+            }
             if (!packageDescription) {
                 setPackageDescriptionError('Please enter description.');
                 setIsLoading(false);
@@ -448,7 +500,7 @@ const PackagesCreationScreen = ({ route }) => {
             const formData = new FormData();
 
             // Add basic package info
-            formData.append('name', packageDescription);
+            formData.append('name', packageName);
             formData.append('location_id', locationId);
             formData.append('location', location);
             formData.append('description', packageDescription);
@@ -516,7 +568,7 @@ const PackagesCreationScreen = ({ route }) => {
                 }
             });
 
-             //console.log(response.data)
+            //console.log(response.data)
             if (response.data.status == true) {
                 Toast.show({
                     type: 'success',
@@ -598,6 +650,22 @@ const PackagesCreationScreen = ({ route }) => {
                 </View>
                 <View style={styles.wrapper}>
                     <View style={styles.textinputview}>
+                        {/* Package Name Field */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.header}>Package Name</Text>
+                            <Text style={styles.requiredheader}>*</Text>
+                        </View>
+                        {packageNameError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{packageNameError}</Text> : <></>}
+                        <View style={styles.inputView}>
+                            <InputField
+                                label={'Enter package name'}
+                                keyboardType="default"
+                                value={packageName}
+                                inputType={'others'}
+                                onChangeText={(text) => changePackageName(text)}
+                                placeholderTextColor="#808080"
+                            />
+                        </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.header}>Description</Text>
                             <Text style={styles.requiredheader}>*</Text>
@@ -867,7 +935,7 @@ const PackagesCreationScreen = ({ route }) => {
                                         keyboardType="numeric"
                                         value={policy.day}
                                         onChangeText={(text) => updatePolicy(policy.id, "day", text)}
-                                        placeholderTextColor="#808080"
+                                        placeholderTextColor="#999"
                                     />
                                     <TextInput
                                         style={styles.policyinput}
@@ -875,7 +943,7 @@ const PackagesCreationScreen = ({ route }) => {
                                         keyboardType="numeric"
                                         value={policy.percentage}
                                         onChangeText={(text) => updatePolicy(policy.id, "percentage", text)}
-                                        placeholderTextColor="#808080"
+                                        placeholderTextColor="#999"
                                     />
 
                                     {/* Remove Button */}
@@ -945,11 +1013,13 @@ const PackagesCreationScreen = ({ route }) => {
             <Modal
                 isVisible={isModalVisible}
                 onRequestClose={() => setModalVisible(false)}
+                // onBackdropPress={() => setIsFocus(false)} // modal off by clicking outside of the modal
                 style={{
-                    margin: 0,
+                    margin: 0, // Add this line to remove the default margin
                     justifyContent: 'flex-end',
                 }}>
-                <View style={{ height: '80%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
+                {/* <TouchableWithoutFeedback onPress={() => setIsFocus(false)} style={{  }}> */}
+                <View style={{ height: '60%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
                     <View style={{ padding: 0 }}>
                         <View style={{ paddingVertical: 5, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: responsiveHeight(2), marginTop: responsiveHeight(2) }}>
                             <Text style={{ fontSize: responsiveFontSize(2.5), color: '#2D2D2D', fontFamily: 'Poppins-Bold', }}>{selectedDay?.name} - Itinerary</Text>
@@ -961,34 +1031,13 @@ const PackagesCreationScreen = ({ route }) => {
                     <ScrollView style={{ marginBottom: responsiveHeight(0), paddingHorizontal: 15 }}>
                         {/* Description Input */}
                         <Text style={styles.modallabel}>Description</Text>
-                        <RichToolbar
-                            editor={richText}
-                            actions={[
-                                actions.setBold,
-                                actions.setItalic,
-                                actions.setUnderline,
-                                actions.insertBulletsList,
-                                actions.insertOrderedList,
-                                actions.setStrikethrough,
-                                actions.alignLeft,
-                                actions.alignCenter,
-                                actions.alignRight,
-                            ]}
-                            style={{ backgroundColor: '#F5F5F5', borderRadius: 8 }}
-                        />
-                        <RichEditor
-                            ref={richText}
-                            initialContentHTML={description}
-                            onChange={setDescription}
+                        <TextInput
+                            style={styles.textArea}
                             placeholder="Enter Place Description"
-                            style={{
-                                minHeight: 100,
-                                borderWidth: 1,
-                                borderColor: '#E3E3E3',
-                                borderRadius: 8,
-                                marginTop: 10,
-                                backgroundColor: '#FFF'
-                            }}
+                            multiline
+                            value={description}
+                            onChangeText={setDescription}
+                            placeholderTextColor="#999"
                         />
 
                         {/* Image Picker */}
@@ -1014,24 +1063,43 @@ const PackagesCreationScreen = ({ route }) => {
                                 ))}
                             </ScrollView>
                         )}
-                    </ScrollView>
-                    <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
-                        <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center' }}>
-                            <CustomButton
-                                label={`Save ${selectedDay?.name} - Itinerary`}
-                                onPress={handleModalSubmit}
-                            />
+                        <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
+                            <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center',marginLeft:-responsiveWidth(7) }}>
+                                <CustomButton
+                                    label={`Save ${selectedDay?.name} - Itinerary`}
+                                    onPress={handleModalSubmit}
+                                />
+                            </View>
                         </View>
-                    </View>
+                    </ScrollView>
+
                 </View>
                 {/* </TouchableWithoutFeedback> */}
             </Modal>
-
+            <Modal
+                isVisible={showBankModal}
+                onBackdropPress={() => setShowBankModal(false)}
+                style={{ justifyContent: 'center', alignItems: 'center' }}
+            >
+                <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 10, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Add Bank Account</Text>
+                    <Text style={{ fontSize: 16, marginBottom: 20, textAlign: 'center' }}>
+                        Please add a bank account first before you can create a package.
+                    </Text>
+                    <CustomButton
+                        label="Go to Add Bank Account"
+                        onPress={() => {
+                            setShowBankModal(false);
+                            navigation.navigate('Menu', { screen: 'BankLinkedScreen' })
+                        }}
+                    />
+                </View>
+            </Modal>
             <View style={styles.buttonwrapper}>
                 <CustomButton
                     label={"Create Package"}
                     onPress={submitForm}
-                    disabled={isLoading}
+                    disabled={isLoading || hasBankAccount === false}
                 />
             </View>
         </SafeAreaView >
@@ -1332,7 +1400,7 @@ const styles = StyleSheet.create({
         //flex: 1,
         width: responsiveWidth(40)
     },
-    dateinputContainerForExpireDate:{
+    dateinputContainerForExpireDate: {
         width: responsiveWidth(88)
     },
     inputBox: {
@@ -1433,7 +1501,7 @@ const styles = StyleSheet.create({
         padding: 8,
         backgroundColor: "#fff",
         width: responsiveWidth(40),
-        color:'#808080'
+        color: '#999'
         //marginRight: 10,
     },
     removeButton: {
@@ -1487,7 +1555,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginTop: 5,
         textAlignVertical: "top",
-        color:'#808080'
+        color: '#999'
     },
     uploadButton: {
         backgroundColor: "#ff5a5f",
