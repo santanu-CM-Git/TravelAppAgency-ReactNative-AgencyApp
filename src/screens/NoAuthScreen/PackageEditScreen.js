@@ -531,7 +531,11 @@ const PackageEditScreen = ({ route }) => {
                 day.images.forEach((image, imageIndex) => {
                     if (typeof image === 'string') {
                         // If it's a URL, it's an existing image
-                        formData.append(`itinerary[${dayIndex}][images][${imageIndex}]`, image);
+                        formData.append(`itinerary[${dayIndex}][images][${imageIndex}]`, {
+                            uri: image,
+                            type: 'image/jpeg',
+                            name: `day${day.id}_image${imageIndex}.jpg`
+                        });
                     } else {
                         // If it's a new image file
                         formData.append(`itinerary[${dayIndex}][images][${imageIndex}]`, {
