@@ -96,18 +96,24 @@ const PackagesCreationScreen = ({ route }) => {
     const optionsInclusions = ["Air ticket", "Breakfast", "Dinner", "Daily transport"]
     const toggleCheckboxInclusions = (item) => {
         if (selectedItemsInclusions.includes(item)) {
+            // Remove from inclusions
             setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         } else {
+            // Add to inclusions and remove from exclusions (mutual exclusivity)
             setSelectedItemsInclusions([...selectedItemsInclusions, item]);
+            setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         }
     };
     const [selectedItemsExclusion, setSelectedItemsExclusion] = useState([]);
     const optionsExclusion = ["Air ticket", "Breakfast", "Dinner", "Daily transport"]
     const toggleCheckboxExclusion = (item) => {
         if (selectedItemsExclusion.includes(item)) {
+            // Remove from exclusions
             setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         } else {
+            // Add to exclusions and remove from inclusions (mutual exclusivity)
             setSelectedItemsExclusion([...selectedItemsExclusion, item]);
+            setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         }
     };
 
@@ -203,6 +209,15 @@ const PackagesCreationScreen = ({ route }) => {
             }
         });
         return completedDays;
+    };
+
+    // Function to check if an item can be moved to the other category
+    const canMoveItem = (item, targetCategory) => {
+        if (targetCategory === 'inclusions') {
+            return !selectedItemsExclusion.includes(item);
+        } else {
+            return !selectedItemsInclusions.includes(item);
+        }
     };
 
     const addDay = () => {
@@ -1091,6 +1106,14 @@ const PackagesCreationScreen = ({ route }) => {
                         <View style={styles.refundHeader}>
                             <Text style={styles.header}>Package Inclusions</Text>
                         </View>
+                        <Text style={styles.mutualExclusionNote}>
+                            Note: Items cannot be in both inclusions and exclusions. Selecting an item in one will automatically remove it from the other.
+                        </Text>
+                        <View style={styles.selectionSummary}>
+                            <Text style={styles.summaryText}>
+                                Currently selected: {selectedItemsInclusions.length} inclusions, {selectedItemsExclusion.length} exclusions
+                            </Text>
+                        </View>
                         {optionsInclusions.map((item, index) => (
                             <TouchableOpacity
                                 key={index}
@@ -1103,6 +1126,9 @@ const PackagesCreationScreen = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsExclusion.includes(item) && (
+                                    <Text style={styles.excludedNote}> (Currently in Exclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
                         <View style={styles.refundHeader}>
@@ -1120,6 +1146,9 @@ const PackagesCreationScreen = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsInclusions.includes(item) && (
+                                    <Text style={styles.includedNote}> (Currently in Inclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -1862,5 +1891,45 @@ const styles = StyleSheet.create({
         backgroundColor: '#4CAF50',
         borderRadius: 4,
         transition: 'width 0.3s ease',
+    },
+    mutualExclusionNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.4),
+        color: '#FF6B35',
+        marginBottom: 15,
+        paddingHorizontal: 5,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        backgroundColor: '#FFF3E0',
+        padding: 10,
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF6B35',
+    },
+    excludedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#FF6B35',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    includedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#4CAF50',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    selectionSummary: {
+        backgroundColor: '#F5F5F5',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 15,
+        alignItems: 'center',
+    },
+    summaryText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.4),
+        color: '#666',
     },
 });

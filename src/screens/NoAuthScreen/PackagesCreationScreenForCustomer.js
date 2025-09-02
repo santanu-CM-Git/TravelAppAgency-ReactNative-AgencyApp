@@ -96,18 +96,24 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
     const optionsInclusions = ["Air ticket", "Breakfast", "Dinner", "Daily transport"]
     const toggleCheckboxInclusions = (item) => {
         if (selectedItemsInclusions.includes(item)) {
+            // Remove from inclusions
             setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         } else {
+            // Add to inclusions and remove from exclusions (mutual exclusivity)
             setSelectedItemsInclusions([...selectedItemsInclusions, item]);
+            setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         }
     };
     const [selectedItemsExclusion, setSelectedItemsExclusion] = useState([]);
     const optionsExclusion = ["Air ticket", "Breakfast", "Dinner", "Daily transport"]
     const toggleCheckboxExclusion = (item) => {
         if (selectedItemsExclusion.includes(item)) {
+            // Remove from exclusions
             setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         } else {
+            // Add to exclusions and remove from inclusions (mutual exclusivity)
             setSelectedItemsExclusion([...selectedItemsExclusion, item]);
+            setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         }
     };
 
@@ -134,6 +140,85 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
 
     const [hasBankAccount, setHasBankAccount] = useState(null);
     const [showBankModal, setShowBankModal] = useState(false);
+    const [calculatedDays, setCalculatedDays] = useState(0);
+
+    // Function to calculate days between two dates
+    const calculateDaysBetween = (start, end) => {
+        if (!start || !end) return 0;
+        const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / oneDay);
+        return diffDays + 1; // +1 to include both start and end dates
+    };
+
+    // Function to automatically create itinerary days based on selected dates
+    const createItineraryDaysFromDates = (start, end) => {
+        const numberOfDays = calculateDaysBetween(start, end);
+        if (numberOfDays <= 0) return;
+
+        setCalculatedDays(numberOfDays);
+        const newDays = [];
+        for (let i = 1; i <= numberOfDays; i++) {
+            newDays.push({
+                id: i,
+                name: `Day ${i}`,
+                description: "",
+                images: []
+            });
+        }
+        setDays(newDays);
+    };
+
+    // Function to get completion status text
+    const getCompletionStatus = (day) => {
+        const hasDescription = day.description && day.description.trim() !== '';
+        const hasImages = day.images && day.images.length > 0;
+        
+        if (hasDescription && hasImages) {
+            return 'Complete';
+        } else if (hasDescription || hasImages) {
+            return 'Partial';
+        }
+        return '';
+    };
+
+    // Function to calculate overall progress percentage
+    const getOverallProgress = () => {
+        if (days.length === 0) return 0;
+        
+        let completedDays = 0;
+        days.forEach(day => {
+            const hasDescription = day.description && day.description.trim() !== '';
+            const hasImages = day.images && day.images.length > 0;
+            if (hasDescription && hasImages) {
+                completedDays++;
+            }
+        });
+        
+        return Math.round((completedDays / days.length) * 100);
+    };
+
+    // Function to get count of completed days
+    const getCompletedDaysCount = () => {
+        let completedDays = 0;
+        days.forEach(day => {
+            const hasDescription = day.description && day.description.trim() !== '';
+            const hasImages = day.images && day.images.length > 0;
+            if (hasDescription && hasImages) {
+                completedDays++;
+            }
+        });
+        return completedDays;
+    };
+
+    // Function to check if an item can be moved to the other category
+    const canMoveItem = (item, targetCategory) => {
+        if (targetCategory === 'inclusions') {
+            return !selectedItemsExclusion.includes(item);
+        } else {
+            return !selectedItemsInclusions.includes(item);
+        }
+    };
 
     const addDay = () => {
         const newDay = {
@@ -378,6 +463,13 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
         fetchalllocation();
         checkBankAccount();
     }, []);
+
+    // Effect to watch for date changes and update itinerary days
+    useEffect(() => {
+        if (startDate && endDate) {
+            createItineraryDaysFromDates(startDate, endDate);
+        }
+    }, [startDate, endDate]);
 
     useFocusEffect(
         useCallback(() => {
@@ -1149,12 +1241,27 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                             />
                         </View>
 
+                        {/* Display calculated days when dates are selected */}
+                        {startDate && endDate && calculatedDays > 0 && (
+                            <View style={styles.calculatedDaysContainer}>
+                                <Text style={styles.calculatedDaysText}>
+                                    Package Duration: {calculatedDays} {calculatedDays === 1 ? 'Day' : 'Days'}
+                                </Text>
+                                <Text style={styles.calculatedDaysSubText}>
+                                    {moment(startDate).format('DD-MM-YYYY')} to {moment(endDate).format('DD-MM-YYYY')}
+                                </Text>
+                            </View>
+                        )}
+
                         <View style={{ marginBottom: responsiveHeight(2) }}>
                             {/* Header Section */}
                             <View style={styles.itineraryHeader}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={styles.header}>Itinerary</Text>
                                     <Text style={styles.requiredheader}>*</Text>
+                                    {calculatedDays > 0 && (
+                                        <Text style={styles.daysCountText}> ({calculatedDays} days)</Text>
+                                    )}
                                 </View>
                                 <TouchableOpacity style={styles.itineraryAddButton} onPress={addDay}>
                                     <Text style={styles.itineraryAddText}>+ Add Day</Text>
@@ -1164,7 +1271,29 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                             {/* Days List */}
                             {days.map((day) => (
                                 <View key={day.id} style={styles.itineraryDayContainer}>
-                                    <Text style={styles.itineraryDayText}>{day.name}</Text>
+                                    <View style={styles.dayNameContainer}>
+                                        <Text style={styles.itineraryDayText}>{day.name}</Text>
+                                        {/* Show tick mark if day has data */}
+                                        {((day.description && day.description.trim() !== '') || (day.images && day.images.length > 0)) && (
+                                            <View style={[
+                                                styles.tickContainer,
+                                                { backgroundColor: (day.description && day.description.trim() !== '') && (day.images && day.images.length > 0) 
+                                                    ? '#4CAF50' : '#FF9800' }
+                                            ]}>
+                                                <Text style={styles.tickMark}>✓</Text>
+                                            </View>
+                                        )}
+                                        {/* Show completion status */}
+                                        {((day.description && day.description.trim() !== '') || (day.images && day.images.length > 0)) && (
+                                            <Text style={[
+                                                styles.completionStatus,
+                                                { color: (day.description && day.description.trim() !== '') && (day.images && day.images.length > 0) 
+                                                    ? '#4CAF50' : '#FF9800' }
+                                            ]}>
+                                                {getCompletionStatus(day)}
+                                            </Text>
+                                        )}
+                                    </View>
 
                                     <View style={styles.itineraryButtonGroup}>
                                         <TouchableOpacity style={styles.itineraryCreateButton} onPress={() => openModal(day)}>
@@ -1243,6 +1372,14 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                         <View style={styles.refundHeader}>
                             <Text style={styles.header}>Package Inclusions</Text>
                         </View>
+                        <Text style={styles.mutualExclusionNote}>
+                            Note: Items cannot be in both inclusions and exclusions. Selecting an item in one will automatically remove it from the other.
+                        </Text>
+                        <View style={styles.selectionSummary}>
+                            <Text style={styles.summaryText}>
+                                Currently selected: {selectedItemsInclusions.length} inclusions, {selectedItemsExclusion.length} exclusions
+                            </Text>
+                        </View>
                         {optionsInclusions.map((item, index) => (
                             <TouchableOpacity
                                 key={index}
@@ -1255,6 +1392,9 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsExclusion.includes(item) && (
+                                    <Text style={styles.excludedNote}> (Currently in Exclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
                         <View style={styles.refundHeader}>
@@ -1272,6 +1412,9 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsInclusions.includes(item) && (
+                                    <Text style={styles.includedNote}> (Currently in Inclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -1908,5 +2051,96 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
+    },
+    calculatedDaysContainer: {
+        backgroundColor: '#F8F9FA',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: responsiveHeight(2),
+        borderLeftWidth: 4,
+        borderLeftColor: '#FF455C',
+    },
+    calculatedDaysText: {
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: responsiveFontSize(1.8),
+        color: '#2D2D2D',
+        marginBottom: 5,
+    },
+    calculatedDaysSubText: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.6),
+        color: '#666',
+    },
+    daysCountText: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.6),
+        color: '#FF455C',
+        marginLeft: 5,
+    },
+    dayNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    tickContainer: {
+        backgroundColor: '#4CAF50',
+        borderRadius: 12,
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+    },
+    tickMark: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    completionStatus: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#666',
+        marginLeft: 8,
+        fontStyle: 'italic',
+    },
+    mutualExclusionNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.4),
+        color: '#FF6B35',
+        marginBottom: 15,
+        paddingHorizontal: 5,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        backgroundColor: '#FFF3E0',
+        padding: 10,
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF6B35',
+    },
+    excludedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#FF6B35',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    includedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#4CAF50',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    selectionSummary: {
+        backgroundColor: '#F5F5F5',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 15,
+        alignItems: 'center',
+    },
+    summaryText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.4),
+        color: '#666',
     },
 });
