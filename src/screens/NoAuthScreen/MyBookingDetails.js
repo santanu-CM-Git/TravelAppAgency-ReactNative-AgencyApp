@@ -17,7 +17,8 @@ import {
     TextInput,
     StatusBar,
     ImageBackground,
-    KeyboardAwareScrollView
+    KeyboardAwareScrollView,
+    Linking
 } from 'react-native';
 import Modal from "react-native-modal";
 import { AuthContext } from '../../context/AuthContext';
@@ -27,7 +28,7 @@ import CustomButton from '../../components/CustomButton'
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { add } from '../../store/cartSlice';
-import { dateIcon, timeIcon, yellowStarImg, qouteImg, bannerPlaceHolder, freebannerPlaceHolder, notificationImg, markerImg, searchIconImg, filterImg, productImg, travelImg, likefillImg, mappinImg, starImg, arrowBackImg, shareImg, calendarImg, CheckImg, addnewImg, mybookingMenuImg, transactionMenuImg, arrowRightImg, cancelTourImg } from '../../utils/Images';
+import { dateIcon, timeIcon, yellowStarImg, qouteImg, bannerPlaceHolder, freebannerPlaceHolder, notificationImg, markerImg, searchIconImg, productImg, travelImg, likefillImg, mappinImg, starImg, arrowBackImg, shareImg, calendarImg, CheckImg, addnewImg, mybookingMenuImg, transactionMenuImg, arrowRightImg, cancelTourImg, timeImg } from '../../utils/Images';
 import Loader from '../../utils/Loader';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import CustomHeader from '../../components/CustomHeader';
@@ -39,39 +40,32 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import messaging from '@react-native-firebase/messaging';
 import LinearGradient from 'react-native-linear-gradient';
+import StarRating from 'react-native-star-rating-widget';
 import SwitchSelector from "react-native-switch-selector";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from 'react-native-vector-icons/Entypo';
-import RadioGroup from 'react-native-radio-buttons-group';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import Toast from 'react-native-toast-message';
+import { CountryPicker } from "react-native-country-codes-picker";
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 const { width } = Dimensions.get('window');
 const itemWidth = width * 0.8; // 80% of screen width
 const imageHeight = itemWidth * 0.5; // Maintain a 4:3 aspect ratio
 
 
-export default function MyBookingDetails({  }) {
+export default function MyBookingDetails({ route }) {
     const navigation = useNavigation();
+    const { bookingId: bookingData } = route.params;
     const carouselRef = useRef(null);
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
     const { logout } = useContext(AuthContext);
-    // const { userInfo } = useContext(AuthContext)
-    const [refreshing, setRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(false)
-    const [notificationStatus, setNotificationStatus] = useState(false)
-    const [therapistData, setTherapistData] = React.useState([])
-    const [upcomingBooking, setUpcomingBooking] = useState([])
-    const [previousBooking, setPreviousBooking] = useState([])
-    const [starCount, setStarCount] = useState(4)
-    const [activeSlide, setActiveSlide] = React.useState(0);
-    const [bannerData, setBannerData] = useState([])
-    const [customerSpeaksData, setCustomerSpeaksData] = useState([])
-    const [userInfo, setuserInfo] = useState([])
-    const [currentDateTime, setCurrentDateTime] = useState(moment.tz(new Date(), 'Asia/Kolkata'));
-    const [freeBannerImg, setFreeBannerImg] = useState('')
     const [isFilterModalVisible, setFilterModalVisible] = useState(false);
     const [isFilterModalVisible2, setFilterModalVisible2] = useState(false);
+    const [showRefundModal, setShowRefundModal] = useState(false);
+    const [refundData, setRefundData] = useState(null);
 
     const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
@@ -79,44 +73,58 @@ export default function MyBookingDetails({  }) {
     const [phoneno, setPhoneno] = useState('');
     const [phoneError, setphoneError] = useState('')
 
+    const [show, setShow] = useState(false);
+    const [countryCode, setCountryCode] = useState('+91');
 
-    const contacts = [
-        {
-            id: 1,
-            name: "Kristin Sharma",
-            phone: "+91 76966 46546",
-            image: "https://randomuser.me/api/portraits/women/1.jpg",
-        },
-        {
-            id: 2,
-            name: "Esther Howard",
-            phone: "+91 98758 95845",
-            image: "https://randomuser.me/api/portraits/women/2.jpg",
-        },
-    ];
+    const [contacts, setContacts] = useState([]);
 
-    const [activeTab2, setActiveTab2] = useState('New Packages')
-    const [activeButtonNo, setActiveButtonNo] = useState(0)
+    const fetchCoTravelers = async () => {
+        setIsLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.post(
+                `${API_URL}/customer/co-traveller-list`,
+                {
+                    booking_id: bookingData.id
+                },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
 
-    const [location, setLocation] = useState("Jammu-Kashmir");
-    const [fromDate, setFromDate] = useState(new Date());
-    const [toDate, setToDate] = useState(new Date());
-    const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-    const [showToDatePicker, setShowToDatePicker] = useState(false);
+            console.log("Co-traveler list response:", response.data);
 
-    const [adultPassengers, setAdultPassengers] = useState("8");
-    const [kidsPassengers, setKidsPassengers] = useState("2");
-    const [searchText, setSearchText] = useState("");
-
-    const onChangeFromDate = (event, selectedDate) => {
-        setShowFromDatePicker(Platform.OS === "ios"); // Keep picker open on iOS
-        if (selectedDate) setFromDate(selectedDate);
+            if (response.data.response === true) {
+                setContacts(response.data.data || []);
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response.data.message || 'Failed to fetch co-travelers'
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching co-travelers:', error);
+            console.error('Error response:', error.response?.data);
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: error.response?.data?.message || 'Failed to fetch co-travelers'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const onChangeToDate = (event, selectedDate) => {
-        setShowToDatePicker(Platform.OS === "ios"); // Keep picker open on iOS
-        if (selectedDate) setToDate(selectedDate);
-    };
+    useEffect(() => {
+        console.log(bookingData, 'boobking details response')
+        fetchCoTravelers();
+    }, []);
+
     const toggleFilterModal = () => {
         setFilterModalVisible(!isFilterModalVisible);
     };
@@ -124,79 +132,69 @@ export default function MyBookingDetails({  }) {
     const toggleFilterModal2 = () => {
         setFilterModalVisible2(!isFilterModalVisible2);
     };
-    const [quantityAdult, setQuantityAdult] = useState(1);
-    const [quantityChild, setQuantityChild] = useState(1);
-    const [adultPrice, setAdultPrice] = useState('80')
-    const [childPrice, setChildPrice] = useState('40')
 
-    const increaseQuantityAdult = () => {
-        setQuantityAdult(quantityAdult + 1)
-    };
-    const decreaseQuantityAdult = () => {
-        if (quantityAdult > 1) {
-            setQuantityAdult(quantityAdult - 1);
-        }
-    };
-
-    const increaseQuantityChild = () => {
-        setQuantityChild(quantityChild + 1)
-    };
-    const decreaseQuantityChild = () => {
-        if (quantityChild > 1) {
-            setQuantityChild(quantityChild - 1);
-        }
-    };
-
-    const itineraryFeatures = [
-        { title: 'Natural beauty', description: 'See the snowcapped Himalayas, lakes, and pastures.' },
-        { title: 'Historical sites', description: 'Explore the Amar Mahal Palace, Martand Sun Temple, and more.' },
-        { title: 'Gardens', description: 'Visit the Indira Gandhi Tulip Garden, Shalimar Bagh, and Nishat Bagh.' },
-        { title: 'Hill stations', description: 'Visit Gulmarg, Pahalgam, and Sonmarg.' },
-        { title: 'Kashmir Ladakh tour', description: 'Explore Srinagar, Kargil, Leh, Nubra Valley, and Pangong Tso.' },
-    ];
-
-    const itineraryImages = [
-        require('../../assets/images/tour.png'),
-        require('../../assets/images/tour.png'),
-        require('../../assets/images/tour.png'),
-    ];
-
-    const renderItineraryFeature = ({ item }) => (
-        <View style={styles.itineraryFeatureItem}>
-            <Text style={styles.itineraryBullet}>• </Text>
-            <Text style={styles.itineraryFeatureText}>
-                <Text style={styles.itineraryFeatureTitle}>{item.title}: </Text>
-                {item.description}
-            </Text>
-        </View>
-    );
-
-    const renderItineraryImage = ({ item }) => (
-        <Image source={productImg} style={styles.itineraryImage} />
-    );
-
-    const getFCMToken = async () => {
+    const deleteCoTraveler = async (id) => {
+        setIsLoading(true);
         try {
-            // if (Platform.OS == 'android') {
-            await messaging().registerDeviceForRemoteMessages();
-            // }
-            const token = await messaging().getToken();
-            AsyncStorage.setItem('fcmToken', token)
-            //console.log(token, 'fcm token');
-        } catch (e) {
-            console.log(e);
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.post(
+                `${API_URL}/customer/co-traveller-delete`,
+                { id },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("Delete response:", response.data);
+
+            if (response.data.response === true) {
+                // Fetch updated co-traveler list
+                await fetchCoTravelers();
+
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'Co-traveler deleted successfully'
+                });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response.data.message || 'Failed to delete co-traveler'
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting co-traveler:', error);
+            console.error('Error response:', error.response?.data);
+
+            let errorMessage = 'Failed to delete co-traveler';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: errorMessage
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const ContactItem = ({ name, phone, image, onRemove }) => {
+    const ContactItem = ({ name, country_code, phone, image, onRemove }) => {
         return (
             <View style={styles.contactContainer}>
-                <Image source={{ uri: image }} style={styles.contactAvatar} />
+                {/* <Image source={{ uri: image }} style={styles.contactAvatar} /> */}
                 <Text style={styles.contactName}>{name}</Text>
-                <Text style={styles.contactPhone}>{phone}</Text>
-                <TouchableOpacity onPress={onRemove} style={styles.contactCloseButton}>
+                <Text style={styles.contactPhone}>{country_code} {phone}</Text>
+                {/* <TouchableOpacity onPress={onRemove} style={styles.contactCloseButton}>
                     <Text style={styles.contactCloseText}>×</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         );
     };
@@ -219,28 +217,214 @@ export default function MyBookingDetails({  }) {
         }
     }
 
+    const submitForFilter = async () => {
+        if (!phoneno) {
+            setphoneError('Please enter phone no');
+            return;
+        }
+        if (!firstname) {
+            setFirstNameError('Please enter name');
+            return;
+        }
 
+        setIsLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const option = {
+                booking_id: bookingData.id,
+                name: firstname,
+                country_code: countryCode,
+                phone_no: phoneno
+            }
+            console.log("Request Payload:", option);
+            console.log("API URL:", `${API_URL}/customer/co-traveller-add`);
+            console.log("Token:", token);
+
+            const response = await axios.post(
+                `${API_URL}/customer/co-traveller-add`,
+                option,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            console.log("API Response:", response.data);
+
+            if (response.data.response === true) {
+                // Reset form
+                setFirstname('');
+                setPhoneno('');
+                setFilterModalVisible(false);
+
+                // Fetch updated co-traveler list
+                await fetchCoTravelers();
+
+                // Show success message
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'Co-traveler added successfully'
+                });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response.data.message
+                });
+                setFilterModalVisible(false);
+            }
+        } catch (error) {
+            console.error('Error adding co-traveler:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+
+            let errorMessage = 'Failed to add co-traveler';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: errorMessage
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const submitCancellation = async () => {
+        setIsLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.post(
+                `${API_URL}/customer/refund-amount-get`,
+                { booking_id: bookingData.id },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            if (response.data.response === true) {
+                console.log(response.data, 'refund ammount response')
+                setRefundData(response.data);
+                setShowRefundModal(true);
+                setFilterModalVisible2(false);
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response.data.message || 'Failed to fetch cancelation'
+                });
+            }
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: error.response?.data?.message || 'Failed to fetch cancelation'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const openInvoiceUrl = (url) => {
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    console.log("Don't know how to open URI: " + url);
+                }
+            })
+            .catch((err) => console.error('An error occurred', err));
+    };
+
+    const handleFinalCancellation = async () => {
+        setIsLoading(true);
+        try {
+            const refund_condition = refundData.refund_percentage;
+            const refund_amount = refundData.refund_amount;
+            console.log(refundData)
+            console.log(refund_condition)
+            console.log(refund_amount)
+            const option = {
+                booking_id: bookingData.id,
+                refund_condition: refund_condition,
+                refund_amount: refund_amount
+            };
+            console.log(option, 'optionoption')
+            const token = await AsyncStorage.getItem('userToken');
+            console.log(token)
+            const response = await axios.post(
+                `${API_URL}/customer/refund`,
+                option,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            if (response.data.response === true) {
+                setShowRefundModal(false);
+                navigation.navigate('RefundScreen', { data: refundData, bookingData: bookingData, showModal: true });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response.data.message || 'Failed to process cancellation'
+                });
+                console.log(response.data.message)
+            }
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: error.response?.data?.message || 'Failed to process cancellation'
+            });
+            console.log(response.data.message)
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // Check if booking end date has passed
+    const isBookingExpired = useMemo(() => {
+        if (!bookingData?.end_date) return false;
+        const endDate = moment(bookingData.end_date);
+        const currentDate = moment();
+        return currentDate.isAfter(endDate, 'day');
+    }, [bookingData?.end_date]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const backAction = () => {
+                navigation.goBack()
+                return true
+            };
+
+            const backHandler = BackHandler.addEventListener(
+                'hardwareBackPress',
+                backAction,
+            );
+
+            return () => backHandler.remove();
+        }, [navigation])
+    );
     if (isLoading) {
         return (
             <Loader />
         )
     }
-
-    useFocusEffect(
-        useCallback(() => {
-            const backAction = () => {
-               navigation.goBack()
-               return true
-              };
-          
-              const backHandler = BackHandler.addEventListener(
-                'hardwareBackPress',
-                backAction,
-              );
-          
-              return () => backHandler.remove();
-        }, [navigation])
-    );
 
     return (
         <SafeAreaView style={styles.Container}>
@@ -249,166 +433,336 @@ export default function MyBookingDetails({  }) {
             <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
             <ScrollView>
                 <ImageBackground
-                    source={productImg} // Replace with your image URL
+                    source={{ uri: bookingData?.package?.cover_photo_url }}
                     style={styles.background}
                     imageStyle={styles.imageStyle}
                 >
-                    {/* Header Icons */}
                     <View style={styles.header}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', width: responsiveWidth(83.5) }}>
                             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
                                 <Image
                                     source={arrowBackImg}
                                     style={styles.filterIcon}
                                 />
                             </TouchableOpacity>
-                            <Text style={[styles.titleM, { marginLeft: responsiveWidth(2) }]}>Beach & Garden</Text>
+                            <View style={styles.titleOverlay}>
+                                <Text style={styles.titleM}>{bookingData?.package?.name}</Text>
+                            </View>
                         </View>
-                        <TouchableOpacity style={styles.iconButton}>
+                        {/* <TouchableOpacity style={styles.iconButton}>
                             <Image
                                 source={shareImg}
                                 style={styles.filterIcon}
                             />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
 
                     {/* Bottom Like Button */}
-                    <TouchableOpacity style={styles.likeButton}>
+                    {/* <TouchableOpacity style={styles.likeButton}>
                         <Image
                             source={likefillImg}
                             style={styles.likeIcon}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </ImageBackground>
 
                 <View style={{ margin: 5, paddingHorizontal: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={styles.productText3}>Pramukh Tours</Text>
-                        <Text style={styles.priceText22}>$72.00</Text>
+                        <Text style={styles.productText3}>{bookingData?.package?.name}</Text>
+                        <Text style={styles.priceText22}>₹{bookingData?.final_amount}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Image
                             source={mappinImg}
                             style={styles.pinImg}
                         />
-                        <Text style={styles.addressText}>Himachal Pradesh</Text>
+                        <Text style={styles.addressText}>{bookingData?.package?.location}</Text>
                     </View>
-                    <Text style={styles.travelerText}>Omega Tours</Text>
+                    {/* <Text style={styles.travelerText}>{bookingData?.customer?.full_name}</Text> */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={styles.packageAvlTextMain}>04 September 2024</Text>
+                        <Text style={styles.packageAvlTextMain}>{moment(bookingData?.start_date).format('DD MMMM YYYY')}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image
-                                source={timeIcon}
+                                source={timeImg}
                                 style={styles.pinImg}
                             />
-                            <Text style={styles.addressText}>5 Days 6 Nights</Text>
+                            <Text style={styles.addressText}>
+                                {(() => {
+                                    const start = moment(bookingData?.start_date);
+                                    const end = moment(bookingData?.end_date);
+                                    const days = end.diff(start, 'days') + 1;
+                                    const nights = days > 0 ? days - 1 : 0;
+                                    return `${days} Days ${nights} Nights`;
+                                })()}
+                            </Text>
                         </View>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: "center" }}>
-                        <Text style={styles.packageAvlTextMain}>Slots : 05</Text>
-                        {/* <View style={styles.rateingView}>
-                            <Image
-                                source={starImg}
-                                style={styles.staricon}
-                            />
-                            <Text style={styles.ratingText}>3.5</Text>
-                        </View> */}
+                        <Text style={styles.packageAvlTextMain}>
+                            Total Booked Slots : {Number(bookingData?.adult) + Number(bookingData?.children)}
+                        </Text>
                     </View>
                     <View
                         style={{
-                            borderBottomColor: '#C0C0C0',
+                            borderBottomColor: '#686868',
                             borderBottomWidth: StyleSheet.hairlineWidth,
                             marginVertical: 7
                         }}
                     />
+                    <Text style={styles.productText3}>Payment Details</Text>
+                    <View style={styles.paymentcontainer}>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Traveler Name :</Text>
+                            <Text style={styles.value}>{bookingData?.customer?.full_name}</Text>
+                        </View>
 
-                    <View style={styles.availableCard}>
-                        <Text style={styles.availableHeader}>Slots Details</Text>
-                        <View style={styles.availableRow}>
-                            <Text style={styles.availableLabel}>Total Slots</Text>
-                            <Text style={styles.availableValue}>10</Text>
-                        </View>
-                        <View style={styles.availableRow}>
-                            <Text style={styles.availableLabel}>Booked Slots</Text>
-                            <Text style={styles.availableValue}>07</Text>
-                        </View>
-                        <View style={styles.availableRow}>
-                            <Text style={styles.availableLabel}>Remaining Slots</Text>
-                            <Text style={styles.availableValue}>03</Text>
+                        {bookingData?.transaction_no ?
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Transaction id :</Text>
+                                <Text style={styles.value}>{bookingData?.transaction_no}</Text>
+                            </View>
+                            : null}
+                        <View style={styles.amountRow}>
+                            <Text style={styles.amountLabel}>Amount Paid :</Text>
+                            <Text style={styles.amountValue}>₹{bookingData?.final_amount}</Text>
                         </View>
                     </View>
-
-                    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: responsiveHeight(1) }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: responsiveHeight(1) }}>
                         <Text style={styles.productText3}>Co Traveler</Text>
-                        <TouchableOpacity onPress={() => toggleFilterModal()}>
+                        {/* <TouchableOpacity 
+                            onPress={() => !isBookingExpired && toggleFilterModal()}
+                            disabled={isBookingExpired}
+                            style={[styles.addNewButtonContainer, isBookingExpired && styles.disabledButtonContainer]}
+                        >
                             <Image
                                 source={addnewImg}
-                                style={styles.addnewIcon}
+                                style={[styles.addnewIcon, isBookingExpired && styles.disabledAddnewIcon]}
+                            />
+                        </TouchableOpacity> */}
+                    </View>
+                    <View style={styles.contactListContainer}>
+                        {contacts.length > 0 ? (
+                            contacts.map((contact) => (
+                                <ContactItem
+                                    key={contact.id}
+                                    name={contact.name}
+                                    country_code={contact.country_code}
+                                    phone={contact.phone_no}
+                                    onRemove={() => deleteCoTraveler(contact.id)}
+                                />
+                            ))
+                        ) : (
+                            <Text style={styles.noContactsText}>No co-travelers added yet</Text>
+                        )}
+                    </View>
+                    {/* <View style={styles.invoiceContainer}>
+                        <TouchableOpacity style={styles.invoiceItem} onPress={() => navigation.navigate('Menu', { screen: 'MenuPackageDetailsScreen', params: { packageId: bookingData.package.id }, key: Math.random().toString() })}>
+                            <Text style={styles.invoiceText}>View Detail</Text>
+                            <Image
+                                source={arrowRightImg}
+                                style={styles.arrowIcon}
+                            />
+                        </TouchableOpacity>
+                        <View style={styles.invoiceDivider} />
+                        <TouchableOpacity style={styles.invoiceItem} onPress={() => openInvoiceUrl(bookingData?.invoice_url)}>
+                            <Text style={styles.invoiceText}>Download Invoice</Text>
+                            <Image
+                                source={arrowRightImg}
+                                style={styles.arrowIcon}
                             />
                         </TouchableOpacity>
                     </View> */}
-                    {/* <View style={styles.contactListContainer}>
-                        {contacts.map((contact) => (
-                            <ContactItem
-                                key={contact.id}
-                                name={contact.name}
-                                phone={contact.phone}
-                                image={contact.image}
-                                onRemove={() => console.log("Remove", contact.name)}
-                            />
-                        ))}
-                    </View> */}
-                    <View style={{ marginHorizontal: 10, }}>
-                        <Text style={styles.productText3}>Price Summary</Text>
+                    {/* {bookingData?.transaction_no ?
+                    <View style={styles.buttoncontainer}>
+                        <TouchableOpacity style={styles.talkToAgentButton} onPress={() => toggleFilterModal2()}>
+                            <Text style={styles.talkToAgentText}>Cancel Package</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.containerpricebreckdown}>
-                        {/* Persons */}
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Person</Text>
-                            <Text style={styles.value}>04 persons</Text>
+                    :null} */}
+                </View>
+            </ScrollView>
+            {/* add new cotraveler modal */}
+            <Modal
+                isVisible={isFilterModalVisible}
+                // onBackdropPress={() => setIsFocus(false)} // modal off by clicking outside of the modal
+                style={{
+                    margin: 0, // Add this line to remove the default margin
+                    justifyContent: 'flex-end',
+                }}>
+                {/* <TouchableWithoutFeedback onPress={() => setIsFocus(false)} style={{  }}> */}
+                <View style={{ height: '55%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
+                    <View style={{ padding: 0 }}>
+                        <View style={{ paddingVertical: 5, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: responsiveHeight(2), marginTop: responsiveHeight(2) }}>
+                            <Text style={{ fontSize: responsiveFontSize(2.5), color: '#2D2D2D', fontFamily: 'Poppins-Bold', }}>Add New Co Traveler</Text>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#B0B0B0', height: 30, width: 30, borderRadius: 25, }}>
+                                <Icon name="cross" size={20} color="#000000" onPress={toggleFilterModal} />
+                            </View>
                         </View>
-
-                        {/* Price Details */}
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Price</Text>
-                            <Text style={styles.value}>$ 80</Text>
+                    </View>
+                    <ScrollView style={{ marginBottom: responsiveHeight(0) }}>
+                        <View style={{ borderTopColor: '#E3E3E3', borderTopWidth: 0, paddingHorizontal: 15, marginBottom: 5 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={styles.textinputheader}>Phone No</Text>
+                                <Text style={styles.requiredheader}>*</Text>
+                            </View>
+                            {/* {phoneError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{phoneError}</Text> : <></>}
+                            <View style={styles.inputView}>
+                                <InputField
+                                    label={'Enter your Phone number'}
+                                    keyboardType=" "
+                                    value={phoneno}
+                                    //helperText={'Please enter lastname'}
+                                    inputType={'others'}
+                                    onChangeText={(text) => changePhoneno(text)}
+                                />
+                            </View> */}
+                            {phoneError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{phoneError}</Text> : <></>}
+                            <View style={styles.textinputview}>
+                                <View style={styles.countryModal}>
+                                    <TouchableOpacity onPress={() => setShow(true)} style={styles.countryInputView}>
+                                        <Text style={{ color: '#808080', fontSize: responsiveFontSize(2) }}>{countryCode}</Text>
+                                    </TouchableOpacity>
+                                    {Platform.OS === 'android' && (
+                                        <CountryPicker
+                                            show={show}
+                                            initialState={''}
+                                            pickerButtonOnPress={(item) => {
+                                                setCountryCode(item.dial_code);
+                                                setShow(false);
+                                            }}
+                                            style={{
+                                                modal: {
+                                                    height: responsiveHeight(60),
+                                                },
+                                                textInput: {
+                                                    color: '#808080'
+                                                },
+                                                dialCode: {
+                                                    color: '#808080'
+                                                },
+                                                countryName: {
+                                                    color: '#808080'
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                </View>
+                                <InputField
+                                    label={'Enter your Phone number'}
+                                    keyboardType="numeric"
+                                    value={phoneno}
+                                    inputType={'login'}
+                                    onChangeText={(text) => changePhoneno(text)}
+                                />
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={styles.textinputheader}>Name</Text>
+                                <Text style={styles.requiredheader}>*</Text>
+                            </View>
+                            {firstNameError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{firstNameError}</Text> : <></>}
+                            <View style={styles.inputView}>
+                                <InputField
+                                    label={'Enter your Name'}
+                                    keyboardType=" "
+                                    value={firstname}
+                                    //helperText={'Please enter lastname'}
+                                    inputType={'others'}
+                                    onChangeText={(text) => changeFirstname(text)}
+                                />
+                            </View>
                         </View>
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Taxes</Text>
-                            <Text style={styles.value}>$ 10</Text>
+                        <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
+                            <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center' }}>
+                                <CustomButton label={"Save"}
+                                    onPress={() => submitForFilter()}
+                                />
+                            </View>
                         </View>
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Booking Fee</Text>
-                            <Text style={styles.value}>$ 05</Text>
+                    </ScrollView>
+
+                </View>
+                {/* </TouchableWithoutFeedback> */}
+            </Modal>
+            {/* add new cotraveler modal */}
+            <Modal
+                isVisible={isFilterModalVisible2}
+                style={{
+                    margin: 0,
+                    justifyContent: 'flex-end',
+                }}>
+                <View style={{ height: '55%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
+                    <View style={{ padding: 0 }}>
+                        <View style={{ paddingVertical: 5, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: responsiveHeight(2), marginTop: responsiveHeight(2) }}>
+                            <Text style={{ fontSize: responsiveFontSize(2.5), color: '#2D2D2D', fontFamily: 'Poppins-Bold', }}>Cancel Tour</Text>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#B0B0B0', height: 30, width: 30, borderRadius: 25, }}>
+                                <Icon name="cross" size={20} color="#000000" onPress={toggleFilterModal2} />
+                            </View>
                         </View>
-
-                        <View style={styles.divider} />
-
-                        {/* Subtotal */}
-                        <View style={styles.row}>
-                            <Text style={[styles.label, styles.bold, styles.red]}>Subtotal</Text>
-                            <Text style={[styles.value, styles.bold, styles.red]}>$ 95</Text>
+                    </View>
+                    <ScrollView style={{ marginBottom: responsiveHeight(0) }}>
+                        <View style={{ borderTopColor: '#E3E3E3', borderTopWidth: 0, paddingHorizontal: 15, marginBottom: 5, justifyContent: 'center', alignItems: 'center' }}>
+                            <Image
+                                source={cancelTourImg}
+                                style={styles.cancelTourIcon}
+                            />
+                            <Text style={styles.cancelText}>Are you sure you want to cancel this tour ?</Text>
                         </View>
-
-                        <View style={styles.divider} />
-
-                        {/* Discounts */}
-                        <View style={styles.row}>
-                            <Text style={styles.label}>Discount</Text>
-                            <Text style={styles.value}>- $08</Text>
-                        </View>
-                        <Text style={styles.subText}>Promo Code Applied "SAVE20"</Text>
-
-                        <View style={styles.divider} />
-
-                        {/* Grand Total */}
-                        <View style={styles.row}>
-                            <Text style={[styles.label, styles.bold, styles.red, styles.large]}>Grand Total</Text>
-                            <Text style={[styles.value, styles.bold, styles.red, styles.large]}>$ 87</Text>
+                    </ScrollView>
+                    <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
+                        <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center' }}>
+                            <CustomButton label={"Cancel Tour"}
+                                onPress={submitCancellation}
+                            />
                         </View>
                     </View>
                 </View>
-            </ScrollView>
+            </Modal>
+            {/* RefundScreen-style modal, only after API call */}
+            <Modal
+                isVisible={showRefundModal}
+                style={{
+                    margin: 0,
+                    justifyContent: 'flex-end',
+                }}>
+                <View style={{ height: '40%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
+                    <View style={{ padding: 0 }}>
+                        <View style={{ paddingVertical: 5, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: responsiveHeight(0), marginTop: responsiveHeight(2) }}>
+                            <Text style={{ fontSize: responsiveFontSize(2.5), color: '#2D2D2D', fontFamily: 'Poppins-Bold', }}>Cancel Tour</Text>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#B0B0B0', height: 30, width: 30, borderRadius: 25, }}>
+                                <Icon name="cross" size={20} color="#000000" onPress={() => setShowRefundModal(false)} />
+                            </View>
+                        </View>
+                    </View>
+                    <ScrollView>
+                        <View style={{ padding: 16, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.unsuccessfullbookingText}>Refund of ₹{refundData?.refund_amount.toFixed(2)} processed</Text>
+                            <Text style={styles.unsuccessfullbookingValue}>You are going to cancel all traveler(s)</Text>
+                        </View>
+                        <View style={styles.cardcontainer}>
+                            {/* Booking Amount */}
+                            <View style={styles.amountContainer}>
+                                <Text style={styles.amountLabel}>Refundable Amount</Text>
+                                <Text style={styles.amountValue}>₹{refundData?.refund_amount.toFixed(2)}</Text>
+                            </View>
+                            <View
+                                style={{
+                                    borderBottomColor: '#E0E0E0',
+                                    borderBottomWidth: StyleSheet.hairlineWidth,
+                                    marginVertical: 5
+                                }}
+                            />
+
+                        </View>
+                    </ScrollView>
+                    <View style={{ bottom: 0, width: responsiveWidth(100), paddingHorizontal: 10, borderTopColor: '#E3E3E3', borderTopWidth: 1 }}>
+                        <View style={{ width: responsiveWidth(90), marginTop: responsiveHeight(2), alignSelf: 'center' }}>
+                            <CustomButton label={"Confirm cancellation"}
+                                onPress={handleFinalCancellation}
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -484,6 +838,12 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(2.5),
         marginTop: responsiveHeight(1),
     },
+    pinImg: {
+        height: 12,
+        width: 12,
+        resizeMode: 'contain',
+        marginRight: 5
+    },
     addressText: {
         color: '#686868',
         fontFamily: 'Poppins-Regular',
@@ -520,11 +880,86 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Bold',
         fontSize: responsiveFontSize(2.5),
     },
-    pinImg: {
-        height: 12,
-        width: 12,
-        resizeMode: 'contain',
+    /* tab section */
+    tabView: {
+        //paddingHorizontal: 10,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        //justifyContent: 'space-around',
+        marginVertical: responsiveHeight(2),
+        // width: responsiveWidth(92)
+    },
+    tab: {
+        // paddingVertical: 8,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        backgroundColor: '#FFF',
+        borderColor: '#FF455C',
+        borderWidth: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: responsiveHeight(5),
+        // width: responsiveWidth(28),
+        marginRight: responsiveWidth(2)
+    },
+    activeTab: {
+        backgroundColor: '#FF455C',
+        borderColor: '#FF455C',
+        borderWidth: 1
+    },
+    tabText: {
+        color: '#FF455C',
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.7),
+    },
+    activeTabText: {
+        color: '#FFFFFF',
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.7),
+    },
+    contentContainer: {
+        flex: 1,
+        //paddingHorizontal: 10,
+        paddingVertical: 10,
+    },
+    /* tab section */
+    productSection: {
+        marginTop: responsiveHeight(0),
+        //marginLeft: 20
+    },
+    //product section
+    topAstrologerSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap'
+    },
+    totalValue4: {
+        width: responsiveWidth(45),
+        height: responsiveHeight(35),
+        //alignItems: 'center',
+        backgroundColor: '#fff',
+        //justifyContent: 'center',
+        padding: 5,
+        borderRadius: 15,
+        elevation: 5,
+        margin: 2,
+        marginBottom: responsiveHeight(2),
         marginRight: 5
+    },
+    productImg4: {
+        height: responsiveHeight(16),
+        width: responsiveFontSize(21),
+        resizeMode: 'cover',
+        borderRadius: 15,
+        alignSelf: 'center'
+    },
+    productText4: {
+        color: '#1E2023',
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: responsiveFontSize(1.7),
+        marginTop: responsiveHeight(1),
     },
     addressText: {
         color: '#686868',
@@ -564,20 +999,86 @@ const styles = StyleSheet.create({
     rating: {
         flexDirection: 'row',
     },
+    buttoncontainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    talkToAgentButton: {
+        borderWidth: 2,
+        borderColor: '#FF3B5C',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        width: responsiveWidth(92),
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    talkToAgentText: {
+        color: '#FF3B5C',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     title: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
+    },
+    paymentcontainer: {
+        backgroundColor: "#fff",
+        padding: 16,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 5,
+        marginVertical: responsiveHeight(1)
     },
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 6,
     },
+    label: {
+        color: "#8C8C8C",
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.7),
+    },
+    value: {
+        color: "#1B2234",
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.7),
+    },
+    amountRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 10,
+    },
+    amountLabel: {
+        color: "#8C8C8C",
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(2),
+    },
+    amountValue: {
+        color: "#FF455C",
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: responsiveFontSize(2),
+    },
     addnewIcon: {
         height: responsiveHeight(4),
         width: responsiveWidth(25),
         resizeMode: 'contain'
+    },
+    addNewButtonContainer: {
+        // Default styles for the button container if needed
+    },
+    disabledButtonContainer: {
+        opacity: 0.5,
+    },
+    disabledAddnewIcon: {
+        opacity: 0.5,
     },
     contactListContainer: {
         backgroundColor: "#fff",
@@ -625,83 +1126,182 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "#333",
     },
-    availableCard: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-        margin: 1,
-        marginTop: responsiveHeight(2)
-    },
-    availableHeader: {
-        color: '#1B2234',
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: responsiveFontSize(2),
-        marginBottom: 10,
-    },
-    availableRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 5,
-    },
-    availableLabel: {
-        color: '#000000',
-        fontFamily: 'Poppins-Medium',
-        fontSize: responsiveFontSize(1.7),
-    },
-    availableValue: {
-        color: '#868686',
-        fontFamily: 'Poppins-Medium',
-        fontSize: responsiveFontSize(1.7),
-    },
-    containerpricebreckdown: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        margin: 1,
-        shadowColor: '#000',
+    invoiceContainer: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3, // For Android
+        elevation: 3,
+        marginVertical: responsiveHeight(1)
     },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 5,
+    invoiceItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 12,
     },
-    label: {
-        fontFamily: 'Poppins-Medium',
-        fontSize: responsiveFontSize(1.7),
-        color: '#000000',
+    invoiceText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#333",
     },
-    value: {
-        fontFamily: 'Poppins-Medium',
-        fontSize: responsiveFontSize(1.7),
-        color: '#868686',
+    invoiceDivider: {
+        height: 1,
+        backgroundColor: "#ddd",
+        marginHorizontal: 5,
     },
-    bold: {
-        fontWeight: 'bold',
+    arrowIcon: {
+        height: 25,
+        width: 25,
+        resizeMode: 'contain',
     },
-    red: {
-        color: '#FF455C',
-    },
-    large: {
+    textinputheader: {
+        fontFamily: 'Poppins-SemiBold',
         fontSize: responsiveFontSize(2),
+        color: '#2F2F2F',
+        marginBottom: responsiveHeight(1),
     },
-    subText: {
+    requiredheader: {
+        fontFamily: 'Poppins-SemiBold',
+        fontSize: responsiveFontSize(1.5),
+        color: '#E1293B',
+        marginBottom: responsiveHeight(1),
+        marginLeft: responsiveWidth(1)
+    },
+    inputView: {
+        alignSelf: 'center'
+    },
+    cancelTourIcon: {
+        height: 90,
+        width: 90,
+        resizeMode: 'contain',
+        marginTop: responsiveHeight(5)
+    },
+    cancelText: {
+        fontSize: responsiveFontSize(2),
+        color: '#686868',
+        fontFamily: 'Poppins-Regular',
+        marginTop: responsiveHeight(5)
+    },
+    noContactsText: {
+        color: '#686868',
         fontFamily: 'Poppins-Regular',
         fontSize: responsiveFontSize(1.5),
-        color: '#424242',
-        marginBottom: 5,
+        textAlign: 'center',
+        paddingVertical: 20
+    },
+    textinputview: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        //marginBottom: responsiveHeight(1)
+    },
+    countryModal: {
+
+    },
+    countryInputView: {
+        height: responsiveHeight(6),
+        width: responsiveWidth(17),
+        borderColor: '#E0E0E0',
+        borderWidth: 1,
+        borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 5,
+        marginTop: -responsiveHeight(2)
+    },
+    titleOverlay: {
+        backgroundColor: 'rgba(0,0,0,0.5)', // semi-transparent black
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        marginLeft: responsiveWidth(2),
+    },
+    unsuccessfullbookingText: {
+        fontSize: responsiveFontSize(2),
+        color: '#686868',
+        fontFamily: 'Poppins-Regular',
+        marginTop: responsiveHeight(1)
+    },
+    unsuccessfullbookingValue: {
+        fontSize: responsiveFontSize(2),
+        color: '#686868',
+        fontFamily: 'Poppins-Regular',
+        marginTop: responsiveHeight(1)
+    },
+    cardcontainer: {
+        backgroundColor: "#fff",
+        padding: 16,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    amountContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
+    timeline: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    timelineItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconCircleRed: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#FF455C',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stepNumber: {
+        fontSize: responsiveFontSize(1.5),
+        color: '#FFFFFF',
+        fontFamily: 'Poppins-Bold',
+    },
+    verticalLine: {
+        width: 1,
+        height: 40,
+        backgroundColor: '#E0E0E0',
+    },
+    stepContent: {
         marginLeft: 10,
     },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        marginVertical: 8,
+    stepTitle: {
+        fontSize: responsiveFontSize(1.7),
+        color: '#333',
+        fontFamily: 'Poppins-SemiBold',
+    },
+    stepTime: {
+        fontSize: responsiveFontSize(1.5),
+        color: '#686868',
+        fontFamily: 'Poppins-Regular',
+    },
+    messageBox: {
+        backgroundColor: '#F0F0F0',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+    },
+    messageText: {
+        fontSize: responsiveFontSize(1.5),
+        color: '#686868',
+        fontFamily: 'Poppins-Regular',
     },
 });
