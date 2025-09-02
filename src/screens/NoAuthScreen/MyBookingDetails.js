@@ -83,7 +83,7 @@ export default function MyBookingDetails({ route }) {
         try {
             const token = await AsyncStorage.getItem('userToken');
             const response = await axios.post(
-                `${API_URL}/customer/co-traveller-list`,
+                `${API_URL}/agent/co-traveller-list`,
                 {
                     booking_id: bookingData.id
                 },
