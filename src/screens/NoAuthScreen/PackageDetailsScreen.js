@@ -306,12 +306,12 @@ export default function PackageDetailsScreen({ route }) {
                                 <Text style={[styles.titleM, { zIndex: 1, paddingHorizontal: 8, paddingVertical: 2 }]}>Package details</Text>
                             </View>
                         </View>
-                        {/* <TouchableOpacity style={styles.iconButton} onPress={()=> navigation.navigate('PackageEditScreen',{ packageId: packageDetails[0]?.id })}>
+                        <TouchableOpacity style={styles.iconButton} onPress={()=> navigation.navigate('PackageEditScreen',{ packageId: packageDetails[0]?.id })}>
                             <Image
                                 source={editIcon}
                                 style={styles.filterIcon}
                             />
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
                         <TouchableOpacity style={styles.iconButton} onPress={onShare}>
                             <Image
                                 source={shareImg}
