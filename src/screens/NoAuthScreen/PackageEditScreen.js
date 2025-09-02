@@ -83,9 +83,20 @@ const PackageEditScreen = ({ route }) => {
     const [dobError, setdobError] = useState('');
     const [open, setOpen] = useState(false)
 
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState('fixedDate');
+    const [expireDate, setExpireDate] = useState(null);
+    const [showExpireDatePicker, setShowExpireDatePicker] = useState(false);
+
     const handleSelection = (option) => {
-        setSelectedOption(selectedOption === option ? null : option);
+        setSelectedOption(option);
+        if (option === 'customDate') {
+            setStartDate(null);
+            setEndDate(null);
+            setExpireDate(null);
+            setSlot(''); // Clear slot when switching to custom date
+        } else {
+            setExpireDate(null);
+        }
     };
     const [days, setDays] = useState([]);
 
@@ -97,6 +108,27 @@ const PackageEditScreen = ({ route }) => {
     const [endDate, setEndDate] = useState(null);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
+    const onStartDateChange = (event, selectedDate) => {
+        setShowStartDatePicker(false);
+        if (selectedDate) {
+            setStartDate(selectedDate);
+        }
+    };
+
+    const onEndDateChange = (event, selectedDate) => {
+        setShowEndDatePicker(false);
+        if (selectedDate) {
+            setEndDate(selectedDate);
+        }
+    };
+
+    const onExpireDateChange = (event, selectedDate) => {
+        setShowExpireDatePicker(false);
+        if (selectedDate) {
+            setExpireDate(selectedDate);
+        }
+    };
 
     const [policies, setPolicies] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
@@ -111,16 +143,16 @@ const PackageEditScreen = ({ route }) => {
     useFocusEffect(
         useCallback(() => {
             const backAction = () => {
-               navigation.goBack()
-               return true
-              };
-          
-              const backHandler = BackHandler.addEventListener(
+                navigation.goBack()
+                return true
+            };
+
+            const backHandler = BackHandler.addEventListener(
                 'hardwareBackPress',
                 backAction,
-              );
-          
-              return () => backHandler.remove();
+            );
+
+            return () => backHandler.remove();
         }, [navigation])
     );
 
@@ -151,13 +183,17 @@ const PackageEditScreen = ({ route }) => {
                 setlocation(packageData.location.name);
                 setLocationId(packageData.location_id);
                 setPackageValue(JSON.parse(packageData.location_id));
-                setSlot(packageData.seat_slots.toString());
-                setPrice(packageData.price.toString());
-                setDiscountedPrice(packageData.discounted_price.toString());
-                setChildPrice(packageData.children_price.toString());
+                setSlot(packageData.date_type == 0 ? packageData.seat_slots : '');
+                setPrice(packageData.price);
+                setDiscountedPrice(packageData.discounted_price);
+                setChildPrice(packageData.children_price);
                 setSelectedOption(packageData.date_type == 0 ? 'fixedDate' : 'customDate');
-                setStartDate(new Date(packageData.start_date));
-                setEndDate(new Date(packageData.end_date));
+                if (packageData.date_type == 0) {
+                    setStartDate(packageData.start_date ? new Date(packageData.start_date) : null);
+                    setEndDate(packageData.end_date ? new Date(packageData.end_date) : null);
+                } else {
+                    setExpireDate(packageData.end_date ? new Date(packageData.end_date) : null);
+                }
                 setCoverPhotoUrl(packageData.cover_photo_url);
 
                 // Set itinerary days
@@ -299,17 +335,23 @@ const PackageEditScreen = ({ route }) => {
 
     const toggleCheckboxInclusions = (item) => {
         if (selectedItemsInclusions.includes(item)) {
+            // Remove from inclusions
             setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         } else {
+            // Add to inclusions and remove from exclusions (mutual exclusivity)
             setSelectedItemsInclusions([...selectedItemsInclusions, item]);
+            setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         }
     };
 
     const toggleCheckboxExclusion = (item) => {
         if (selectedItemsExclusion.includes(item)) {
+            // Remove from exclusions
             setSelectedItemsExclusion(selectedItemsExclusion.filter((i) => i !== item));
         } else {
+            // Add to exclusions and remove from inclusions (mutual exclusivity)
             setSelectedItemsExclusion([...selectedItemsExclusion, item]);
+            setSelectedItemsInclusions(selectedItemsInclusions.filter((i) => i !== item));
         }
     };
 
@@ -379,10 +421,31 @@ const PackageEditScreen = ({ route }) => {
                 setIsLoading(false);
                 return;
             }
-            if (!slot) {
-                setSlotError('Please enter number of slots.');
-                setIsLoading(false);
-                return;
+            if (selectedOption === 'fixedDate') {
+                if (!slot) {
+                    setSlotError('Please enter number of slots.');
+                    setIsLoading(false);
+                    return;
+                }
+                if (!startDate || !endDate) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Please select both start and end dates'
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+            } else {
+                if (!expireDate) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Please select expire date'
+                    });
+                    setIsLoading(false);
+                    return;
+                }
             }
             if (!price) {
                 setPriceError('Please enter price.');
@@ -399,15 +462,6 @@ const PackageEditScreen = ({ route }) => {
                 setIsLoading(false);
                 return;
             }
-            if (selectedOption === 'fixedDate' && (!startDate || !endDate)) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error',
-                    text2: 'Please select both start and end dates'
-                });
-                setIsLoading(false);
-                return;
-            }
 
             // Prepare form data
             const formData = new FormData();
@@ -421,7 +475,7 @@ const PackageEditScreen = ({ route }) => {
             formData.append('price', price);
             formData.append('discounted_price', discountedPrice);
             formData.append('children_price', childPrice);
-            formData.append('date_type', selectedOption === 'fixedDate' ? 0 : 1);
+            formData.append('date_type', selectedOption == 'fixedDate' ? 0 : 1);
 
             // Add cover photo if changed
             if (coverPhoto) {
@@ -439,9 +493,13 @@ const PackageEditScreen = ({ route }) => {
                 console.log('Keeping existing cover photo:', coverPhotoUrl);
             }
 
-            // Add dates
-            formData.append('start_date', startDate.toISOString().split('T')[0]);
-            formData.append('end_date', endDate.toISOString().split('T')[0]);
+            // Add dates based on selected option
+            if (selectedOption === 'fixedDate') {
+                formData.append('start_date', startDate.toISOString().split('T')[0]);
+                formData.append('end_date', endDate.toISOString().split('T')[0]);
+            } else {
+                formData.append('end_date', expireDate.toISOString().split('T')[0]);
+            }
 
             // Add itinerary data
             days.forEach((day, dayIndex) => {
@@ -476,9 +534,9 @@ const PackageEditScreen = ({ route }) => {
             // Add package inclusions and exclusions
             formData.append('package_inclusion', JSON.stringify(selectedItemsInclusions));
             formData.append('package_exclusion', JSON.stringify(selectedItemsExclusion));
-            formData.append('package_id',packageId);
+            formData.append('package_id', packageId);
             console.log(formData, 'formData')
-        
+
             // Make API call
             const userToken = await AsyncStorage.getItem('userToken');
             const response = await axios.post(`${API_URL}/agent/package-update`, formData, {
@@ -615,7 +673,7 @@ const PackageEditScreen = ({ route }) => {
                         </View>
                         {locationError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{locationError}</Text> : <></>}
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Dropdown
+                            {/* <Dropdown
                                 style={[styles.dropdownHalf, isPackageFocus && { borderColor: '#DDD' }]}
                                 placeholderStyle={styles.placeholderStyle}
                                 selectedTextStyle={styles.selectedTextStyle}
@@ -638,6 +696,19 @@ const PackageEditScreen = ({ route }) => {
                                     setYearIsFocus(false);
                                     setlocationError('');
                                 }}
+                            /> */}
+                            <InputField
+                                label={'Enter package name'}
+                                keyboardType="default"
+                                value={packagevalue ? locationList.find(item => item.value === packagevalue)?.label : 'Choose Location'}
+                                inputType={'nonedit'}
+                                onChangeText={(text) => {
+                                    // setPackageName(text);
+                                    // if (text) {
+                                    //     setPackageNameError('');
+                                    // }
+                                }}
+                                placeholderTextColor="#808080"
                             />
                         </View>
 
@@ -661,45 +732,59 @@ const PackageEditScreen = ({ route }) => {
                             </View>
                         </View>
 
-                        <View style={styles.dateContainer}>
-                            <View style={styles.dateinputContainer}>
-                                <Text style={styles.header}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
-                                <TouchableOpacity
-                                    style={styles.inputBox}
-                                    onPress={() => setShowStartDatePicker(true)}
-                                >
-                                    <FontAwesome name="calendar" size={16} color="#FF455C" />
-                                    <Text style={styles.inputText}>
-                                        {startDate ? moment(startDate).format('DD-MM-YYYY') : 'Select Start Date'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                        {selectedOption === 'fixedDate' ? (
+                            <>
+                                <View style={styles.dateContainer}>
+                                    <View style={styles.dateinputContainer}>
+                                        <Text style={styles.header}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
+                                        <TouchableOpacity
+                                            style={styles.inputBox}
+                                            onPress={() => setShowStartDatePicker(true)}
+                                        >
+                                            <FontAwesome name="calendar" size={16} color="#FF455C" />
+                                            <Text style={styles.inputText}>
+                                                {startDate ? moment(startDate).format('DD-MM-YYYY') : 'Select Start Date'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
 
-                            <View style={styles.dateinputContainer}>
-                                <Text style={styles.header}>End Date <Text style={styles.requiredheader}>*</Text></Text>
-                                <TouchableOpacity
-                                    style={styles.inputBox}
-                                    onPress={() => setShowEndDatePicker(true)}
-                                >
-                                    <FontAwesome name="calendar" size={16} color="#FF455C" />
-                                    <Text style={styles.inputText}>
-                                        {endDate ? moment(endDate).format('DD-MM-YYYY') : 'Select End Date'}
-                                    </Text>
-                                </TouchableOpacity>
+                                    <View style={styles.dateinputContainer}>
+                                        <Text style={styles.header}>End Date <Text style={styles.requiredheader}>*</Text></Text>
+                                        <TouchableOpacity
+                                            style={styles.inputBox}
+                                            onPress={() => setShowEndDatePicker(true)}
+                                        >
+                                            <FontAwesome name="calendar" size={16} color="#FF455C" />
+                                            <Text style={styles.inputText}>
+                                                {endDate ? moment(endDate).format('DD-MM-YYYY') : 'Select End Date'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </>
+                        ) : (
+                            <View style={styles.dateContainer}>
+                                <View style={styles.dateinputContainerForExpireDate}>
+                                    <Text style={styles.header}>Expire Date <Text style={styles.requiredheader}>*</Text></Text>
+                                    <TouchableOpacity
+                                        style={styles.inputBox}
+                                        onPress={() => setShowExpireDatePicker(true)}
+                                    >
+                                        <FontAwesome name="calendar" size={16} color="#FF455C" />
+                                        <Text style={styles.inputText}>
+                                            {expireDate ? moment(expireDate).format('DD-MM-YYYY') : 'Select Expire Date'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
+                        )}
 
                         {showStartDatePicker && (
                             <RNDateTimePicker
                                 value={startDate || new Date()}
                                 mode="date"
                                 display="default"
-                                onChange={(event, selectedDate) => {
-                                    setShowStartDatePicker(false);
-                                    if (selectedDate) {
-                                        setStartDate(selectedDate);
-                                    }
-                                }}
+                                onChange={onStartDateChange}
                                 minimumDate={new Date()}
                             />
                         )}
@@ -709,35 +794,44 @@ const PackageEditScreen = ({ route }) => {
                                 value={endDate || new Date()}
                                 mode="date"
                                 display="default"
-                                onChange={(event, selectedDate) => {
-                                    setShowEndDatePicker(false);
-                                    if (selectedDate) {
-                                        setEndDate(selectedDate);
-                                    }
-                                }}
+                                onChange={onEndDateChange}
                                 minimumDate={startDate || new Date()}
                             />
                         )}
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={styles.header}>Slots</Text>
-                            <Text style={styles.requiredheader}>*</Text>
-                        </View>
-                        {slotError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{slotError}</Text> : <></>}
-                        <View style={styles.inputView}>
-                            <InputField
-                                label={'Number of Slot'}
-                                keyboardType="numeric"
-                                value={slot}
-                                inputType={'others'}
-                                onChangeText={(text) => {
-                                    setSlot(text);
-                                    if (text) {
-                                        setSlotError('');
-                                    }
-                                }}
+                        {showExpireDatePicker && (
+                            <RNDateTimePicker
+                                value={expireDate || new Date()}
+                                mode="date"
+                                display="default"
+                                onChange={onExpireDateChange}
+                                minimumDate={new Date()}
                             />
-                        </View>
+                        )}
+
+                        {selectedOption === 'fixedDate' && (
+                            <>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={styles.header}>Slots</Text>
+                                    <Text style={styles.requiredheader}>*</Text>
+                                </View>
+                                {slotError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{slotError}</Text> : <></>}
+                                <View style={styles.inputView}>
+                                    <InputField
+                                        label={'Number of Slot'}
+                                        keyboardType="numeric"
+                                        value={slot}
+                                        inputType={'others'}
+                                        onChangeText={(text) => {
+                                            setSlot(text);
+                                            if (text) {
+                                                setSlotError('');
+                                            }
+                                        }}
+                                    />
+                                </View>
+                            </>
+                        )}
 
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.header}>Price</Text>
@@ -888,6 +982,14 @@ const PackageEditScreen = ({ route }) => {
                         <View style={styles.refundHeader}>
                             <Text style={styles.header}>Package Inclusions</Text>
                         </View>
+                        <Text style={styles.mutualExclusionNote}>
+                            Note: Items cannot be in both inclusions and exclusions. Selecting an item in one will automatically remove it from the other.
+                        </Text>
+                        <View style={styles.selectionSummary}>
+                            <Text style={styles.summaryText}>
+                                Currently selected: {selectedItemsInclusions.length} inclusions, {selectedItemsExclusion.length} exclusions
+                            </Text>
+                        </View>
                         {optionsInclusions.map((item, index) => (
                             <TouchableOpacity
                                 key={index}
@@ -900,6 +1002,9 @@ const PackageEditScreen = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsExclusion.includes(item) && (
+                                    <Text style={styles.excludedNote}> (Currently in Exclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
 
@@ -918,6 +1023,9 @@ const PackageEditScreen = ({ route }) => {
                                     tintColors={{ true: "#FF455C", false: "#888" }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
+                                {selectedItemsInclusions.includes(item) && (
+                                    <Text style={styles.includedNote}> (Currently in Inclusions)</Text>
+                                )}
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -1301,6 +1409,9 @@ const styles = StyleSheet.create({
         //flex: 1,
         width: responsiveWidth(40)
     },
+    dateinputContainerForExpireDate: {
+        width: responsiveWidth(88)
+    },
     inputBox: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1553,5 +1664,45 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 12,
         fontFamily: 'Poppins-Bold',
+    },
+    mutualExclusionNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.4),
+        color: '#FF6B35',
+        marginBottom: 15,
+        paddingHorizontal: 5,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        backgroundColor: '#FFF3E0',
+        padding: 10,
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF6B35',
+    },
+    excludedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#FF6B35',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    includedNote: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#4CAF50',
+        fontStyle: 'italic',
+        marginLeft: 5,
+    },
+    selectionSummary: {
+        backgroundColor: '#F5F5F5',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 15,
+        alignItems: 'center',
+    },
+    summaryText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.4),
+        color: '#666',
     },
 }); 
