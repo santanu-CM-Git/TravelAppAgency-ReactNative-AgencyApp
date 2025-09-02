@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -34,7 +33,7 @@ import { addIconImg, plus, userPhoto } from '../../utils/Images';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CountryPicker } from "react-native-country-codes-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AddNewMemberScreen = ({ route }) => {
     const navigation = useNavigation();

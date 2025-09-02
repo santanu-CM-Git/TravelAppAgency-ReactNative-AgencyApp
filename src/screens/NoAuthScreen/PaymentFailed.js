@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Image, StatusBar, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Image, StatusBar, BackHandler } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Thankyou from '../../assets/images/misc/Thankyou.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -11,6 +11,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import { failedImg } from '../../utils/Images';
 import { TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PaymentFailed = ({ route }) => {
     const navigation = useNavigation();

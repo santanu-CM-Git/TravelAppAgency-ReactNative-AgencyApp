@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, Image, FlatList, TouchableOpacity, Animated, ActivityIndicator, useWindowDimensions, Switch, Alert, Platform, BackHandler } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, StatusBar, Image, FlatList, TouchableOpacity, Animated, ActivityIndicator, useWindowDimensions, Switch, Alert, Platform, BackHandler } from 'react-native'
 import CustomHeader from '../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -20,6 +20,7 @@ import { AppEventsLogger } from 'react-native-fbsdk-next';
 import analytics from '@react-native-firebase/analytics';
 import Icon from 'react-native-vector-icons/Feather';
 import CheckBox from '@react-native-community/checkbox';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BookingSummary = ({ route }) => {
     const navigation = useNavigation();

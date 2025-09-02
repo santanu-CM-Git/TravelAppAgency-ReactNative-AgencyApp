@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState, useEffect, memo, useCallback, use
 import {
     View,
     Text,
-    SafeAreaView,
     ScrollView,
     Image,
     RefreshControl,
@@ -44,6 +43,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from 'react-native-vector-icons/Entypo';
 import RadioGroup from 'react-native-radio-buttons-group';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const itemWidth = width * 0.8; // 80% of screen width
@@ -174,7 +174,8 @@ export default function TravelAgencyDetails({  }) {
     return (
         <SafeAreaView style={styles.Container}>
             {/* <CustomHeader commingFrom={'Top location'} onPressProfile={() => navigation.navigate('Profile')} title={'Top location'} /> */}
-            <StatusBar translucent backgroundColor="transparent" />
+            {/* <StatusBar translucent backgroundColor="transparent" /> */}
+            <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
             <ScrollView>
                 <ImageBackground
                     source={productImg} // Replace with your image URL

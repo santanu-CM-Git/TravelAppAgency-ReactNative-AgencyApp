@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -29,6 +28,7 @@ import Toast from 'react-native-toast-message';
 import { addIconImg, plus, userPhoto } from '../../utils/Images';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AddNewUserType = ({ route }) => {
     const navigation = useNavigation();

@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState, useEffect, memo, useCallback, use
 import {
     View,
     Text,
-    SafeAreaView,
     ScrollView,
     Image,
     RefreshControl,
@@ -47,6 +46,7 @@ import RadioGroup from 'react-native-radio-buttons-group';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const itemWidth = width * 0.8; // 80% of screen width

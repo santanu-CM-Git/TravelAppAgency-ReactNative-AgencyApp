@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState, useEffect, memo, useCallback, use
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Image,
   RefreshControl,
@@ -44,6 +43,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Toast from 'react-native-toast-message';
 import { requestNotificationPermission, checkNotificationPermission } from '../../utils/NotificationService';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const itemWidth = width * 0.8; // 80% of screen width

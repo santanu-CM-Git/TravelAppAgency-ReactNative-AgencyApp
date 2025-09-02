@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -36,6 +35,7 @@ import CustomHeader from '../../components/CustomHeader';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CountryPicker } from "react-native-country-codes-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const noOfAudult = [
     { label: '1', value: '1' },

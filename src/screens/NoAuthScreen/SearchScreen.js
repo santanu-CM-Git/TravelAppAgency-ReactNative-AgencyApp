@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef, useContext } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, RefreshControl, TextInput, Image, FlatList, TouchableOpacity, BackHandler, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, FlatList, TouchableOpacity, BackHandler, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform, StatusBar } from 'react-native'
 import CustomHeader from '../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { LongPressGestureHandler, State, TouchableWithoutFeedback } from 'react-native-gesture-handler'
@@ -24,6 +24,7 @@ import { AuthContext } from '../../context/AuthContext';
 import RadioGroup from 'react-native-radio-buttons-group';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import IconF from "react-native-vector-icons/FontAwesome";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SearchScreen = ({ route }) => {
     const navigation = useNavigation();

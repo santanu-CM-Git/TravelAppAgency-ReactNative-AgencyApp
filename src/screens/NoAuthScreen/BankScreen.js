@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -36,6 +35,7 @@ import { addIconImg, bankImg, plus, userPhoto } from '../../utils/Images';
 import CustomHeader from '../../components/CustomHeader';
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BankScreen = ({ route }) => {
     const navigation = useNavigation();

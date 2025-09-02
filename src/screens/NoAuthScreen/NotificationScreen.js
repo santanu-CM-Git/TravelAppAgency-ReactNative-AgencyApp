@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, StatusBar, BackHandler, RefreshControl, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, StatusBar, BackHandler, RefreshControl, ActivityIndicator } from 'react-native'
 import CustomHeader from '../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -12,7 +12,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { API_URL } from '@env'
 import moment from 'moment-timezone';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 const NotificationScreen = ({  }) => {
   const navigation = useNavigation();
   const [notifications, setNotifications] = useState([]);

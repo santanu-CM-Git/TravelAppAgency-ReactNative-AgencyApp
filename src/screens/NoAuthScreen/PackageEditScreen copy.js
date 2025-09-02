@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -39,6 +38,7 @@ import Modal from "react-native-modal";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PackageEditScreen = ({ route }) => {
     const navigation = useNavigation();

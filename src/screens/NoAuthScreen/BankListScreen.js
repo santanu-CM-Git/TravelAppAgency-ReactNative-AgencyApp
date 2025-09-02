@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -28,6 +27,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BankListScreen = ({ route }) => {
     const navigation = useNavigation();

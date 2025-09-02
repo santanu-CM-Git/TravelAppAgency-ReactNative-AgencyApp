@@ -12,6 +12,7 @@ import messaging from '@react-native-firebase/messaging';
 import { requestNotificationPopup, setupNotificationHandlers } from './src/utils/NotificationService';
 import { navigate } from './src/navigation/NavigationService'; // Import the navigation function
 import { requestCameraAndAudioPermissions } from './src/utils/PermissionHandler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function App() {
   const [notifications, setNotifications] = useState([]);
@@ -64,12 +65,18 @@ function App() {
 
   return (
     <Provider store={store}>
-      <StatusBar backgroundColor="#000" />
+      <SafeAreaProvider>
+      <StatusBar
+          translucent={false}
+          backgroundColor="#000"
+          barStyle="light-content"
+        />
       <OfflineNotice />
       <AuthProvider>
         <AppNav />
       </AuthProvider>
       <Toast />
+      </SafeAreaProvider>
     </Provider>
   );
 }

@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -36,6 +35,7 @@ import Toast from 'react-native-toast-message';
 import { accountMenu, accountSettingsMenu, arrowRightImg, bankMenu, editImg, logoutMenuImg, mybookingMenuImg, newMemberButton, packagepostMenuImg, plus, policyMenuImg, productImg, profileMenu, settingsMenuImg, supportMenuImg, teamMenu, termMenuImg, transactionMenuImg, userPhoto } from '../../utils/Images';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SupportScreen = ({ route }) => {
     const navigation = useNavigation();

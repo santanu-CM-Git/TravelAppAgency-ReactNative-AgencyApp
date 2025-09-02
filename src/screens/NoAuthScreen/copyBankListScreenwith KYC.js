@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -31,6 +30,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DocumentPicker from 'react-native-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BankListScreencopy = ({ route }) => {
     const navigation = useNavigation();

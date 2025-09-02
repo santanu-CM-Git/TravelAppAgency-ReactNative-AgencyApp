@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform, Linking, Modal, TouchableOpacity, TouchableWithoutFeedback, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform, Linking, Modal, TouchableOpacity, TouchableWithoutFeedback, StatusBar } from 'react-native'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity as GestureTouchableOpacity } from 'react-native-gesture-handler'
 import { GreenTick, audiooffIcon, audioonIcon, callIcon, chatImg, filesendImg, sendImg, speakeroffIcon, speakeronIcon, summaryIcon, userPhoto, videoIcon, audioBgImg, defaultUserImg, switchcameraIcon, chatCallIcon, chatColor, messageImg, docsForChat, imageForChat } from '../../utils/Images'
@@ -30,6 +30,7 @@ import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, check, RESULTS } from 'react-native-permissions';
 import { requestNotificationPermission, checkNotificationPermission } from '../../utils/NotificationService';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ChatScreen = ({ route }) => {
   const navigation = useNavigation();

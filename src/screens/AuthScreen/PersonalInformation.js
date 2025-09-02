@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -36,6 +35,7 @@ import { addIconImg, facebookImg, googleImg, plus, userPhoto } from '../../utils
 import Svg, { Circle, Defs, LinearGradient, Stop, Mask, Rect } from 'react-native-svg';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const dataGender = [
   { label: 'Male', value: 'Male' },
