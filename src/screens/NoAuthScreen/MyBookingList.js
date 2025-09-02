@@ -350,24 +350,53 @@ const MyBookingList = ({ route }) => {
                         renderItem={({ item, index }) => (
                             <Swipeable
                                 key={index}
-                                renderRightActions={() => (
-                                    <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
-                                        <View style={styles.buttonContainer}>
-                                            <TouchableWithoutFeedback onPress={() => actionButton('accept', item?.id)}>
-                                                <Image
-                                                    source={acceptButton}
-                                                    style={[styles.buttonIcon, { marginLeft: 10 }]}
-                                                />
-                                            </TouchableWithoutFeedback>
-                                            <TouchableWithoutFeedback onPress={() => actionButton('reject', item?.id)}>
-                                                <Image
-                                                    source={declineButton}
-                                                    style={styles.buttonIcon}
-                                                />
-                                            </TouchableWithoutFeedback>
-                                        </View>
-                                    </TouchableOpacity>
-                                )}
+                                renderRightActions={() => {
+                                    // Show no buttons for rejected or cancelled status
+                                    if (item.status === 'rejected' || item.status === 'cancelled') {
+                                        return null;
+                                    }
+                                    
+                                    // Show only decline button for accepted status
+                                    if (item.status === 'accepted') {
+                                        return (
+                                            <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
+                                                <View style={styles.buttonContainer}>
+                                                    <TouchableWithoutFeedback onPress={() => actionButton('reject', item?.id)}>
+                                                        <Image
+                                                            source={declineButton}
+                                                            style={styles.buttonIcon}
+                                                        />
+                                                    </TouchableWithoutFeedback>
+                                                </View>
+                                            </TouchableOpacity>
+                                        );
+                                    }
+                                    
+                                    // Show both accept and decline buttons for pending status
+                                    if (item.status === 'pending') {
+                                        return (
+                                            <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
+                                                <View style={styles.buttonContainer}>
+                                                    <TouchableWithoutFeedback onPress={() => actionButton('accept', item?.id)}>
+                                                        <Image
+                                                            source={acceptButton}
+                                                            style={[styles.buttonIcon, { marginLeft: 10 }]}
+                                                        />
+                                                    </TouchableWithoutFeedback>
+                                                    <TouchableWithoutFeedback onPress={() => actionButton('reject', item?.id)}>
+                                                        <Image
+                                                            source={declineButton}
+                                                            style={styles.buttonIcon}
+                                                        />
+                                                    </TouchableWithoutFeedback>
+                                                </View>
+                                            </TouchableOpacity>
+                                        );
+                                    }
+                                    
+                                    // Default case: show no buttons
+                                    return null;
+                                }}
                             >
                                 <View style={styles.newBookingCard}>
                                     {/* User Info Section */}

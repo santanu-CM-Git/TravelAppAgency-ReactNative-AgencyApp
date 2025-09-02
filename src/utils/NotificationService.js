@@ -50,14 +50,14 @@ export const requestNotificationPopup = async () => {
   const result = await requestNotificationPermission();
 
   if (result !== RESULTS.GRANTED) {
-    Alert.alert(
-      'Notification Permission Required',
-      'Please enable notifications to stay updated.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Open Settings', onPress: openSettings },
-      ]
-    );
+    // Alert.alert(
+    //   'Notification Permission Required',
+    //   'Please enable notifications to stay updated.',
+    //   [
+    //     { text: 'Cancel', style: 'cancel' },
+    //     { text: 'Open Settings', onPress: openSettings },
+    //   ]
+    // );
   }
 };
 
