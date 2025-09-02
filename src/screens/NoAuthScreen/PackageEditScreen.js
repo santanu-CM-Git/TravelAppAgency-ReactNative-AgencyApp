@@ -46,6 +46,8 @@ const PackageEditScreen = ({ route }) => {
     const autocompleteRef = useRef(null);
     const [packageDescription, setPackageDescription] = useState('');
     const [packageDescriptionError, setPackageDescriptionError] = useState('')
+    const [packageName, setPackageName] = useState('');
+    const [packageNameError, setPackageNameError] = useState('');
     const [location, setlocation] = useState('');
     const [locationId, setLocationId] = useState('')
     const [locationError, setlocationError] = useState('');
@@ -143,7 +145,9 @@ const PackageEditScreen = ({ route }) => {
 
             if (response.data.status) {
                 const packageData = response.data.data[0];
-                setPackageDescription(packageData.name);
+                console.log(JSON.stringify(packageData), 'packageData');
+                setPackageDescription(packageData.description);
+                setPackageName(packageData.name);
                 setlocation(packageData.location.name);
                 setLocationId(packageData.location_id);
                 setPackageValue(JSON.parse(packageData.location_id));
@@ -151,7 +155,7 @@ const PackageEditScreen = ({ route }) => {
                 setPrice(packageData.price.toString());
                 setDiscountedPrice(packageData.discounted_price.toString());
                 setChildPrice(packageData.children_price.toString());
-                setSelectedOption(packageData.date_type === 0 ? 'fixedDate' : 'customDate');
+                setSelectedOption(packageData.date_type == 0 ? 'fixedDate' : 'customDate');
                 setStartDate(new Date(packageData.start_date));
                 setEndDate(new Date(packageData.end_date));
                 setCoverPhotoUrl(packageData.cover_photo_url);
@@ -360,6 +364,11 @@ const PackageEditScreen = ({ route }) => {
             setIsLoading(true);
 
             // Basic validation
+            if (!packageName) {
+                setPackageNameError('Please enter package name.');
+                setIsLoading(false);
+                return;
+            }
             if (!packageDescription) {
                 setPackageDescriptionError('Please enter description.');
                 setIsLoading(false);
@@ -404,7 +413,7 @@ const PackageEditScreen = ({ route }) => {
             const formData = new FormData();
 
             // Add basic package info
-            formData.append('name', packageDescription);
+            formData.append('name', packageName);
             formData.append('location_id', locationId);
             formData.append('location', location);
             formData.append('description', packageDescription);
@@ -560,13 +569,34 @@ const PackageEditScreen = ({ route }) => {
                 <View style={styles.wrapper}>
                     <View style={styles.textinputview}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.header}>Package Name</Text>
+                            <Text style={styles.requiredheader}>*</Text>
+                        </View>
+                        {packageNameError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{packageNameError}</Text> : <></>}
+                        <View style={styles.inputView}>
+                            <InputField
+                                label={'Enter package name'}
+                                keyboardType="default"
+                                value={packageName}
+                                inputType={'others'}
+                                onChangeText={(text) => {
+                                    setPackageName(text);
+                                    if (text) {
+                                        setPackageNameError('');
+                                    }
+                                }}
+                                placeholderTextColor="#808080"
+                            />
+                        </View>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.header}>Description</Text>
                             <Text style={styles.requiredheader}>*</Text>
                         </View>
                         {packageDescriptionError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{packageDescriptionError}</Text> : <></>}
                         <View style={styles.inputView}>
                             <InputField
-                                label={'Enter package Description'}
+                                label={'Enter package description'}
                                 keyboardType=" "
                                 value={packageDescription}
                                 inputType={'address'}
