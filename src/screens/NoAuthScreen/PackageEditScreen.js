@@ -86,8 +86,19 @@ const PackageEditScreen = ({ route }) => {
     const [selectedOption, setSelectedOption] = useState('fixedDate');
     const [expireDate, setExpireDate] = useState(null);
     const [showExpireDatePicker, setShowExpireDatePicker] = useState(false);
+    const [hasExistingBookings, setHasExistingBookings] = useState(false);
 
     const handleSelection = (option) => {
+        // Prevent changing date type if there are existing bookings
+        if (hasExistingBookings) {
+            Toast.show({
+                type: 'error',
+                text1: 'Cannot Change Date Type',
+                text2: 'Cannot change date type when package has existing bookings'
+            });
+            return;
+        }
+        
         setSelectedOption(option);
         if (option === 'customDate') {
             setStartDate(null);
@@ -222,6 +233,16 @@ const PackageEditScreen = ({ route }) => {
                 const exclusions = JSON.parse(packageData.package_exclusion);
                 setSelectedItemsInclusions(inclusions);
                 setSelectedItemsExclusion(exclusions);
+
+                // Check if package has existing bookings
+                console.log('Package bookings data:', packageData.bookings);
+                if (packageData.bookings && packageData.bookings.length > 0) {
+                    console.log('Package has existing bookings, disabling date fields');
+                    setHasExistingBookings(true);
+                } else {
+                    console.log('Package has no existing bookings, date fields enabled');
+                    setHasExistingBookings(false);
+                }
             }
         } catch (error) {
             console.error('Error fetching package details:', error);
@@ -713,13 +734,24 @@ const PackageEditScreen = ({ route }) => {
                         </View>
 
                         <View style={styles.datetypecontainer}>
+                            {hasExistingBookings && (
+                                <View style={styles.bookingWarningContainer}>
+                                    <Text style={styles.bookingWarningText}>
+                                        ⚠️ Date fields are disabled - package has existing bookings
+                                    </Text>
+                                    <Text style={styles.bookingWarningSubText}>
+                                        To protect existing bookings, date type, dates, and slots cannot be modified
+                                    </Text>
+                                </View>
+                            )}
                             <View style={styles.checkboxContainer}>
                                 <CheckBox
                                     value={selectedOption === 'fixedDate'}
                                     onValueChange={() => handleSelection('fixedDate')}
                                     tintColors={{ true: '#FF455C', false: '#888' }}
+                                    disabled={hasExistingBookings}
                                 />
-                                <Text style={[styles.checkboxlabel]}>Fixed Date</Text>
+                                <Text style={[styles.checkboxlabel, hasExistingBookings && styles.disabledText]}>Fixed Date</Text>
                             </View>
 
                             <View style={styles.checkboxContainer}>
@@ -736,10 +768,11 @@ const PackageEditScreen = ({ route }) => {
                             <>
                                 <View style={styles.dateContainer}>
                                     <View style={styles.dateinputContainer}>
-                                        <Text style={styles.header}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
+                                        <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
-                                            style={styles.inputBox}
-                                            onPress={() => setShowStartDatePicker(true)}
+                                            style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
+                                            onPress={() => !hasExistingBookings && setShowStartDatePicker(true)}
+                                            disabled={hasExistingBookings}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
                                             <Text style={styles.inputText}>
@@ -749,10 +782,11 @@ const PackageEditScreen = ({ route }) => {
                                     </View>
 
                                     <View style={styles.dateinputContainer}>
-                                        <Text style={styles.header}>End Date <Text style={styles.requiredheader}>*</Text></Text>
+                                        <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>End Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
-                                            style={styles.inputBox}
-                                            onPress={() => setShowEndDatePicker(true)}
+                                            style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
+                                            onPress={() => !hasExistingBookings && setShowEndDatePicker(true)}
+                                            disabled={hasExistingBookings}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
                                             <Text style={styles.inputText}>
@@ -765,10 +799,11 @@ const PackageEditScreen = ({ route }) => {
                         ) : (
                             <View style={styles.dateContainer}>
                                 <View style={styles.dateinputContainerForExpireDate}>
-                                    <Text style={styles.header}>Expire Date <Text style={styles.requiredheader}>*</Text></Text>
+                                    <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>Expire Date <Text style={styles.requiredheader}>*</Text></Text>
                                     <TouchableOpacity
-                                        style={styles.inputBox}
-                                        onPress={() => setShowExpireDatePicker(true)}
+                                        style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
+                                        onPress={() => !hasExistingBookings && setShowExpireDatePicker(true)}
+                                        disabled={hasExistingBookings}
                                     >
                                         <FontAwesome name="calendar" size={16} color="#FF455C" />
                                         <Text style={styles.inputText}>
@@ -812,7 +847,7 @@ const PackageEditScreen = ({ route }) => {
                         {selectedOption === 'fixedDate' && (
                             <>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={styles.header}>Slots</Text>
+                                    <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>Slots</Text>
                                     <Text style={styles.requiredheader}>*</Text>
                                 </View>
                                 {slotError ? <Text style={{ color: 'red', fontFamily: 'Poppins-Regular' }}>{slotError}</Text> : <></>}
@@ -823,11 +858,14 @@ const PackageEditScreen = ({ route }) => {
                                         value={slot}
                                         inputType={'others'}
                                         onChangeText={(text) => {
-                                            setSlot(text);
-                                            if (text) {
-                                                setSlotError('');
+                                            if (!hasExistingBookings) {
+                                                setSlot(text);
+                                                if (text) {
+                                                    setSlotError('');
+                                                }
                                             }
                                         }}
+                                        editable={!hasExistingBookings}
                                     />
                                 </View>
                             </>
@@ -1704,5 +1742,35 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Medium',
         fontSize: responsiveFontSize(1.4),
         color: '#666',
+    },
+    bookingWarningContainer: {
+        backgroundColor: '#FFF3E0',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 15,
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF6B35',
+    },
+    bookingWarningText: {
+        fontFamily: 'Poppins-Medium',
+        fontSize: responsiveFontSize(1.4),
+        color: '#FF6B35',
+        textAlign: 'center',
+        marginBottom: 5,
+    },
+    bookingWarningSubText: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(1.2),
+        color: '#FF6B35',
+        textAlign: 'center',
+        opacity: 0.8,
+    },
+    disabledText: {
+        color: '#999',
+        opacity: 0.6,
+    },
+    disabledInputBox: {
+        opacity: 0.6,
+        backgroundColor: '#f5f5f5',
     },
 }); 
