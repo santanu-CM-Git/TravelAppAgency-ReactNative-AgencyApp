@@ -40,20 +40,22 @@ The notification popup is integrated into the main App component with:
 ## How It Works
 
 1. **Notification Arrival**: When a push notification arrives while the app is open
-2. **Smart Filtering**: The system checks if the user is on ChatScreen or if the notification is meant for ChatScreen
-3. **Popup Display**: If not filtered, the notification popup slides in from the left with animation
-4. **User Interaction**: Users can either:
+2. **ChatScreen Filter**: The system first checks if the notification is for ChatScreen (`remoteMessage?.data?.screen === 'ChatScreen'`)
+3. **Current Screen Check**: If it's a ChatScreen notification, the system checks if the user is already on ChatScreen
+4. **Popup Display**: If it's a ChatScreen notification and user is NOT on ChatScreen, the popup slides in from the left with animation
+5. **User Interaction**: Users can either:
    - Wait for auto-dismiss (10 seconds)
    - Manually close the popup
-   - Press the "View" button to take action
-5. **Queue Processing**: If multiple notifications arrive, they are queued and shown sequentially
+   - Press the "View" button to navigate to ChatScreen
+6. **Queue Processing**: If multiple ChatScreen notifications arrive, they are queued and shown sequentially
 
 ## Smart Notification Filtering
 
-The notification popup system includes intelligent filtering to avoid conflicts:
+The notification popup system includes intelligent filtering to show only relevant notifications:
 
+- **ChatScreen Only**: The popup **only** displays for notifications where `remoteMessage?.data?.screen === 'ChatScreen'`
 - **ChatScreen Detection**: If the user is currently on the ChatScreen, the popup is skipped since ChatScreen handles its own notifications
-- **ChatScreen Notifications**: Notifications with `screen: 'ChatScreen'` or `screen: 'Cancel'` are automatically skipped
+- **All Other Notifications Skipped**: Notifications for other screens (like 'ScheduleScreen', 'WalletScreen', etc.) are automatically skipped
 - **Nested Navigation Support**: The system properly detects ChatScreen even when nested within other navigators
 
 ## Notification Data Structure

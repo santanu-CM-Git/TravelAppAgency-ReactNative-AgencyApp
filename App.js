@@ -43,19 +43,19 @@ function App() {
             currentScreen: isCurrentScreenChatScreen() ? 'ChatScreen' : 'Other'
           });
 
+          // Only show popup for ChatScreen notifications
+          if (notification?.data?.screen !== 'ChatScreen') {
+            console.log('Skipping notification popup - not a ChatScreen notification');
+            return;
+          }
+
           // Skip popup if user is already on ChatScreen (ChatScreen handles its own notifications)
           if (isCurrentScreenChatScreen()) {
             console.log('Skipping notification popup - user is on ChatScreen');
             return;
           }
 
-          // Skip popup for notifications specifically meant for ChatScreen
-          // if (notification?.data?.screen === 'ChatScreen' || notification?.data?.screen === 'Cancel') {
-          //   console.log('Skipping notification popup - notification is for ChatScreen');
-          //   return;
-          // }
-
-          console.log('Showing notification popup');
+          console.log('Showing ChatScreen notification popup');
           // Show notification popup when app is in foreground
           if (showNotificationPopup) {
             // If popup is already visible, add to queue
@@ -132,24 +132,45 @@ function App() {
       if (navigationRef?.current?.getState) {
         const state = navigationRef.current.getState();
 
-        // Function to recursively check nested routes
+        // Function to recursively check nested routes and params
         const findCurrentRoute = (navState) => {
           if (!navState) return null;
 
           const currentRoute = navState.routes[navState.index];
           if (!currentRoute) return null;
 
+          console.log('Checking route:', currentRoute.name, 'Params:', currentRoute.params);
+
+          // Check if current route has ChatScreen in params
+          if (currentRoute.params?.screen === 'ChatScreen') {
+            console.log('Found ChatScreen in params of route:', currentRoute.name);
+            return { name: 'ChatScreen', isChatScreen: true };
+          }
+
+          // Check if current route name is ChatScreen
+          if (currentRoute.name === 'ChatScreen') {
+            console.log('Found ChatScreen route directly:', currentRoute.name);
+            return { name: 'ChatScreen', isChatScreen: true };
+          }
+
           // If this route has nested state, check it recursively
           if (currentRoute.state) {
+            console.log('Route has nested state, checking recursively...');
             const nestedRoute = findCurrentRoute(currentRoute.state);
-            return nestedRoute || currentRoute;
+            if (nestedRoute?.isChatScreen) {
+              return nestedRoute;
+            }
           }
 
           return currentRoute;
         };
 
         const currentRoute = findCurrentRoute(state);
-        return currentRoute?.name === 'ChatScreen';
+        const isChatScreen = currentRoute?.name === 'ChatScreen' || currentRoute?.isChatScreen;
+        
+        console.log('Final route check - Name:', currentRoute?.name, 'Is ChatScreen:', isChatScreen);
+        
+        return isChatScreen;
       }
       return false;
     } catch (error) {
