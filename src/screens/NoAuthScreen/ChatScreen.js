@@ -137,26 +137,26 @@ const ChatScreen = ({ route }) => {
         // Initialize video SDK
         await setupVideoSDKEngine();
         KeepAwake.activate();
-
+        await goingToactiveTab(route.params.flag || 'chat');
         // Check and request notification permissions
         await requestNotificationPermissions();
-        
+
         // Show notification permission alert if not granted
         if (!notificationStatus) {
-          Alert.alert(
-            'Enable Notifications',
-            'Stay updated with important messages and calls by enabling notifications.',
-            [
-              {
-                text: 'Not Now',
-                style: 'cancel',
-              },
-              {
-                text: 'Enable',
-                onPress: () => requestNotificationPermissions(),
-              },
-            ]
-          );
+          // Alert.alert(
+          //   'Enable Notifications',
+          //   'Stay updated with important messages and calls by enabling notifications.',
+          //   [
+          //     {
+          //       text: 'Not Now',
+          //       style: 'cancel',
+          //     },
+          //     {
+          //       text: 'Enable',
+          //       onPress: () => requestNotificationPermissions(),
+          //     },
+          //   ]
+          // );
         }
 
       } catch (error) {
@@ -707,11 +707,11 @@ const ChatScreen = ({ route }) => {
       } else {
         //const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
         const micStatus = await check(PERMISSIONS.IOS.MICROPHONE);
-  
+
         // if (cameraStatus !== RESULTS.GRANTED) {
         //   await request(PERMISSIONS.IOS.CAMERA);
         // }
-  
+
         if (micStatus !== RESULTS.GRANTED) {
           await request(PERMISSIONS.IOS.MICROPHONE);
         }
@@ -743,11 +743,11 @@ const ChatScreen = ({ route }) => {
       // For Android, use react-native-permissions with proper error handling
       try {
         const currentPermission = await checkNotificationPermission();
-        
+
         // If permission is not granted, request it
         if (currentPermission !== 'granted') {
           const permissionResult = await requestNotificationPermission();
-          
+
           if (permissionResult === 'granted') {
             console.log('Android notification permission granted');
             setNotificationStatus(true);
@@ -764,8 +764,8 @@ const ChatScreen = ({ route }) => {
         // Fallback: try to check using Firebase messaging
         try {
           const authStatus = await messaging().hasPermission();
-          const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
-                         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
           setNotificationStatus(enabled);
         } catch (firebaseError) {
           console.error('Firebase permission check error:', firebaseError);
@@ -1527,8 +1527,8 @@ const ChatScreen = ({ route }) => {
         try {
           if (Platform.OS === 'ios') {
             const authStatus = await messaging().hasPermission();
-            const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
-                           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+            const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+              authStatus === messaging.AuthorizationStatus.PROVISIONAL;
             setNotificationStatus(enabled);
           } else {
             try {
@@ -1538,8 +1538,8 @@ const ChatScreen = ({ route }) => {
               console.error('Permission check error:', permissionError);
               // Fallback to Firebase messaging
               const authStatus = await messaging().hasPermission();
-              const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || 
-                             authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+              const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+                authStatus === messaging.AuthorizationStatus.PROVISIONAL;
               setNotificationStatus(enabled);
             }
           }
@@ -1566,28 +1566,28 @@ const ChatScreen = ({ route }) => {
         <GestureTouchableOpacity onPress={handleGoBack}>
           <Ionicons name="chevron-back" size={28} color="#222" />
         </GestureTouchableOpacity>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(90) }}>
-            <View style={styles.headerTitleContainer}>
-              {userProfilePic ? (
-                <Image
-                  source={{ uri: userProfilePic }}
-                  style={styles.profileIcon}
-                />
-              ) : (
-                <Image
-                  source={defaultUserImg}
-                  style={styles.profileIcon}
-                />
-              )}
-              <Text style={[styles.headerTitle, { marginLeft: 10 }]}>{userName || "Users"}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    
-              <GestureTouchableOpacity onPress={() => requestToTabSwitch(activeTab === 'chat' ? 'audio' : 'chat')}>
-                <Image source={activeTab === 'chat' ? chatCallIcon : messageImg} style={[styles.headerCallIcon, { marginRight: 10 }]} tintColor={'#FF455C'} />
-              </GestureTouchableOpacity>
-            </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(90) }}>
+          <View style={styles.headerTitleContainer}>
+            {userProfilePic ? (
+              <Image
+                source={{ uri: userProfilePic }}
+                style={styles.profileIcon}
+              />
+            ) : (
+              <Image
+                source={defaultUserImg}
+                style={styles.profileIcon}
+              />
+            )}
+            <Text style={[styles.headerTitle, { marginLeft: 10 }]}>{userName || "Users"}</Text>
           </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+            <GestureTouchableOpacity onPress={() => requestToTabSwitch(activeTab === 'chat' ? 'audio' : 'chat')}>
+              <Image source={activeTab === 'chat' ? chatCallIcon : messageImg} style={[styles.headerCallIcon, { marginRight: 10 }]} tintColor={'#FF455C'} />
+            </GestureTouchableOpacity>
+          </View>
+        </View>
       </View>
       {/* <View style={styles.chatContainer}> */}
       {activeTab === 'chat' ? (
@@ -1631,13 +1631,13 @@ const ChatScreen = ({ route }) => {
             <GestureTouchableOpacity onPress={() => toggleMic()}>
               <Image
                 source={micOn ? audioonIcon : audiooffIcon}
-                style={[styles.iconStyle,{marginRight: responsiveWidth(2)}]}
+                style={[styles.iconStyle, { marginRight: responsiveWidth(2) }]}
               />
             </GestureTouchableOpacity>
             <GestureTouchableOpacity onPress={() => toggleSpeaker()}>
               <Image
                 source={speakerOn ? speakeronIcon : speakeroffIcon}
-                style={[styles.iconStyle,{marginRight: responsiveWidth(2)}]}
+                style={[styles.iconStyle, { marginRight: responsiveWidth(2) }]}
               />
             </GestureTouchableOpacity>
             {/* 🔴 End Button */}
@@ -2010,7 +2010,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   endButtonText: {
     color: 'white',
     fontFamily: 'Poppins-Medium',

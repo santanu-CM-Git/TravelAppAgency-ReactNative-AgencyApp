@@ -26,14 +26,14 @@ function App() {
     // Hide splash screen
     SplashScreen.hide();
 
-    if(Platform.OS === 'ios'){
+    if (Platform.OS === 'ios') {
       requestUserPermission()
     }
 
     // Request permissions and set up notifications
     requestNotificationPopup().then(() => {
       const unsubscribeForeground = setupNotificationHandlers(
-        setNotifications, 
+        setNotifications,
         setnotifyStatus,
         null,
         (notification) => {
@@ -42,19 +42,19 @@ function App() {
             title: notification?.notification?.title,
             currentScreen: isCurrentScreenChatScreen() ? 'ChatScreen' : 'Other'
           });
-          
+
           // Skip popup if user is already on ChatScreen (ChatScreen handles its own notifications)
           if (isCurrentScreenChatScreen()) {
             console.log('Skipping notification popup - user is on ChatScreen');
             return;
           }
-          
+
           // Skip popup for notifications specifically meant for ChatScreen
           // if (notification?.data?.screen === 'ChatScreen' || notification?.data?.screen === 'Cancel') {
           //   console.log('Skipping notification popup - notification is for ChatScreen');
           //   return;
           // }
-          
+
           console.log('Showing notification popup');
           // Show notification popup when app is in foreground
           if (showNotificationPopup) {
@@ -70,8 +70,13 @@ function App() {
 
       // Handle notification when the app is opened from a background state
       messaging().onNotificationOpenedApp(remoteMessage => {
-        if (remoteMessage?.data?.screen === 'ScheduleScreen') {
-          navigate('Schedule', { screen: 'ScheduleScreen' });
+        if (remoteMessage?.data?.screen === 'ChatScreen') {
+          navigate('Message', {
+            screen: 'ChatScreen', params: {
+              userId: 1,
+              flag: remoteMessage?.data?.flag,
+            }
+          });
         } else if (remoteMessage?.data?.screen === 'WalletScreen') {
           navigate('WalletScreen');
         }
@@ -79,8 +84,13 @@ function App() {
 
       // Handle notification when the app is opened from a quit state
       messaging().getInitialNotification().then(remoteMessage => {
-        if (remoteMessage?.data?.screen === 'ScheduleScreen') {
-          navigate('Schedule', { screen: 'ScheduleScreen' });
+        if (remoteMessage?.data?.screen === 'ChatScreen') {
+          navigate('Message', {
+            screen: 'ChatScreen', params: {
+              userId: 1,
+              flag: remoteMessage?.data?.flag,
+            }
+          });
         } else if (remoteMessage?.data?.screen === 'WalletScreen') {
           navigate('WalletScreen');
         }
@@ -95,7 +105,7 @@ function App() {
 
   async function requestUserPermission() {
     const authorizationStatus = await messaging().requestPermission();
-  
+
     if (authorizationStatus) {
       console.log('Permission status:', authorizationStatus);
     }
@@ -104,7 +114,7 @@ function App() {
   const handleNotificationPopupClose = () => {
     setShowNotificationPopup(false);
     setCurrentNotification(null);
-    
+
     // Process next notification in queue after a short delay
     setTimeout(() => {
       if (notificationQueue.length > 0) {
@@ -121,23 +131,23 @@ function App() {
       const navigationRef = getNavigationRef();
       if (navigationRef?.current?.getState) {
         const state = navigationRef.current.getState();
-        
+
         // Function to recursively check nested routes
         const findCurrentRoute = (navState) => {
           if (!navState) return null;
-          
+
           const currentRoute = navState.routes[navState.index];
           if (!currentRoute) return null;
-          
+
           // If this route has nested state, check it recursively
           if (currentRoute.state) {
             const nestedRoute = findCurrentRoute(currentRoute.state);
             return nestedRoute || currentRoute;
           }
-          
+
           return currentRoute;
         };
-        
+
         const currentRoute = findCurrentRoute(state);
         return currentRoute?.name === 'ChatScreen';
       }
@@ -150,13 +160,18 @@ function App() {
 
   const handleNotificationAction = (notification) => {
     // Handle notification action based on data
-    if (notification?.data?.screen === 'ScheduleScreen') {
-      navigate('Schedule', { screen: 'ScheduleScreen' });
+    if (notification?.data?.screen === 'ChatScreen') {
+      navigate('Message', {
+        screen: 'ChatScreen', params: {
+          userId: 1,
+          flag: notification?.data?.flag,
+        }
+      });
     } else if (notification?.data?.screen === 'WalletScreen') {
       navigate('WalletScreen');
     }
     // Add more screen navigation logic as needed
-    
+
     // Close popup and process queue
     handleNotificationPopupClose();
   };
@@ -164,22 +179,22 @@ function App() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-      <StatusBar
+        <StatusBar
           translucent={false}
           backgroundColor="#000"
           barStyle="light-content"
         />
-      <OfflineNotice />
-      <AuthProvider>
-        <AppNav />
-      </AuthProvider>
-      <Toast />
-      <NotificationPopup
-        isVisible={showNotificationPopup}
-        notification={currentNotification}
-        onClose={handleNotificationPopupClose}
-        onAction={handleNotificationAction}
-      />
+        <OfflineNotice />
+        <AuthProvider>
+          <AppNav />
+        </AuthProvider>
+        <Toast />
+        <NotificationPopup
+          isVisible={showNotificationPopup}
+          notification={currentNotification}
+          onClose={handleNotificationPopupClose}
+          onAction={handleNotificationAction}
+        />
       </SafeAreaProvider>
     </Provider>
   );
