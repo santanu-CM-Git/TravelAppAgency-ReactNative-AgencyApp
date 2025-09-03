@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Provider } from 'react-redux';
-import { StatusBar } from 'react-native';
+import { StatusBar, Platform } from 'react-native';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNav from './src/navigation/AppNav';
 import store from './src/store/store';
@@ -13,10 +13,14 @@ import { requestNotificationPopup, setupNotificationHandlers } from './src/utils
 import { navigate } from './src/navigation/NavigationService'; // Import the navigation function
 import { requestCameraAndAudioPermissions } from './src/utils/PermissionHandler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import NotificationPopup from './src/components/NotificationPopup';
 
 function App() {
   const [notifications, setNotifications] = useState([]);
   const [notifyStatus, setnotifyStatus] = useState(false);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [currentNotification, setCurrentNotification] = useState(null);
+  const notificationQueue = useRef([]).current;
 
   useEffect(() => {
     // Hide splash screen
@@ -28,7 +32,22 @@ function App() {
 
     // Request permissions and set up notifications
     requestNotificationPopup().then(() => {
-      const unsubscribeForeground = setupNotificationHandlers(setNotifications, setnotifyStatus);
+      const unsubscribeForeground = setupNotificationHandlers(
+        setNotifications, 
+        setnotifyStatus,
+        null,
+        (notification) => {
+          // Show notification popup when app is in foreground
+          if (showNotificationPopup) {
+            // If popup is already visible, add to queue
+            notificationQueue.push(notification);
+          } else {
+            // Show popup immediately
+            setCurrentNotification(notification);
+            setShowNotificationPopup(true);
+          }
+        }
+      );
 
       // Handle notification when the app is opened from a background state
       messaging().onNotificationOpenedApp(remoteMessage => {
@@ -63,6 +82,33 @@ function App() {
     }
   }
 
+  const handleNotificationPopupClose = () => {
+    setShowNotificationPopup(false);
+    setCurrentNotification(null);
+    
+    // Process next notification in queue after a short delay
+    setTimeout(() => {
+      if (notificationQueue.length > 0) {
+        const nextNotification = notificationQueue.shift();
+        setCurrentNotification(nextNotification);
+        setShowNotificationPopup(true);
+      }
+    }, 300);
+  };
+
+  const handleNotificationAction = (notification) => {
+    // Handle notification action based on data
+    if (notification?.data?.screen === 'ScheduleScreen') {
+      navigate('Schedule', { screen: 'ScheduleScreen' });
+    } else if (notification?.data?.screen === 'WalletScreen') {
+      navigate('WalletScreen');
+    }
+    // Add more screen navigation logic as needed
+    
+    // Close popup and process queue
+    handleNotificationPopupClose();
+  };
+
   return (
     <Provider store={store}>
       <SafeAreaProvider>
@@ -76,6 +122,12 @@ function App() {
         <AppNav />
       </AuthProvider>
       <Toast />
+      <NotificationPopup
+        isVisible={showNotificationPopup}
+        notification={currentNotification}
+        onClose={handleNotificationPopupClose}
+        onAction={handleNotificationAction}
+      />
       </SafeAreaProvider>
     </Provider>
   );

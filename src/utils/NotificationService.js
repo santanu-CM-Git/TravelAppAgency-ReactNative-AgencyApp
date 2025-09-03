@@ -90,9 +90,15 @@ const handleAction = (action, remoteMessage, navigation) => {
 };
 
 // Setup notification handlers
-export const setupNotificationHandlers = (setNotifications, setnotifyStatus, navigation) => {
+export const setupNotificationHandlers = (setNotifications, setnotifyStatus, navigation, onForegroundNotification) => {
   const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
     console.log('Foreground message:', JSON.stringify(remoteMessage));
+    
+    // Call the foreground notification callback if provided
+    if (onForegroundNotification) {
+      onForegroundNotification(remoteMessage);
+    }
+    
     handleNotification(remoteMessage, setNotifications, setnotifyStatus, navigation);
   });
 
