@@ -40,12 +40,21 @@ The notification popup is integrated into the main App component with:
 ## How It Works
 
 1. **Notification Arrival**: When a push notification arrives while the app is open
-2. **Popup Display**: The notification popup slides in from the left with animation
-3. **User Interaction**: Users can either:
-   - Wait for auto-dismiss (5 seconds)
+2. **Smart Filtering**: The system checks if the user is on ChatScreen or if the notification is meant for ChatScreen
+3. **Popup Display**: If not filtered, the notification popup slides in from the left with animation
+4. **User Interaction**: Users can either:
+   - Wait for auto-dismiss (10 seconds)
    - Manually close the popup
    - Press the "View" button to take action
-4. **Queue Processing**: If multiple notifications arrive, they are queued and shown sequentially
+5. **Queue Processing**: If multiple notifications arrive, they are queued and shown sequentially
+
+## Smart Notification Filtering
+
+The notification popup system includes intelligent filtering to avoid conflicts:
+
+- **ChatScreen Detection**: If the user is currently on the ChatScreen, the popup is skipped since ChatScreen handles its own notifications
+- **ChatScreen Notifications**: Notifications with `screen: 'ChatScreen'` or `screen: 'Cancel'` are automatically skipped
+- **Nested Navigation Support**: The system properly detects ChatScreen even when nested within other navigators
 
 ## Notification Data Structure
 
@@ -83,9 +92,10 @@ The popup appearance can be customized by modifying the styles in `NotificationP
 - Popup size and positioning
 
 ### Behavior
-- Auto-dismiss timeout (currently 5 seconds)
+- Auto-dismiss timeout (currently 10 seconds)
 - Vibration pattern
 - Animation effects
+- Smart filtering for ChatScreen notifications
 
 ## Usage Example
 

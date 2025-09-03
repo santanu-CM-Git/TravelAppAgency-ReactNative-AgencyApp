@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message';
 import SplashScreen from 'react-native-splash-screen';
 import messaging from '@react-native-firebase/messaging';
 import { requestNotificationPopup, setupNotificationHandlers } from './src/utils/NotificationService';
-import { navigate } from './src/navigation/NavigationService'; // Import the navigation function
+import { navigate, getNavigationRef } from './src/navigation/NavigationService'; // Import the navigation function
 import { requestCameraAndAudioPermissions } from './src/utils/PermissionHandler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import NotificationPopup from './src/components/NotificationPopup';
@@ -37,6 +37,25 @@ function App() {
         setnotifyStatus,
         null,
         (notification) => {
+          console.log('Foreground notification received:', {
+            screen: notification?.data?.screen,
+            title: notification?.notification?.title,
+            currentScreen: isCurrentScreenChatScreen() ? 'ChatScreen' : 'Other'
+          });
+          
+          // Skip popup if user is already on ChatScreen (ChatScreen handles its own notifications)
+          if (isCurrentScreenChatScreen()) {
+            console.log('Skipping notification popup - user is on ChatScreen');
+            return;
+          }
+          
+          // Skip popup for notifications specifically meant for ChatScreen
+          // if (notification?.data?.screen === 'ChatScreen' || notification?.data?.screen === 'Cancel') {
+          //   console.log('Skipping notification popup - notification is for ChatScreen');
+          //   return;
+          // }
+          
+          console.log('Showing notification popup');
           // Show notification popup when app is in foreground
           if (showNotificationPopup) {
             // If popup is already visible, add to queue
@@ -94,6 +113,39 @@ function App() {
         setShowNotificationPopup(true);
       }
     }, 300);
+  };
+
+  // Helper function to check if current screen is ChatScreen
+  const isCurrentScreenChatScreen = () => {
+    try {
+      const navigationRef = getNavigationRef();
+      if (navigationRef?.current?.getState) {
+        const state = navigationRef.current.getState();
+        
+        // Function to recursively check nested routes
+        const findCurrentRoute = (navState) => {
+          if (!navState) return null;
+          
+          const currentRoute = navState.routes[navState.index];
+          if (!currentRoute) return null;
+          
+          // If this route has nested state, check it recursively
+          if (currentRoute.state) {
+            const nestedRoute = findCurrentRoute(currentRoute.state);
+            return nestedRoute || currentRoute;
+          }
+          
+          return currentRoute;
+        };
+        
+        const currentRoute = findCurrentRoute(state);
+        return currentRoute?.name === 'ChatScreen';
+      }
+      return false;
+    } catch (error) {
+      console.log('Error checking current screen:', error);
+      return false;
+    }
   };
 
   const handleNotificationAction = (notification) => {
