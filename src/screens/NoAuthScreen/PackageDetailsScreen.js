@@ -415,6 +415,12 @@ export default function PackageDetailsScreen({ route }) {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={{ paddingHorizontal: 10 }}
                     renderItem={({ item, index }) => (
+                        <Pressable onPress={() => navigation.navigate('Message', {
+                            screen: 'ChatScreen', params: {
+                                userId: item?.customer?.id,
+                                flag: 'chat',
+                            }
+                          })}>
                         <View style={styles.travelerCard}>
                             <Image
                                 source={{ uri: item?.customer?.profile_photo_url }}
@@ -433,6 +439,7 @@ export default function PackageDetailsScreen({ route }) {
                                 <Text style={styles.travelerSlotText}>Slot</Text>
                             </View>
                         </View>
+                        </Pressable>
                     )}
                     ListEmptyComponent={
                         <View style={{ alignItems: 'center', marginTop: responsiveHeight(5),marginBottom: responsiveHeight(5) }}>
