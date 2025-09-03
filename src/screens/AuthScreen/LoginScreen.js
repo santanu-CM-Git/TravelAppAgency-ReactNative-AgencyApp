@@ -174,7 +174,14 @@ const LoginScreen = ({  }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView
+      contentContainerStyle={styles.scrollContainer}
+      enableOnAndroid={true}
+      extraScrollHeight={Platform.OS === 'android' ? responsiveHeight(3) : 20}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      extraHeight={Platform.OS === 'android' ? responsiveHeight(3) : 100}
+      >
         <View style={styles.bannaerContainer}>
           <Image
             source={patientLoginImg}
@@ -288,6 +295,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     flex: 1
   },
+  scrollContainer: {
+    flexGrow: 1,
+    // Remove any fixed height constraints
+  },
   wrapper: {
     paddingHorizontal: 20,
     marginTop: -responsiveHeight(2),
@@ -307,6 +318,7 @@ const styles = StyleSheet.create({
   },
   buttonwrapper: {
     paddingHorizontal: 20,
+    marginTop: responsiveHeight(2), // Add top margin
   },
   countryModal: {
 
