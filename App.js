@@ -73,7 +73,7 @@ function App() {
         if (remoteMessage?.data?.screen === 'ChatScreen') {
           navigate('Message', {
             screen: 'ChatScreen', params: {
-              userId: 1,
+              userId: remoteMessage?.data?.id,
               flag: remoteMessage?.data?.flag,
             }
           });
@@ -87,7 +87,7 @@ function App() {
         if (remoteMessage?.data?.screen === 'ChatScreen') {
           navigate('Message', {
             screen: 'ChatScreen', params: {
-              userId: 1,
+              userId: remoteMessage?.data?.id,
               flag: remoteMessage?.data?.flag,
             }
           });
@@ -184,7 +184,7 @@ function App() {
     if (notification?.data?.screen === 'ChatScreen') {
       navigate('Message', {
         screen: 'ChatScreen', params: {
-          userId: 1,
+          userId: notification?.data?.id,
           flag: notification?.data?.flag,
         }
       });
