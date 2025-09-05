@@ -559,6 +559,25 @@ const ChatScreen = ({ route }) => {
         .collection('messages')
         .add(firestoreData);
 
+      // Call message-send API
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          await axios.post(`${API_URL}/agent/message-send`, {
+            customer_id: route?.params?.userId
+          }, {
+            headers: {
+              Accept: 'application/json',
+              "Authorization": 'Bearer ' + userToken,
+            },
+          });
+          console.log('Message-send API called successfully');
+        }
+      } catch (apiError) {
+        console.error('Error calling message-send API:', apiError);
+        // Don't throw here as the message was already sent to Firestore
+      }
+
     } catch (error) {
       console.error('Error sending message:', error);
       Alert.alert('Error', error.message || 'Failed to send message. Please try again.');
@@ -1146,27 +1165,28 @@ const ChatScreen = ({ route }) => {
           goingToactiveTab(remoteMessage?.data?.flag)
         }
         if (remoteMessage?.data?.screen === 'ChatScreen') {
-          Alert.alert(
-            '',
-            `The users wants to switch to ${remoteMessage?.data?.flag}. Do you agree?`,
-            [
+          if (remoteMessage?.notification?.title != 'Message Sent') {
+            Alert.alert(
+              '',
+              `The users wants to switch to ${remoteMessage?.data?.flag}. Do you agree?`,
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => requestToCancel(),
+                  style: 'cancel',
+                },
+                {
+                  text: 'OK',
+                  onPress: () => goingToactiveTab(remoteMessage?.data?.flag),
+                },
+              ],
               {
-                text: 'Cancel',
-                onPress: () => requestToCancel(),
-                style: 'cancel',
+                cancelable: true,
+                onDismiss: () =>
+                  console.log('cancel')
               },
-              {
-                text: 'OK',
-                onPress: () => goingToactiveTab(remoteMessage?.data?.flag),
-              },
-            ],
-            {
-              cancelable: true,
-              onDismiss: () =>
-                console.log('cancel')
-            },
-          );
-
+            );
+          }
         }
       });
       return unsubscribe;
@@ -1339,6 +1359,25 @@ const ChatScreen = ({ route }) => {
       // Update local state for immediate UI update
       setMessages(previousMessages => GiftedChat.append(previousMessages, [messageData]));
 
+      // Call message-send API
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          await axios.post(`${API_URL}/agent/message-send`, {
+            customer_id: route?.params?.userId
+          }, {
+            headers: {
+              Accept: 'application/json',
+              "Authorization": 'Bearer ' + userToken,
+            },
+          });
+          console.log('Message-send API called successfully');
+        }
+      } catch (apiError) {
+        console.error('Error calling message-send API:', apiError);
+        // Don't throw here as the message was already sent to Firestore
+      }
+
     } catch (err) {
       console.error('Document picker error:', err);
 
@@ -1443,6 +1482,24 @@ const ChatScreen = ({ route }) => {
 
       // Update local state for immediate UI update
       setMessages(previousMessages => GiftedChat.append(previousMessages, [messageData]));
+      // Call message-send API
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          await axios.post(`${API_URL}/agent/message-send`, {
+            customer_id: route?.params?.userId
+          }, {
+            headers: {
+              Accept: 'application/json',
+              "Authorization": 'Bearer ' + userToken,
+            },
+          });
+          console.log('Message-send API called successfully');
+        }
+      } catch (apiError) {
+        console.error('Error calling message-send API:', apiError);
+        // Don't throw here as the message was already sent to Firestore
+      }
 
     } catch (err) {
       console.error('Image picker error:', err);
