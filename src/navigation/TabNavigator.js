@@ -450,15 +450,15 @@ const TabNavigator = ({ navigation }) => {
       }}
       screenListeners={({ navigation, route }) => ({
         tabPress: (e) => {
-          // Reset the stack to its initial route when tab is pressed
+          // Get the current navigation state
           const state = navigation.getState();
-          const tabState = state.routes.find(r => r.name === route.name)?.state;
+          const currentTabRoute = state.routes.find(r => r.name === route.name);
           
-          if (tabState && tabState.index > 0) {
-            // If there are screens in the stack beyond the initial screen, reset to initial
-            navigation.reset({
-              index: 0,
-              routes: [{ name: tabState.routes[0].name }],
+          // If the tab has a nested stack with multiple screens
+          if (currentTabRoute?.state && currentTabRoute.state.index > 0) {
+            // Reset to the initial screen of this tab's stack
+            navigation.navigate(route.name, {
+              screen: currentTabRoute.state.routes[0].name
             });
           }
         },
