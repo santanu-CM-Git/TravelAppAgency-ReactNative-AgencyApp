@@ -12,7 +12,8 @@ import {
     Platform,
     FlatList,
     StatusBar,
-    BackHandler
+    BackHandler,
+    Linking
 } from 'react-native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,7 +24,7 @@ import CustomButton from '../../components/CustomButton';
 import { AuthContext } from '../../context/AuthContext';
 import Loader from '../../utils/Loader';
 import axios from 'axios';
-import { API_URL } from '@env'
+import { API_URL,BASE_URL } from '@env'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import MultiSelect from 'react-native-multiple-select';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -91,7 +92,13 @@ const MenuScreen = ({ route }) => {
                     },
                     {
                         text: 'Delete',
-                        onPress: () => null,
+                        onPress: () => {
+                            // Open the URL when Delete is pressed
+                            Linking.openURL(`${BASE_URL}/delete-account`).catch(err => {
+                                console.error('Failed to open URL:', err);
+                                Alert.alert('Error', 'Failed to open the link');
+                            });
+                        },
                         style: 'destructive', // optional: makes it red on iOS
                     },
                 ],
