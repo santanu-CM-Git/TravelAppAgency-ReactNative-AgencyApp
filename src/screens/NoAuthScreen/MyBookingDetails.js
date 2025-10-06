@@ -524,6 +524,22 @@ export default function MyBookingDetails({ route }) {
                                 <Text style={styles.value}>{bookingData?.transaction_no}</Text>
                             </View>
                             : null}
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Package amount :</Text>
+                            <Text style={styles.value}>{bookingData?.amount}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Tax amount :</Text>
+                            <Text style={styles.value}>{bookingData?.tax}</Text>
+                        </View>
+                        {/* <View style={styles.row}>
+                            <Text style={styles.label}>Booking fee :</Text>
+                            <Text style={styles.value}>{bookingData?.booking_fee}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Booking Tax :</Text>
+                            <Text style={styles.value}>{bookingData?.booking_tax}</Text>
+                        </View> */}
                         <View style={styles.amountRow}>
                             <Text style={styles.amountLabel}>Amount Paid :</Text>
                             <Text style={styles.amountValue}>₹{bookingData?.final_amount}</Text>
