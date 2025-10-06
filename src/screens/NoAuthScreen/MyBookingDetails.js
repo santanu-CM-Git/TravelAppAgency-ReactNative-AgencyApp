@@ -529,6 +529,21 @@ export default function MyBookingDetails({ route }) {
                             <Text style={styles.amountValue}>₹{bookingData?.final_amount}</Text>
                         </View>
                     </View>
+                    <Text style={styles.productText3}>Slots Details</Text>
+                    <View style={styles.paymentcontainer}>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Total Adults :</Text>
+                            <Text style={styles.value}>{Number(bookingData?.adult)}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Total Children :</Text>
+                            <Text style={styles.value}>{Number(bookingData?.children)}</Text>
+                        </View>
+                        <View style={styles.amountRow}>
+                            <Text style={styles.amountLabel}>Total Booked Slots :</Text>
+                            <Text style={styles.amountValue}>{Number(bookingData?.adult) + Number(bookingData?.children)}</Text>
+                        </View>
+                    </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: responsiveHeight(1) }}>
                         <Text style={styles.productText3}>Co Traveler</Text>
                         {/* <TouchableOpacity 

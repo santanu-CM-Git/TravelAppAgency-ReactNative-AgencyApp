@@ -278,8 +278,8 @@ export default function HomeScreen({ }) {
         const filteredBookings = allBookings.filter(
           booking => booking.status !== 'cancelled' && booking.status !== 'rejected'
         );
-        const lastTen = allBookings.slice(-10);
-        setBookingData(filteredBookings);
+        const lastTen = filteredBookings.slice(0, 10);
+        setBookingData(lastTen);
       } else {
         Toast.show({
           type: 'error',
