@@ -127,7 +127,11 @@ const HomeStack = () => {
         component={QuoteRequestList}
         options={{ headerShown: false }}
       />
-
+      <Stack.Screen
+        name="MyBookingDetails"
+        component={MyBookingDetails}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -199,7 +203,7 @@ const MessageStack = () => {
         component={ChatListScreen}
         options={{ headerShown: false }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name='ChatScreen'
         component={ChatScreen}
         options={{ headerShown: false }}
@@ -453,7 +457,7 @@ const TabNavigator = ({ navigation }) => {
           // Get the current navigation state
           const state = navigation.getState();
           const currentTabRoute = state.routes.find(r => r.name === route.name);
-          
+
           // If the tab has a nested stack with multiple screens
           if (currentTabRoute?.state && currentTabRoute.state.index > 0) {
             // Reset to the initial screen of this tab's stack
@@ -496,7 +500,7 @@ const TabNavigator = ({ navigation }) => {
               </View>
             ),
             tabBarLabel: ({ color, focused }) => (
-              <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1),marginTop: responsiveHeight(1) }}>{tab.label}</Text>
+              <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1), marginTop: responsiveHeight(1) }}>{tab.label}</Text>
             ),
           })}
         />

@@ -177,16 +177,16 @@ export default function PackageDetailsScreen({ route }) {
     useFocusEffect(
         useCallback(() => {
             const backAction = () => {
-               navigation.goBack()
-               return true
-              };
-          
-              const backHandler = BackHandler.addEventListener(
+                navigation.goBack()
+                return true
+            };
+
+            const backHandler = BackHandler.addEventListener(
                 'hardwareBackPress',
                 backAction,
-              );
-          
-              return () => backHandler.remove();
+            );
+
+            return () => backHandler.remove();
         }, [navigation])
     );
 
@@ -249,14 +249,14 @@ export default function PackageDetailsScreen({ route }) {
         try {
             const appStoreLink = "https://apps.apple.com/app/your-app/id123456789";
             const playStoreLink = "https://play.google.com/store/apps/details?id=your.app.package";
-            
+
             const shareMessage = `Check out this amazing travel package!\n\n${packageDetails[0]?.name}\nLocation: ${packageDetails[0]?.location?.name}\nDuration: ${totalDay}\nPrice: ${packageDetails[0]?.discounted_price}\n\nBook now and enjoy your dream vacation!\n\nDownload our app:\n📱 iOS: ${appStoreLink}\n📱 Android: ${playStoreLink}`;
-    
+
             const result = await Share.share({
                 message: shareMessage,
                 title: 'Share Travel Package',
             });
-    
+
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
                     console.log('Shared with activity type:', result.activityType);
@@ -306,7 +306,7 @@ export default function PackageDetailsScreen({ route }) {
                                 <Text style={[styles.titleM, { zIndex: 1, paddingHorizontal: 8, paddingVertical: 2 }]}>Package details</Text>
                             </View>
                         </View>
-                        <TouchableOpacity style={styles.iconButton} onPress={()=> navigation.navigate('PackageEditScreen',{ packageId: packageDetails[0]?.id })}>
+                        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('PackageEditScreen', { packageId: packageDetails[0]?.id })}>
                             <Image
                                 source={editIcon}
                                 style={styles.filterIcon}
@@ -323,7 +323,9 @@ export default function PackageDetailsScreen({ route }) {
 
                 <View style={{ margin: 5, paddingHorizontal: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={styles.productText3}>{packageDetails[0]?.name}</Text>
+                        <View style={{ flex: 1, marginRight: responsiveWidth(2) }}>
+                            <Text style={styles.productText3}>{packageDetails[0]?.name}</Text>
+                        </View>
                         <Text style={styles.priceText22}>₹{packageDetails[0]?.discounted_price}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -357,7 +359,7 @@ export default function PackageDetailsScreen({ route }) {
                         <View style={styles.rateingView}>
                             <Image
                                 source={starImg}
-                                style={[styles.staricon,{ marginTop: -5 }]}
+                                style={[styles.staricon, { marginTop: -5 }]}
                             />
                             <Text style={styles.ratingText}>{packageDetails[0]?.package_rating}</Text>
                         </View>
@@ -420,29 +422,29 @@ export default function PackageDetailsScreen({ route }) {
                                 userId: item?.customer?.id,
                                 flag: 'chat',
                             }
-                          })}>
-                        <View style={styles.travelerCard}>
-                            <Image
-                                source={{ uri: item?.customer?.profile_photo_url }}
-                                style={styles.travelerAvatar}
-                            />
-                            <View style={styles.travelerInfoContainer}>
-                                <Text style={styles.travelerName}>{item?.customer?.first_name} {item?.customer?.last_name}</Text>
-                                <View style={styles.travelerContact}>
-                                    <FontAwesome name="phone" size={16} color="#FF455C" />
-                                    <Text style={styles.travelerPhone}> {item?.customer?.country_code} {item?.customer?.mobile}</Text>
+                        })}>
+                            <View style={styles.travelerCard}>
+                                <Image
+                                    source={{ uri: item?.customer?.profile_photo_url }}
+                                    style={styles.travelerAvatar}
+                                />
+                                <View style={styles.travelerInfoContainer}>
+                                    <Text style={styles.travelerName}>{item?.customer?.first_name} {item?.customer?.last_name}</Text>
+                                    <View style={styles.travelerContact}>
+                                        <FontAwesome name="phone" size={16} color="#FF455C" />
+                                        <Text style={styles.travelerPhone}> {item?.customer?.country_code} {item?.customer?.mobile}</Text>
+                                    </View>
+                                    <Text style={styles.travelerDate}>{moment(item?.start_date).format("DD MMM YYYY")} - {moment(item?.end_date).format("DD MMM YYYY")}</Text>
                                 </View>
-                                <Text style={styles.travelerDate}>{moment(item?.start_date).format("DD MMM YYYY")} - {moment(item?.end_date).format("DD MMM YYYY")}</Text>
+                                <View style={styles.travelerSlotContainer}>
+                                    <Text style={styles.travelerSlotNumber}>{Number(item?.adult) + Number(item?.children)}</Text>
+                                    <Text style={styles.travelerSlotText}>Slot</Text>
+                                </View>
                             </View>
-                            <View style={styles.travelerSlotContainer}>
-                                <Text style={styles.travelerSlotNumber}>{Number(item?.adult) + Number(item?.children)}</Text>
-                                <Text style={styles.travelerSlotText}>Slot</Text>
-                            </View>
-                        </View>
                         </Pressable>
                     )}
                     ListEmptyComponent={
-                        <View style={{ alignItems: 'center', marginTop: responsiveHeight(5),marginBottom: responsiveHeight(5) }}>
+                        <View style={{ alignItems: 'center', marginTop: responsiveHeight(5), marginBottom: responsiveHeight(5) }}>
                             <Text style={{ fontSize: 16, color: '#888' }}>No data available</Text>
                         </View>
                     }

@@ -79,7 +79,7 @@ export default function MyBookingDetails({ route }) {
     const [contacts, setContacts] = useState([]);
 
     const fetchCoTravelers = async () => {
-        setIsLoading(true);
+        //setIsLoading(true);
         try {
             const token = await AsyncStorage.getItem('userToken');
             const response = await axios.post(
@@ -468,7 +468,9 @@ export default function MyBookingDetails({ route }) {
 
                 <View style={{ margin: 5, paddingHorizontal: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={styles.productText3}>{bookingData?.package?.name}</Text>
+                        <View style={{ flex: 1, marginRight: responsiveWidth(2) }}>
+                            <Text style={styles.productText3}>{bookingData?.package?.name}</Text>
+                        </View>
                         <Text style={styles.priceText22}>₹{bookingData?.final_amount}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -572,13 +574,16 @@ export default function MyBookingDetails({ route }) {
                             />
                         </TouchableOpacity>
                     </View> */}
-                    {/* {bookingData?.transaction_no ?
                     <View style={styles.buttoncontainer}>
-                        <TouchableOpacity style={styles.talkToAgentButton} onPress={() => toggleFilterModal2()}>
-                            <Text style={styles.talkToAgentText}>Cancel Package</Text>
+                        <TouchableOpacity style={styles.talkToAgentButton} onPress={() => navigation.navigate('Message', {
+                            screen: 'ChatScreen', params: {
+                                userId: bookingData?.customer?.id,
+                                flag: 'chat',
+                            }
+                        })}>
+                            <Text style={styles.talkToAgentText}>Chat Now</Text>
                         </TouchableOpacity>
                     </View>
-                    :null} */}
                 </View>
             </ScrollView>
             {/* add new cotraveler modal */}
