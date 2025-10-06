@@ -114,7 +114,7 @@ const BookingSummary = ({ route }) => {
     const handlePayment = async () => {
         const totalAmount = payableAmount;
 
-        if (totalAmount === 0) {
+        if (totalAmount == 0) {
             submitForm(""); // Handle free payments
         } else {
             try {

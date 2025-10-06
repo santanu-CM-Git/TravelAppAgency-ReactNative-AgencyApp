@@ -337,7 +337,7 @@ export default function PackageDetailsScreen({ route }) {
                     </View>
                     {/* <Text style={styles.travelerText}>Omega Tours</Text> */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {packageDetails[0]?.date_type === 0 ? (
+                        {packageDetails[0]?.date_type == 0 ? (
                             <Text style={styles.packageAvlTextMain}>{moment(packageDetails[0]?.start_date).format("DD MMMM YYYY")}</Text>
                         ) : (
                             <Text style={styles.packageAvlTextMain}>Package Expire at {moment(packageDetails[0]?.end_date).format("DD MMMM YYYY")}</Text>
@@ -347,7 +347,7 @@ export default function PackageDetailsScreen({ route }) {
                                 source={timeImg}
                                 style={styles.pinImg}
                             />
-                            {packageDetails[0]?.date_type === 0 ? (
+                            {packageDetails[0]?.date_type == 0 ? (
                                 <Text style={styles.addressText}>{totalDay}</Text>
                             ) : (
                                 <Text style={styles.addressText}>{packageDetails[0]?.itinerary.length} Days {packageDetails[0]?.itinerary.length - 1} Nights</Text>
@@ -365,7 +365,7 @@ export default function PackageDetailsScreen({ route }) {
                         </View>
                     </View>
                 </View>
-                {packageDetails[0]?.date_type === 0 ? (
+                {packageDetails[0]?.date_type == 0 ? (
                     <View style={styles.availableCard}>
                         <Text style={styles.availableHeader}>Slots Details</Text>
                         <View style={styles.availableRow}>

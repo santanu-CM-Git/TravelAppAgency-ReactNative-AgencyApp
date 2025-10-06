@@ -151,7 +151,7 @@ const PackagesScreen = ({ route }) => {
                             source={{ uri: item?.cover_photo_url }}
                             style={activeTab === 'Active packages' ? styles.quoterequestTravelImageActivePackage : styles.quoterequestTravelImage}
                         />
-                        {item?.date_type === 0 ? (
+                        {item?.date_type == 0 ? (
                         <View style={styles.quoterequestDateOverlay}>
                             <MaterialIcons name="date-range" size={12} color="white" />
                                 <Text style={styles.quoterequestDateText}>{moment(item?.start_date).format('DD MMM YYYY')}</Text>
@@ -171,7 +171,7 @@ const PackagesScreen = ({ route }) => {
                             <>
                                 <View style={[styles.quoterequestDetailRow, { justifyContent: 'space-between' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {item?.date_type === 0 ? (
+                                        {item?.date_type == 0 ? (
                                             <>
                                                 <View style={{ backgroundColor: '#FFEFF1', padding: 3, borderRadius: 5, marginRight: 5 }}>
                                                     <Text style={[styles.quoterequestPrice, { color: '#FF455C', }]}>{item?.seat_slots - item?.booked_slots}</Text>
@@ -196,12 +196,12 @@ const PackagesScreen = ({ route }) => {
                                         <Text style={[styles.quoterequestPrice, { color: '#009955', marginRight: 5 }]}>{item?.booked_slots}</Text>
                                         <Text style={[styles.quoterequestPricelight, { color: '#009955' }]}>Booked Slot</Text>
                                     </View>
-                                    {item?.date_type === 0 ? (
+                                    {item?.date_type == 0 ? (
                                         <View style={styles.verticleLine}></View>
                                     ) : (
                                         null
                                     )}
-                                    {item?.date_type === 0 ? (
+                                    {item?.date_type == 0 ? (
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <Text style={[styles.quoterequestPrice, { color: '#686868', marginRight: 5 }]}>{item?.seat_slots}</Text>
                                             <Text style={[styles.quoterequestPricelight, { color: '#686868' }]}>Total slots</Text>

@@ -123,7 +123,7 @@ const QuoteRequestList = ({ route }) => {
                             source={{ uri: item?.cover_photo_url }} // Replace with actual image URL
                             style={styles.quoterequestTravelImage}
                         />
-                        {item?.date_type === 0 ? (
+                        {item?.date_type == 0 ? (
                             <View style={styles.quoterequestDateOverlay}>
                                 <MaterialIcons name="date-range" size={12} color="white" />
                                 <Text style={styles.quoterequestDateText}>{moment(item?.start_date).format('DD MMM YYYY')}</Text>
@@ -143,7 +143,7 @@ const QuoteRequestList = ({ route }) => {
                             <Image source={markerImg} tintColor={"#686868"} style={[styles.timeimage, { marginRight: 5 }]} />
                             <Text style={[styles.quoterequestSubtitle,{marginTop:5}]}>{item?.location}</Text>
                         </View>
-                        {item?.date_type === 0 ? (
+                        {item?.date_type == 0 ? (
                             <View style={styles.quoterequestDetailRow}>
                                 <Image source={userImg} tintColor={"#686868"} style={[styles.timeimage, { marginRight: 5 }]} />
                                 <Text style={styles.quoterequestDetailText}>Available Slots: {item?.seat_slots - item?.booked_slots}</Text>
@@ -154,7 +154,7 @@ const QuoteRequestList = ({ route }) => {
                         <View style={[styles.quoterequestDetailRow, { justifyContent: 'space-between' }]}>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image source={timeImg} tintColor={"#686868"} style={[styles.timeimage, { marginRight: 5 }]} />
-                                {item?.date_type === 0 ?
+                                {item?.date_type == 0 ?
                                     <Text style={styles.quoterequestDetailText}>
                                         {(() => {
                                             const start = moment(item?.start_date);
