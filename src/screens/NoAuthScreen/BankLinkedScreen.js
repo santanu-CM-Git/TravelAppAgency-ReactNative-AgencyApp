@@ -155,23 +155,23 @@ const BankLinkedScreen = ({ route }) => {
                                 <Text style={styles.accountHolder}>Account Holder: {account.account_holder_name || account.agent_name}</Text>
                                 
                                 {/* KYC Verification Tag */}
-                                {/* <View style={styles.kycContainer}>
+                                <View style={styles.kycContainer}>
                                     <View style={[
                                         styles.kycTag,
-                                        { backgroundColor: (account.kyc_verified === true) ? '#E8F5E8' : '#FFF3E0' }
+                                        { backgroundColor: (account.kyc_verified == 1) ? '#E8F5E8' : '#FFF3E0' }
                                     ]}>
                                         <View style={[
                                             styles.kycDot,
-                                            { backgroundColor: (account.kyc_verified === true) ? '#4CAF50' : '#FF9800' }
+                                            { backgroundColor: (account.kyc_verified == 1) ? '#4CAF50' : '#FF9800' }
                                         ]} />
                                         <Text style={[
                                             styles.kycText,
-                                            { color: (account.kyc_verified === true) ? '#2E7D32' : '#E65100' }
+                                            { color: (account.kyc_verified == 1) ? '#2E7D32' : '#E65100' }
                                         ]}>
-                                            {(account.kyc_verified === true) ? 'KYC Verified' : 'KYC Not Verified'}
+                                            {(account.kyc_verified == 1) ? 'KYC Verified' : 'KYC Not Verified'}
                                         </Text>
                                     </View>
-                                </View> */}
+                                </View>
                             </View>
                             <TouchableOpacity onPress={() => handleDelete(account.id)}>
                                 <MaterialIcons name="delete" size={24} color="#FF0000" />
