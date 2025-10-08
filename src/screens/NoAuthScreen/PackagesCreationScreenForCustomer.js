@@ -1193,6 +1193,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                 display="default"
                                 onChange={onExpireDateChange}
                                 minimumDate={new Date()}
+                                maximumDate={new Date(new Date().setMonth(new Date().getMonth() + 6))}
                             />
                         )}
 
