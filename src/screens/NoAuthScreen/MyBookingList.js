@@ -307,7 +307,7 @@ const MyBookingList = ({ route }) => {
         <SafeAreaView style={styles.Container}>
             <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
             <CustomHeader commingFrom={'Bookings'} onPress={() => navigation.navigate('HOME', { screen: 'Home' })} title={'Bookings'} />
-            <ScrollView showsHorizontalScrollIndicator={false}>
+            {/* <ScrollView showsHorizontalScrollIndicator={false}> */}
                 <View style={styles.searchSection}>
                     <View style={styles.searchInput}>
                         <View style={{ flexDirection: 'row', alignItems: "center", flex: 1 }}>
@@ -488,7 +488,7 @@ const MyBookingList = ({ route }) => {
                         )}
                     />
                 )}
-            </ScrollView>
+            {/* </ScrollView> */}
             {/* calender modal */}
             <Modal
                 isVisible={isCalendarModalVisible}
