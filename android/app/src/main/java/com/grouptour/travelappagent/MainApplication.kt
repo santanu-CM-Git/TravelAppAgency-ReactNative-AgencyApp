@@ -1,4 +1,4 @@
-package com.travel.travelappagent
+package com.grouptour.travelappagent
 
 import android.app.Application
 import com.facebook.react.PackageList
