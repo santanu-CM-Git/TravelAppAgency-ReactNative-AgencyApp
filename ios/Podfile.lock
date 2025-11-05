@@ -1188,14 +1188,6 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240722.0)
-  - agora-react-native-rtm (1.5.1):
-    - AgoraRtm_iOS (= 1.5.1)
-    - RCT-Folly
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Codegen
-    - React-Core
-    - ReactCommon/turbomodule/core
   - AgoraInfra_iOS (1.2.13.1)
   - AgoraIrisRTC_iOS (4.5.2-build.1)
   - AgoraRtcEngine_iOS (4.5.2):
@@ -1238,7 +1230,6 @@ PODS:
   - AgoraRtcEngine_iOS/VideoCodecEnc (4.5.2)
   - AgoraRtcEngine_iOS/VirtualBackground (4.5.2)
   - AgoraRtcEngine_iOS/VQA (4.5.2)
-  - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.84.0)
   - BoringSSL-GRPC (0.0.37):
@@ -1544,7 +1535,6 @@ PODS:
     - React-RCTText (= 0.80.1)
     - React-RCTVibration (= 0.80.1)
   - React-callinvoker (0.80.1)
-  - React-Codegen (0.1.0)
   - React-Core (0.80.1):
     - boost
     - DoubleConversion
@@ -4465,7 +4455,6 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - agora-react-native-rtm (from `../node_modules/agora-react-native-rtm`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -4584,7 +4573,6 @@ SPEC REPOS:
     - AgoraInfra_iOS
     - AgoraIrisRTC_iOS
     - AgoraRtcEngine_iOS
-    - AgoraRtm_iOS
     - BEMCheckBox
     - BoringSSL-GRPC
     - FBAEMKit
@@ -4617,12 +4605,9 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - razorpay-pod
-    - React-Codegen
     - SocketRocket
 
 EXTERNAL SOURCES:
-  agora-react-native-rtm:
-    :path: "../node_modules/agora-react-native-rtm"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   BVLinearGradient:
@@ -4845,11 +4830,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
-  agora-react-native-rtm: 95a07a5931552d66d2d8e2dec4fbd5e40231ad54
   AgoraInfra_iOS: 3691b2b277a1712a35ae96de25af319de0d73d08
   AgoraIrisRTC_iOS: eab58c126439adf5ec99632828a558ea216860da
   AgoraRtcEngine_iOS: 97e2398a2addda9057815a2a583a658e36796ff6
-  AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
@@ -4896,7 +4879,6 @@ SPEC CHECKSUMS:
   RCTTypeSafety: d877728097547d0a37786cc9130c43ad71739ac3
   React: 4b0b9cb962e694611e5e8a697c1b0300a2510c21
   React-callinvoker: 70f125c17c7132811a6b473946ac5e7ae93b5e57
-  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: 7cbc3118df2334b2ef597d9a515938b02c82109f
   React-CoreModules: 7d8c14ecb889e7786a04637583b55b7d8f246baf
   React-cxxreact: f32be07cba236c2f20f4e05ca200577ba5358e78
