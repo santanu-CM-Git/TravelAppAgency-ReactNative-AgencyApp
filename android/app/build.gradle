@@ -95,6 +95,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+         release {
+            storeFile file('grouptouragent.keystore')
+            storePassword 'grouptourcm'
+            keyAlias 'grouptouragent'
+            keyPassword 'grouptourcm'
+        }
     }
     buildTypes {
         debug {
