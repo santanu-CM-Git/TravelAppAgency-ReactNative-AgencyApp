@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.4</string>
+	<string>1.0.5</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>5</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true />
 	<key>NSAppTransportSecurity</key>
@@ -55,8 +55,6 @@
 	<string>This App would like to send you notifications to keep you updated.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>We need to send you notifications for updates and alerts.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app requires location access to show nearby destinations and improve your experience.</string>
 	<key>RCTNewArchEnabled</key>
 	<true />
 	<key>UIAppFonts</key>
@@ -130,7 +128,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
-		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
