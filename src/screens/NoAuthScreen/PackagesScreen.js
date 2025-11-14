@@ -276,7 +276,7 @@ const PackagesScreen = ({ route }) => {
                         </View>
                     </ScrollView>
                 </View>
-                <View style={{ paddingHorizontal: 15, marginBottom: responsiveHeight(25) }}>
+                <View style={{ paddingHorizontal: 15, marginBottom: Platform.OS === 'ios' ? responsiveHeight(17) : responsiveHeight(22) }}>
                     {activeTab === 'All packages' && (
                         <FlatList
                             data={allPackage}
