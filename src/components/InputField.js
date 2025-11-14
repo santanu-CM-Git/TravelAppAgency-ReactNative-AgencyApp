@@ -16,6 +16,7 @@ export default function InputField({
   helperText,
   error,
   inputFieldType,
+  textAlignVertical,
   ref
 }) {
   //console.log(inputType, 'dddd')
@@ -60,6 +61,7 @@ export default function InputField({
           editable={inputType == 'nonedit' ? false : true}
           multiline={inputFieldType == 'address' ? true : false}
           placeholderTextColor="#808080"
+          textAlignVertical={textAlignVertical}
         />
       ) : inputType == 'nonedit' ? (
         <TextInput

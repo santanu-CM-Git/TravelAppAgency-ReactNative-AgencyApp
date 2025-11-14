@@ -832,8 +832,10 @@ const PackagesCreationScreen = ({ route }) => {
                                 value={packageDescription}
                                 //helperText={'Please enter lastname'}
                                 inputType={'address'}
+                                inputFieldType={'address'}
                                 onChangeText={(text) => changePackageDesc(text)}
                                 placeholderTextColor="#808080"
+                                textAlignVertical="top"
                             />
                         </View>
 
