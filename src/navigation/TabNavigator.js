@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { Text, Image, View, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Add this import
 import HomeScreen from '../screens/NoAuthScreen/HomeScreen';
 import ProfileScreen from '../screens/NoAuthScreen/ProfileScreen';
 import NotificationScreen from '../screens/NoAuthScreen/NotificationScreen';
@@ -357,6 +357,7 @@ const TabNavigator = ({ navigation }) => {
   const [filteredTabs, setFilteredTabs] = useState(tabItems.filter(tab => tab.alwaysVisible));
   const [userInfo, setUserInfo] = useState(null);
   const cartProducts = useSelector(state => state.cart);
+  const insets = useSafeAreaInsets(); // Get safe area insets
 
   const fetchProfileDetails = async () => {
     try {
@@ -449,7 +450,11 @@ const TabNavigator = ({ navigation }) => {
         tabBarInactiveTintColor: '#1F1F1F',
         tabBarActiveTintColor: '#FF455C',
         tabBarStyle: {
-          height: 100,
+          height: Platform.select({
+            android: responsiveHeight(8) + insets.bottom, // Add bottom safe area
+            ios: responsiveHeight(8) + insets.bottom, // Add bottom safe area
+          }),
+          paddingBottom: insets.bottom, // Add padding for safe area
         },
       }}
       screenListeners={({ navigation, route }) => ({
@@ -479,10 +484,11 @@ const TabNavigator = ({ navigation }) => {
               backgroundColor: '#FAFAFA',
               width: responsiveWidth(100),
               height: Platform.select({
-                android: responsiveHeight(8),
-                ios: responsiveHeight(11),
+                android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                ios: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
               }),
               alignSelf: 'center',
+              paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
             },
             tabBarIcon: ({ color, size, focused }) => (
               <View style={{ alignItems: 'center', justifyContent: 'center', }}>
