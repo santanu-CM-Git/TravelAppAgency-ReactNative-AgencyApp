@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform, Linking, Modal, TouchableOpacity, TouchableWithoutFeedback, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform, Linking, Modal, TouchableOpacity, TouchableWithoutFeedback, StatusBar, Keyboard } from 'react-native'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity as GestureTouchableOpacity } from 'react-native-gesture-handler'
 import { GreenTick, audiooffIcon, audioonIcon, callIcon, chatImg, filesendImg, sendImg, speakeroffIcon, speakeronIcon, summaryIcon, userPhoto, videoIcon, audioBgImg, defaultUserImg, switchcameraIcon, chatCallIcon, chatColor, messageImg, docsForChat, imageForChat } from '../../utils/Images'
@@ -66,6 +66,7 @@ const ChatScreen = ({ route }) => {
   const [previewImageUri, setPreviewImageUri] = useState(null);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [notificationStatus, setNotificationStatus] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   // useEffect(() => {
   //   // console.log(routepage.name);
@@ -257,7 +258,10 @@ const ChatScreen = ({ route }) => {
   const customInputToolbar = (props) => {
     return (
       <View style={styles.inputToolbarWrapper}>
-        <GestureTouchableOpacity style={styles.pinIconWrapper} onPress={() => setIsAttachPopupVisible(!isAttachPopupVisible)}>
+        <GestureTouchableOpacity style={styles.pinIconWrapper} onPress={() => {
+          Keyboard.dismiss();
+          setIsAttachPopupVisible(!isAttachPopupVisible);
+        }}>
           <Image source={filesendImg} style={styles.pinIcon} />
         </GestureTouchableOpacity>
         <View style={styles.inputFieldWrapper}>
@@ -1193,6 +1197,28 @@ const ChatScreen = ({ route }) => {
     }
   }, [])
 
+  // Keyboard listener to track keyboard height
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, [])
+
   // Add this function to handle file upload to Firebase Storage
   const uploadFileToStorage = async (uri, fileName, fileType) => {
     try {
@@ -1708,7 +1734,7 @@ const ChatScreen = ({ route }) => {
       ) : null}
       {/* </View> */}
       {isAttachPopupVisible && (
-        <View style={styles.attachPopupOverlay} pointerEvents="box-none">
+        <View style={[styles.attachPopupOverlay, { bottom: keyboardHeight > 0 ? keyboardHeight + 70 : 70 }]} pointerEvents="box-none">
           {/* Backdrop to close popup */}
           <GestureTouchableOpacity style={styles.attachPopupBackdrop} activeOpacity={1} onPress={() => setIsAttachPopupVisible(false)} />
           <View style={styles.attachPopupContainer}>
