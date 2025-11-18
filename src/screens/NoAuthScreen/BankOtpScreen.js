@@ -8,7 +8,8 @@ import {
     StyleSheet,
     Alert,
     StatusBar,
-    BackHandler
+    BackHandler,
+    Platform
 } from 'react-native';
 import OTPInputView from '@twotalltotems/react-native-otp-input'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -222,7 +223,7 @@ const BankOtpScreen = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
+           <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <View style={{ paddingHorizontal: 20, paddingVertical: 10, marginTop: responsiveHeight(10) }}>
                 <MaterialIcons name="arrow-back-ios-new" size={25} color="#000" onPress={() => navigation.goBack()} />
             </View>

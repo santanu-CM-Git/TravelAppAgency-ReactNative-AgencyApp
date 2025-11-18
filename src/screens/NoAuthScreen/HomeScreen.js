@@ -628,7 +628,7 @@ export default function HomeScreen({ }) {
 
   return (
     <SafeAreaView style={styles.Container}>
-      <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
+      <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
       {/* <CustomHeader commingFrom={'Home'} onPressProfile={() => navigation.navigate('Profile')} /> */}
       <View style={styles.homeHeaderView}>
         <View style={styles.nameSection}>

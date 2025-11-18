@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, StatusBar, BackHandler } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, StatusBar, BackHandler, Platform } from 'react-native'
 import CustomHeader from '../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -25,7 +25,7 @@ const NoNotification = ({  }) => {
     );
     return (
         <SafeAreaView style={styles.Container}>
-            <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
+            <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <CustomHeader commingFrom={'Notification'} onPress={() => navigation.goBack()} title={'Notification'} />
             <ScrollView style={styles.wrapper}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(15) }}>

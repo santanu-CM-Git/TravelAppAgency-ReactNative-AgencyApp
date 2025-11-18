@@ -200,11 +200,7 @@ function App() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        <StatusBar
-          translucent={false}
-          backgroundColor="#000"
-          barStyle="light-content"
-        />
+      <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
         <OfflineNotice />
         <AuthProvider>
           <AppNav />

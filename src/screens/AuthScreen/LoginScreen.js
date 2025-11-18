@@ -173,7 +173,7 @@ const LoginScreen = ({  }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
+      <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
       <KeyboardAwareScrollView
       contentContainerStyle={styles.scrollContainer}
       enableOnAndroid={true}

@@ -619,7 +619,7 @@ const PackageEditScreen = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
+            <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <CustomHeader commingFrom={'Edit Package'} onPress={() => navigation.goBack()} title={'Edit Package'} />
             <ScrollView keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1 }} style={{ marginBottom: responsiveHeight(4) }}>
                 <View style={styles.photocontainer}>

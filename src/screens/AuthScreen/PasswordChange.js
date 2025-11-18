@@ -145,7 +145,7 @@ const PasswordChange = ({  }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar translucent backgroundColor="transparent" />
+            <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <KeyboardAwareScrollView>
                 <View style={{ paddingHorizontal: 20, paddingVertical: 25 }}>
                     <MaterialIcons name="arrow-back" size={25} color="#000" onPress={() => navigation.goBack()} />

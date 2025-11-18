@@ -283,7 +283,7 @@ const QuoteRequestList = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <StatusBar translucent={false} backgroundColor="black" barStyle="light-content" />
+            <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <CustomHeader commingFrom={'List of quotes'} onPress={() => navigation.goBack()} title={route?.params?.locationName} />
             <View style={{ paddingHorizontal: 15, marginTop: responsiveHeight(2), paddingBottom: responsiveHeight(5) }}>
                 <FlatList
