@@ -240,9 +240,8 @@ const LoginScreen = ({  }) => {
           </View>
 
         </View>
-      </KeyboardAwareScrollView>
-
-      <View style={styles.buttonwrapper}>
+        <>
+        <View style={styles.buttonwrapper}>
         <CustomButton label={"Send Verification Code"}
           onPress={() => handleSubmit()}
         //onPress={() => { navigation.navigate('Otp', { countrycode: +91, phone: '9098989898', otp: '123', fcmToken: 'fhrkwerh324234234' })}}
@@ -273,6 +272,10 @@ const LoginScreen = ({  }) => {
           </Text>.
         </Text>
       </View>
+        </>
+      </KeyboardAwareScrollView>
+
+      
 
       {/* <Image
         source={orImg}
