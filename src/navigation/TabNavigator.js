@@ -15,6 +15,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 import PrivacyPolicy from '../screens/NoAuthScreen/PrivacyPolicy';
+import Termsofuse from '../screens/NoAuthScreen/Termsofuse';
+import RefundPolicy from '../screens/NoAuthScreen/RefundPolicy';
 import ChatScreen from '../screens/NoAuthScreen/ChatScreen';
 import { bookingMenu, bookmarkedFill, bookmarkedNotFill, bookmarkednotFocusedImg, calenderFocusedImg, calenderImg, homeIconFocusedImg, homeIconNotFocusedImg, menuImg, messageImg, packageMenu, quotesImg, talkFocusedImg, talkImg } from '../utils/Images';
 import BookingSummary from '../screens/NoAuthScreen/BookingSummary';
@@ -308,6 +310,21 @@ const MenuStack = () => {
       <Stack.Screen
         name="BankLinkedScreen"
         component={BankLinkedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicy}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Termsofuse"
+        component={Termsofuse}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RefundPolicy"
+        component={RefundPolicy}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

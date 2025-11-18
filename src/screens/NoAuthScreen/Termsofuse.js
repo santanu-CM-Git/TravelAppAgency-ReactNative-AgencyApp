@@ -14,7 +14,7 @@ export default function Termsofuse({  }) {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const { width } = useWindowDimensions();
-    const privacyPolicyUrl = "https://www.google.co.in/";
+    const privacyPolicyUrl = "https://grouptour.app/terms.html";
 
     useFocusEffect(
         useCallback(() => {

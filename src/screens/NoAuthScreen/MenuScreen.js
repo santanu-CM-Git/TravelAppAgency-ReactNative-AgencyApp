@@ -45,8 +45,11 @@ const menuItems = [
     { id: 4, title: 'Team', icon: teamMenu, page: 'TeamScreen', permission: 'Team' },
     { id: 6, title: 'Bank', icon: bankMenu, page: 'BankLinkedScreen', permission: 'Bank' },
     { id: 7, title: 'Delete Account', icon: settingsMenuImg, page: 'DeleteAccount', alwaysVisible: true },
-    { id: 9, title: 'Support', icon: supportMenuImg, page: 'SupportScreen', alwaysVisible: true },
-    { id: 10, title: 'Logout', icon: logoutMenuImg, page: 'Logout', alwaysVisible: true },
+    { id: 8, title: 'Privacy Policy', icon: policyMenuImg, page: 'PrivacyPolicy', alwaysVisible: true },
+    { id: 9, title: 'Terms and Conditions', icon: termMenuImg, page: 'Termsofuse', alwaysVisible: true },
+    { id: 10, title: 'Refund Policy', icon: policyMenuImg, page: 'RefundPolicy', alwaysVisible: true },
+    { id: 11, title: 'Support', icon: supportMenuImg, page: 'SupportScreen', alwaysVisible: true },
+    { id: 12, title: 'Logout', icon: logoutMenuImg, page: 'Logout', alwaysVisible: true },
 ];
 
 const MenuScreen = ({ route }) => {

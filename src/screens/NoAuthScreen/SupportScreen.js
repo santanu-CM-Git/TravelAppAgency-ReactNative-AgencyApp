@@ -54,7 +54,7 @@ const SupportScreen = ({ route }) => {
               return () => backHandler.remove();
         }, [navigation])
     );
-    const email = "nevaeh.simmons@example.com";
+    const email = "support@grouptour.app";
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
