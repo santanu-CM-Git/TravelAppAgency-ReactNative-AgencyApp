@@ -247,8 +247,8 @@ export default function PackageDetailsScreen({ route }) {
 
     const onShare = async () => {
         try {
-            const appStoreLink = "https://apps.apple.com/app/your-app/id123456789";
-            const playStoreLink = "https://play.google.com/store/apps/details?id=your.app.package";
+            const appStoreLink = "https://apps.apple.com/us/app/group-tour/id6754909782";
+            const playStoreLink = "https://play.google.com/store/apps/details?id=com.grouptour.travelapp&hl=en";
 
             const shareMessage = `Check out this amazing travel package!\n\n${packageDetails[0]?.name}\nLocation: ${packageDetails[0]?.location?.name}\nDuration: ${totalDay}\nPrice: ${packageDetails[0]?.discounted_price}\n\nBook now and enjoy your dream vacation!\n\nDownload our app:\n📱 iOS: ${appStoreLink}\n📱 Android: ${playStoreLink}`;
 
@@ -278,7 +278,7 @@ export default function PackageDetailsScreen({ route }) {
     }
 
     return (
-        <SafeAreaView style={styles.Container}>
+        <SafeAreaView style={styles.Container} edges={['bottom']}>
             {/* <CustomHeader commingFrom={'Top location'} onPressProfile={() => navigation.navigate('Profile')} title={'Top location'} /> */}
             {/* <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} /> */}
             <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     },
     background: {
         width: '100%',
-        height: 300,  // Adjust height as needed
+        height: responsiveHeight(40),  // Adjust height as needed
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         overflow: 'hidden',
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     },
     header: {
         position: 'absolute',
-        top: 35,
+        top: Platform.OS === 'ios' ? responsiveHeight(6) : (StatusBar.currentHeight || 0) + responsiveHeight(1),
         left: 20,
         right: 20,
         flexDirection: 'row',
