@@ -556,7 +556,17 @@ const styles = StyleSheet.create({
         //justifyContent: 'center',
         padding: 5,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 2,
         marginBottom: responsiveHeight(2),
         marginRight: 5
@@ -646,7 +656,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         marginVertical: responsiveHeight(1)
     },
     row: {
@@ -692,7 +712,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     contactContainer: {
         flexDirection: "row",
@@ -739,7 +769,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         marginVertical: responsiveHeight(1)
     },
     invoiceItem: {

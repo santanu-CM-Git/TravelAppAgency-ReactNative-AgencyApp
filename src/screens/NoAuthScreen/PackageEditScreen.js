@@ -1471,7 +1471,17 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     clearCoverButton: {
         position: "absolute",
@@ -1483,7 +1493,17 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     profileContainer: {
         alignItems: "center",
@@ -1514,7 +1534,17 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     datetypecontainer: {
         flexDirection: 'column',

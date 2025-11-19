@@ -570,7 +570,17 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     iconStyle2: {
         height: 20, width: 20, resizeMode: 'contain'
@@ -602,7 +612,17 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     countryInputView: {
         height: responsiveHeight(6),

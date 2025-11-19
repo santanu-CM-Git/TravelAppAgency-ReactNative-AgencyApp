@@ -604,7 +604,17 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         marginBottom: 10,
     },
     userInfo: {
@@ -677,7 +687,17 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 10,
     },
     availableHeader: {
@@ -747,7 +767,17 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 1,
         marginBottom: 5,
         alignItems: 'center',

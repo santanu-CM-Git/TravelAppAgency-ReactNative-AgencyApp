@@ -390,16 +390,16 @@ const BookingSummary = ({ route }) => {
     useFocusEffect(
         useCallback(() => {
             const backAction = () => {
-               navigation.goBack()
-               return true
-              };
-          
-              const backHandler = BackHandler.addEventListener(
+                navigation.goBack()
+                return true
+            };
+
+            const backHandler = BackHandler.addEventListener(
                 'hardwareBackPress',
                 backAction,
-              );
-          
-              return () => backHandler.remove();
+            );
+
+            return () => backHandler.remove();
         }, [navigation])
     );
     if (isLoading) {
@@ -594,7 +594,28 @@ const styles = StyleSheet.create({
     buttonwrapperSection1: { flexDirection: 'column', },
     buttonwrapperText1: { color: '#746868', fontSize: responsiveFontSize(1.7), fontFamily: 'Poppins-Medium', },
     buttonwrapperText2: { color: '#444343', fontSize: responsiveFontSize(2.5), fontFamily: 'Poppins-Bold', },
-    total3Value: { width: responsiveWidth(89), height: responsiveHeight(15), backgroundColor: '#FFF', padding: 10, borderRadius: 15, elevation: 5, justifyContent: 'center', marginTop: responsiveHeight(2), alignSelf: 'center', marginBottom: 5 },
+    total3Value: {
+        width: responsiveWidth(89),
+        height: responsiveHeight(15),
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 15,
+        ...Platform.select({
+            android: {
+                elevation: 5, // Only for Android
+            },
+            ios: {
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+            },
+        }),
+        justifyContent: 'center',
+        marginTop: responsiveHeight(2),
+        alignSelf: 'center',
+        marginBottom: 5
+    },
     couponText: { color: '#2D2D2D', fontFamily: 'Poppins-Bold', fontSize: responsiveFontSize(1.7), marginLeft: responsiveWidth(1) },
     callCouponButton: { position: 'absolute', right: 25, top: responsiveHeight(9) },
     callCouponText: { color: '#FF455C', fontFamily: 'Poppins-Bold', fontSize: responsiveFontSize(1.7), },
@@ -608,7 +629,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3, // For Android
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     title: {
         fontSize: responsiveFontSize(2),
@@ -667,7 +698,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3, // For Android
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     row: {
         flexDirection: 'row',
@@ -714,7 +755,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3, // Android shadow
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
     },
     cancelRow: {
         flexDirection: 'row',

@@ -165,7 +165,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     flex: 1,
-    elevation: 3, // For Android shadow
+    ...Platform.select({
+      android: {
+        elevation: 5, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
     shadowColor: "#000", // For iOS shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

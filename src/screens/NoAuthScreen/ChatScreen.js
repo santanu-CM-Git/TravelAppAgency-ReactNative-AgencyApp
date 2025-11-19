@@ -1837,7 +1837,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginHorizontal: 15,
     marginBottom: 10,
-    elevation: 5,
+    ...Platform.select({
+      android: {
+        elevation: 5, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -1899,7 +1909,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4,
+    ...Platform.select({
+      android: {
+        elevation: 5, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
   },
   sendIcon: {
     width: 30,
@@ -2057,7 +2077,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 8,
+    ...Platform.select({
+      android: {
+        elevation: 5, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
     borderWidth: 1, // for debugging
     borderColor: '#eee', // for debugging
   },
