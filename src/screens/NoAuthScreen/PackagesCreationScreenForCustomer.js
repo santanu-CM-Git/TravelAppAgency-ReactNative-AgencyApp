@@ -39,6 +39,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import IOSDatePickerModal from '../../components/IOSDatePickerModal';
 
 const PackagesCreationScreenForCustomer = ({ route }) => {
     const navigation = useNavigation();
@@ -134,6 +135,9 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
     const [endDate, setEndDate] = useState(null);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [showIOSStartDatePicker, setShowIOSStartDatePicker] = useState(false);
+    const [showIOSEndDatePicker, setShowIOSEndDatePicker] = useState(false);
+    const [showIOSExpireDatePicker, setShowIOSExpireDatePicker] = useState(false);
 
     const [packageName, setPackageName] = useState('');
     const [packageNameError, setPackageNameError] = useState('');
@@ -306,9 +310,14 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
     };
 
     const onExpireDateChange = (event, selectedDate) => {
-        setShowExpireDatePicker(false);
-        if (selectedDate) {
-            setExpireDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowExpireDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setExpireDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setExpireDate(selectedDate);
         }
     };
 
@@ -488,18 +497,44 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
     );
 
     const onStartDateChange = (event, selectedDate) => {
-        setShowStartDatePicker(false);
-        if (selectedDate) {
-            setStartDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowStartDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setStartDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setStartDate(selectedDate);
         }
     };
 
     const onEndDateChange = (event, selectedDate) => {
-        setShowEndDatePicker(false);
-        if (selectedDate) {
-            setEndDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowEndDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setEndDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setEndDate(selectedDate);
         }
     };
+
+    // iOS Modal handlers
+    const handleIOSStartDateConfirm = useCallback((selectedDate) => {
+        setStartDate(selectedDate);
+        setShowIOSStartDatePicker(false);
+    }, []);
+
+    const handleIOSEndDateConfirm = useCallback((selectedDate) => {
+        setEndDate(selectedDate);
+        setShowIOSEndDatePicker(false);
+    }, []);
+
+    const handleIOSExpireDateConfirm = useCallback((selectedDate) => {
+        setExpireDate(selectedDate);
+        setShowIOSExpireDatePicker(false);
+    }, []);
 
     const submitForm = async () => {
         if (hasBankAccount === false) {
@@ -1113,7 +1148,13 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                         <Text style={styles.header}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
                                             style={styles.inputBox}
-                                            onPress={() => setShowStartDatePicker(true)}
+                                            onPress={() => {
+                                                if (Platform.OS === 'ios') {
+                                                    setShowIOSStartDatePicker(true);
+                                                } else {
+                                                    setShowStartDatePicker(true);
+                                                }
+                                            }}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
                                             <Text style={styles.inputText}>
@@ -1126,7 +1167,13 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                         <Text style={styles.header}>End Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
                                             style={styles.inputBox}
-                                            onPress={() => setShowEndDatePicker(true)}
+                                            onPress={() => {
+                                                if (Platform.OS === 'ios') {
+                                                    setShowIOSEndDatePicker(true);
+                                                } else {
+                                                    setShowEndDatePicker(true);
+                                                }
+                                            }}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
                                             <Text style={styles.inputText}>
@@ -1136,7 +1183,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     </View>
                                 </View>
 
-                                {showStartDatePicker && (
+                                {Platform.OS === 'android' && showStartDatePicker && (
                                     <RNDateTimePicker
                                         value={startDate || new Date()}
                                         mode="date"
@@ -1146,7 +1193,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     />
                                 )}
 
-                                {showEndDatePicker && (
+                                {Platform.OS === 'android' && showEndDatePicker && (
                                     <RNDateTimePicker
                                         value={endDate || new Date()}
                                         mode="date"
@@ -1177,7 +1224,13 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     <Text style={styles.header}>Expire Date <Text style={styles.requiredheader}>*</Text></Text>
                                     <TouchableOpacity
                                         style={styles.inputBox}
-                                        onPress={() => setShowExpireDatePicker(true)}
+                                        onPress={() => {
+                                            if (Platform.OS === 'ios') {
+                                                setShowIOSExpireDatePicker(true);
+                                            } else {
+                                                setShowExpireDatePicker(true);
+                                            }
+                                        }}
                                     >
                                         <FontAwesome name="calendar" size={16} color="#FF455C" />
                                         <Text style={styles.inputText}>
@@ -1188,7 +1241,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                             </View>
                         )}
 
-                        {showExpireDatePicker && (
+                        {Platform.OS === 'android' && showExpireDatePicker && (
                             <RNDateTimePicker
                                 value={expireDate || new Date()}
                                 mode="date"
@@ -1518,6 +1571,36 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                     disabled={isLoading || hasBankAccount === false}
                 />
             </View>
+            {/* iOS Date Picker Modals */}
+            {Platform.OS === 'ios' && (
+                <>
+                    <IOSDatePickerModal
+                        visible={showIOSStartDatePicker}
+                        date={startDate || new Date()}
+                        minimumDate={new Date()}
+                        onConfirm={handleIOSStartDateConfirm}
+                        onCancel={() => setShowIOSStartDatePicker(false)}
+                        mode="date"
+                    />
+                    <IOSDatePickerModal
+                        visible={showIOSEndDatePicker}
+                        date={endDate || new Date()}
+                        minimumDate={startDate || new Date()}
+                        onConfirm={handleIOSEndDateConfirm}
+                        onCancel={() => setShowIOSEndDatePicker(false)}
+                        mode="date"
+                    />
+                    <IOSDatePickerModal
+                        visible={showIOSExpireDatePicker}
+                        date={expireDate || new Date()}
+                        minimumDate={new Date()}
+                        maximumDate={new Date(new Date().setMonth(new Date().getMonth() + 6))}
+                        onConfirm={handleIOSExpireDateConfirm}
+                        onCancel={() => setShowIOSExpireDatePicker(false)}
+                        mode="date"
+                    />
+                </>
+            )}
         </SafeAreaView >
     );
 };

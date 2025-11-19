@@ -36,6 +36,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CountryPicker } from "react-native-country-codes-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import IOSDatePickerModal from '../../components/IOSDatePickerModal';
 
 const noOfAudult = [
     { label: '1', value: '1' },
@@ -115,6 +116,8 @@ const NewBookingScreen = ({ route }) => {
     const [endDate, setEndDate] = useState(null);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [showIOSStartDatePicker, setShowIOSStartDatePicker] = useState(false);
+    const [showIOSEndDatePicker, setShowIOSEndDatePicker] = useState(false);
 
     const fetchactivePackage = () => {
         AsyncStorage.getItem('userToken', (err, usertoken) => {
@@ -367,18 +370,39 @@ const NewBookingScreen = ({ route }) => {
     }
 
     const onStartDateChange = (event, selectedDate) => {
-        setShowStartDatePicker(false);
-        if (selectedDate) {
-            setStartDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowStartDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setStartDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setStartDate(selectedDate);
         }
     };
 
     const onEndDateChange = (event, selectedDate) => {
-        setShowEndDatePicker(false);
-        if (selectedDate) {
-            setEndDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowEndDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setEndDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setEndDate(selectedDate);
         }
     };
+
+    // iOS Modal handlers
+    const handleIOSStartDateConfirm = useCallback((selectedDate) => {
+        setStartDate(selectedDate);
+        setShowIOSStartDatePicker(false);
+    }, []);
+
+    const handleIOSEndDateConfirm = useCallback((selectedDate) => {
+        setEndDate(selectedDate);
+        setShowIOSEndDatePicker(false);
+    }, []);
 
     useFocusEffect(
         useCallback(() => {
@@ -531,7 +555,13 @@ const NewBookingScreen = ({ route }) => {
                                 <Text style={styles.header}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
                                 <TouchableOpacity
                                     style={styles.inputBox}
-                                    onPress={() => setShowStartDatePicker(true)}
+                                    onPress={() => {
+                                        if (Platform.OS === 'ios') {
+                                            setShowIOSStartDatePicker(true);
+                                        } else {
+                                            setShowStartDatePicker(true);
+                                        }
+                                    }}
                                 >
                                     <FontAwesome name="calendar" size={16} color="#FF455C" />
                                     <Text style={styles.inputText}>
@@ -544,7 +574,13 @@ const NewBookingScreen = ({ route }) => {
                                 <Text style={styles.header}>End Date <Text style={styles.requiredheader}>*</Text></Text>
                                 <TouchableOpacity
                                     style={styles.inputBox}
-                                    onPress={() => setShowEndDatePicker(true)}
+                                    onPress={() => {
+                                        if (Platform.OS === 'ios') {
+                                            setShowIOSEndDatePicker(true);
+                                        } else {
+                                            setShowEndDatePicker(true);
+                                        }
+                                    }}
                                 >
                                     <FontAwesome name="calendar" size={16} color="#FF455C" />
                                     <Text style={styles.inputText}>
@@ -553,7 +589,7 @@ const NewBookingScreen = ({ route }) => {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        {showStartDatePicker && (
+                        {Platform.OS === 'android' && showStartDatePicker && (
                             <RNDateTimePicker
                                 value={startDate || new Date()}
                                 mode="date"
@@ -563,7 +599,7 @@ const NewBookingScreen = ({ route }) => {
                             />
                         )}
 
-                        {showEndDatePicker && (
+                        {Platform.OS === 'android' && showEndDatePicker && (
                             <RNDateTimePicker
                                 value={endDate || new Date()}
                                 mode="date"
@@ -665,6 +701,27 @@ const NewBookingScreen = ({ route }) => {
                     onPress={() => submitForm()}
                 />
             </View>
+            {/* iOS Date Picker Modals */}
+            {Platform.OS === 'ios' && (
+                <>
+                    <IOSDatePickerModal
+                        visible={showIOSStartDatePicker}
+                        date={startDate || new Date()}
+                        minimumDate={new Date()}
+                        onConfirm={handleIOSStartDateConfirm}
+                        onCancel={() => setShowIOSStartDatePicker(false)}
+                        mode="date"
+                    />
+                    <IOSDatePickerModal
+                        visible={showIOSEndDatePicker}
+                        date={endDate || new Date()}
+                        minimumDate={startDate || new Date()}
+                        onConfirm={handleIOSEndDateConfirm}
+                        onCancel={() => setShowIOSEndDatePicker(false)}
+                        mode="date"
+                    />
+                </>
+            )}
         </SafeAreaView >
     );
 };

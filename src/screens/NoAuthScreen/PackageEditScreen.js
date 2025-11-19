@@ -39,6 +39,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import IOSDatePickerModal from '../../components/IOSDatePickerModal';
 
 const PackageEditScreen = ({ route }) => {
     const navigation = useNavigation();
@@ -119,27 +120,61 @@ const PackageEditScreen = ({ route }) => {
     const [endDate, setEndDate] = useState(null);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [showIOSStartDatePicker, setShowIOSStartDatePicker] = useState(false);
+    const [showIOSEndDatePicker, setShowIOSEndDatePicker] = useState(false);
+    const [showIOSExpireDatePicker, setShowIOSExpireDatePicker] = useState(false);
 
     const onStartDateChange = (event, selectedDate) => {
-        setShowStartDatePicker(false);
-        if (selectedDate) {
-            setStartDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowStartDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setStartDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setStartDate(selectedDate);
         }
     };
 
     const onEndDateChange = (event, selectedDate) => {
-        setShowEndDatePicker(false);
-        if (selectedDate) {
-            setEndDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowEndDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setEndDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setEndDate(selectedDate);
         }
     };
 
     const onExpireDateChange = (event, selectedDate) => {
-        setShowExpireDatePicker(false);
-        if (selectedDate) {
-            setExpireDate(selectedDate);
+        if (Platform.OS === "android") {
+            setShowExpireDatePicker(false);
+            if (event.type === 'set' && selectedDate) {
+                setExpireDate(selectedDate);
+            }
+        } else {
+            // iOS - handled by modal
+            if (selectedDate) setExpireDate(selectedDate);
         }
     };
+
+    // iOS Modal handlers
+    const handleIOSStartDateConfirm = useCallback((selectedDate) => {
+        setStartDate(selectedDate);
+        setShowIOSStartDatePicker(false);
+    }, []);
+
+    const handleIOSEndDateConfirm = useCallback((selectedDate) => {
+        setEndDate(selectedDate);
+        setShowIOSEndDatePicker(false);
+    }, []);
+
+    const handleIOSExpireDateConfirm = useCallback((selectedDate) => {
+        setExpireDate(selectedDate);
+        setShowIOSExpireDatePicker(false);
+    }, []);
 
     const [policies, setPolicies] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
@@ -775,7 +810,15 @@ const PackageEditScreen = ({ route }) => {
                                         <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>Start Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
                                             style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
-                                            onPress={() => !hasExistingBookings && setShowStartDatePicker(true)}
+                                            onPress={() => {
+                                                if (!hasExistingBookings) {
+                                                    if (Platform.OS === 'ios') {
+                                                        setShowIOSStartDatePicker(true);
+                                                    } else {
+                                                        setShowStartDatePicker(true);
+                                                    }
+                                                }
+                                            }}
                                             disabled={hasExistingBookings}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
@@ -789,7 +832,15 @@ const PackageEditScreen = ({ route }) => {
                                         <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>End Date <Text style={styles.requiredheader}>*</Text></Text>
                                         <TouchableOpacity
                                             style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
-                                            onPress={() => !hasExistingBookings && setShowEndDatePicker(true)}
+                                            onPress={() => {
+                                                if (!hasExistingBookings) {
+                                                    if (Platform.OS === 'ios') {
+                                                        setShowIOSEndDatePicker(true);
+                                                    } else {
+                                                        setShowEndDatePicker(true);
+                                                    }
+                                                }
+                                            }}
                                             disabled={hasExistingBookings}
                                         >
                                             <FontAwesome name="calendar" size={16} color="#FF455C" />
@@ -806,7 +857,15 @@ const PackageEditScreen = ({ route }) => {
                                     <Text style={[styles.header, hasExistingBookings && styles.disabledText]}>Expire Date <Text style={styles.requiredheader}>*</Text></Text>
                                     <TouchableOpacity
                                         style={[styles.inputBox, hasExistingBookings && styles.disabledInputBox]}
-                                        onPress={() => !hasExistingBookings && setShowExpireDatePicker(true)}
+                                        onPress={() => {
+                                            if (!hasExistingBookings) {
+                                                if (Platform.OS === 'ios') {
+                                                    setShowIOSExpireDatePicker(true);
+                                                } else {
+                                                    setShowExpireDatePicker(true);
+                                                }
+                                            }
+                                        }}
                                         disabled={hasExistingBookings}
                                     >
                                         <FontAwesome name="calendar" size={16} color="#FF455C" />
@@ -818,7 +877,7 @@ const PackageEditScreen = ({ route }) => {
                             </View>
                         )}
 
-                        {showStartDatePicker && (
+                        {Platform.OS === 'android' && showStartDatePicker && (
                             <RNDateTimePicker
                                 value={startDate || new Date()}
                                 mode="date"
@@ -828,7 +887,7 @@ const PackageEditScreen = ({ route }) => {
                             />
                         )}
 
-                        {showEndDatePicker && (
+                        {Platform.OS === 'android' && showEndDatePicker && (
                             <RNDateTimePicker
                                 value={endDate || new Date()}
                                 mode="date"
@@ -838,7 +897,7 @@ const PackageEditScreen = ({ route }) => {
                             />
                         )}
 
-                        {showExpireDatePicker && (
+                        {Platform.OS === 'android' && showExpireDatePicker && (
                             <RNDateTimePicker
                                 value={expireDate || new Date()}
                                 mode="date"
@@ -1140,6 +1199,35 @@ const PackageEditScreen = ({ route }) => {
                     disabled={isLoading}
                 />
             </View>
+            {/* iOS Date Picker Modals */}
+            {Platform.OS === 'ios' && (
+                <>
+                    <IOSDatePickerModal
+                        visible={showIOSStartDatePicker}
+                        date={startDate || new Date()}
+                        minimumDate={new Date()}
+                        onConfirm={handleIOSStartDateConfirm}
+                        onCancel={() => setShowIOSStartDatePicker(false)}
+                        mode="date"
+                    />
+                    <IOSDatePickerModal
+                        visible={showIOSEndDatePicker}
+                        date={endDate || new Date()}
+                        minimumDate={startDate || new Date()}
+                        onConfirm={handleIOSEndDateConfirm}
+                        onCancel={() => setShowIOSEndDatePicker(false)}
+                        mode="date"
+                    />
+                    <IOSDatePickerModal
+                        visible={showIOSExpireDatePicker}
+                        date={expireDate || new Date()}
+                        minimumDate={new Date()}
+                        onConfirm={handleIOSExpireDateConfirm}
+                        onCancel={() => setShowIOSExpireDatePicker(false)}
+                        mode="date"
+                    />
+                </>
+            )}
         </SafeAreaView>
     );
 };
