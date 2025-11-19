@@ -50,6 +50,7 @@ const MyBookingList = ({ route }) => {
     const [startDay, setStartDay] = useState(moment().format('YYYY-MM-DD'));
     const [endDay, setEndDay] = useState(null);
     const [markedDates, setMarkedDates] = useState({});
+    const [hasDateSelected, setHasDateSelected] = useState(false);
 
     const fetchBookings = async () => {
         try {
@@ -66,10 +67,25 @@ const MyBookingList = ({ route }) => {
                 return;
             }
 
-            const requestData = {
-                start_date: startDay,
-                end_date: endDay
-            };
+            let requestData = {};
+
+            if (hasDateSelected) {
+                if (endDay) {
+                    // Date range selected
+                    requestData = {
+                        start_date: startDay,
+                        end_date: endDay
+                    };
+                } else {
+                    // Single date selected
+                    requestData = {
+                        start_date: startDay,
+                        end_date: startDay
+                    };
+                }
+            }
+            // If hasDateSelected is false, requestData remains {}
+
             console.log(requestData)
             const response = await axios.post(`${API_URL}/agent/booking-list`, requestData, {
                 headers: {
@@ -118,6 +134,11 @@ const MyBookingList = ({ route }) => {
     }
 
     useEffect(() => {
+        // Reset calendar selections when screen opens
+        setStartDay(moment().format('YYYY-MM-DD'));
+        setEndDay(null);
+        setMarkedDates({});
+        setHasDateSelected(false);
         fetchBookings();
     }, []);
 
@@ -134,6 +155,11 @@ const MyBookingList = ({ route }) => {
 
     useFocusEffect(
         useCallback(() => {
+            // Reset calendar selections when screen comes into focus
+            setStartDay(moment().format('YYYY-MM-DD'));
+            setEndDay(null);
+            setMarkedDates({});
+            setHasDateSelected(false);
             fetchBookings();
         }, [navigation])
     );
@@ -142,6 +168,7 @@ const MyBookingList = ({ route }) => {
         setRefreshing(true);
         setStartDay(moment().format('YYYY-MM-DD'));
         setEndDay(null);
+        setHasDateSelected(false);
         fetchBookings().then(() => setRefreshing(false));
     }, []);
 
@@ -149,6 +176,7 @@ const MyBookingList = ({ route }) => {
         setCalendarModalVisible(!isCalendarModalVisible);
     }
     const handleDayPress = (day) => {
+        setHasDateSelected(true);
         if (startDay && !endDay) {
             const date = {}
             for (const d = moment(startDay); d.isSameOrBefore(day.dateString); d.add(1, 'days')) {
@@ -308,186 +336,193 @@ const MyBookingList = ({ route }) => {
             <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
             <CustomHeader commingFrom={'Bookings'} onPress={() => navigation.navigate('HOME', { screen: 'Home' })} title={'Bookings'} />
             {/* <ScrollView showsHorizontalScrollIndicator={false}> */}
-                <View style={styles.searchSection}>
-                    <View style={styles.searchInput}>
-                        <View style={{ flexDirection: 'row', alignItems: "center", flex: 1 }}>
-                            <Image
-                                source={searchIconImg}
-                                style={styles.searchIcon}
-                            />
-                            {/* <Text style={styles.placeholderText}>Search</Text> */}
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Search"
-                                placeholderTextColor="#888"
-                                value={searchText}
-                                onChangeText={setSearchText}
-                            />
-                        </View>
+            <View style={styles.searchSection}>
+                <View style={styles.searchInput}>
+                    <View style={{ flexDirection: 'row', alignItems: "center", flex: 1 }}>
+                        <Image
+                            source={searchIconImg}
+                            style={styles.searchIcon}
+                        />
+                        {/* <Text style={styles.placeholderText}>Search</Text> */}
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Search"
+                            placeholderTextColor="#888"
+                            value={searchText}
+                            onChangeText={setSearchText}
+                        />
                     </View>
                 </View>
+            </View>
 
-                <View style={styles.bookingContainer}>
-                    {/* Date Picker */}
-                    <TouchableOpacity style={styles.bookingDatePicker} onPress={() => toggleCalendarModal()}>
-                        <FontAwesome name="calendar" size={16} color="#FF455C" />
+            <View style={styles.bookingContainer}>
+                {/* Date Picker */}
+                <TouchableOpacity style={styles.bookingDatePicker} onPress={() => toggleCalendarModal()}>
+                    <FontAwesome name="calendar" size={16} color="#FF455C" />
+                    {hasDateSelected ? (
                         <Text style={styles.bookingDateText}>
                             {!endDay || moment(startDay).isSame(endDay, 'day')
                                 ? moment(startDay).format('DD MMM, YYYY')
                                 : `${moment(startDay).format('DD MMM, YYYY')} - ${moment(endDay).format('DD MMM, YYYY')}`}
                         </Text>
-                    </TouchableOpacity>
+                    ) : (
+                        <Text style={styles.bookingDateText}>
+                            Select Date
+                        </Text>
+                    )}
 
-                    {/* New Booking Button */}
-                    <TouchableOpacity style={styles.bookingButton} onPress={() => navigation.navigate('NewBookingScreen')}>
-                        <FontAwesome name="plus-circle" size={16} color="white" />
-                        <Text style={styles.bookingButtonText}> New Booking</Text>
-                    </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
 
-                {isLoading ? (
-                    <Loader />
-                ) : (
-                    <FlatList
-                        data={filteredBookingData}
-                        keyExtractor={(item) => item.id.toString()}
-                        contentContainerStyle={{ paddingHorizontal: 15 }}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={onRefresh}
+                {/* New Booking Button */}
+                <TouchableOpacity style={styles.bookingButton} onPress={() => navigation.navigate('NewBookingScreen')}>
+                    <FontAwesome name="plus-circle" size={16} color="white" />
+                    <Text style={styles.bookingButtonText}> New Booking</Text>
+                </TouchableOpacity>
+            </View>
+
+            {isLoading ? (
+                <Loader />
+            ) : (
+                <FlatList
+                    data={filteredBookingData}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={{ paddingHorizontal: 15 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyContainer}>
+                            <Image
+                                source={require('../../assets/images/no-data.png')}
+                                style={styles.emptyImage}
                             />
-                        }
-                        ListEmptyComponent={() => (
-                            <View style={styles.emptyContainer}>
-                                <Image
-                                    source={require('../../assets/images/no-data.png')}
-                                    style={styles.emptyImage}
-                                />
-                                <Text style={styles.emptyText}>No bookings found for the selected date range</Text>
-                            </View>
-                        )}
-                        renderItem={({ item, index }) => (
-                            <Swipeable
-                                key={index}
-                                renderRightActions={() => {
-                                    // Show no buttons for rejected or cancelled status
-                                    if (item.status === 'rejected' || item.status === 'cancelled') {
-                                        return null;
-                                    }
-
-                                    // Show only decline button for accepted status
-                                    if (item.status === 'accepted') {
-                                        return (
-                                            <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
-                                                <View style={styles.buttonContainer}>
-                                                    <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
-                                                        <Image
-                                                            source={declineButton}
-                                                            style={styles.buttonIcon}
-                                                        />
-                                                    </TouchableWithoutFeedback>
-                                                </View>
-                                            </TouchableOpacity>
-                                        );
-                                    }
-
-                                    // Show both accept and decline buttons for pending status
-                                    if (item.status === 'pending') {
-                                        return (
-                                            <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
-                                                <View style={styles.buttonContainer}>
-                                                    <TouchableWithoutFeedback onPress={() => actionButton('accept', item?.id)}>
-                                                        <Image
-                                                            source={acceptButton}
-                                                            style={[styles.buttonIcon, { marginLeft: 10 }]}
-                                                        />
-                                                    </TouchableWithoutFeedback>
-                                                    <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
-                                                        <Image
-                                                            source={declineButton}
-                                                            style={styles.buttonIcon}
-                                                        />
-                                                    </TouchableWithoutFeedback>
-                                                </View>
-                                            </TouchableOpacity>
-                                        );
-                                    }
-
-                                    // Default case: show no buttons
+                            <Text style={styles.emptyText}>No bookings found</Text>
+                        </View>
+                    )}
+                    renderItem={({ item, index }) => (
+                        <Swipeable
+                            key={index}
+                            renderRightActions={() => {
+                                // Show no buttons for rejected or cancelled status
+                                if (item.status === 'rejected' || item.status === 'cancelled') {
                                     return null;
-                                }}
-                            >
-                                <Pressable
-                                    onPress={() => navigation.navigate('MyBookingDetails', { bookingId: item })}
-                                    style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
-                                >
-                                    <View style={styles.newBookingCard}>
-                                        {/* User Info Section */}
-                                        <View style={styles.newBookingRow}>
-                                            <Image
-                                                source={{ uri: item?.package?.cover_photo_url }}
-                                                style={styles.newBookingProfileImage}
-                                            />
-                                            <View style={styles.newBookingUserInfo}>
-                                                <Text style={styles.newBookingUserName}>{item?.package?.name}</Text>
-                                                <Text style={styles.newBookingBookingId}>BOOKING-GT-{item.id}</Text>
-                                                <View style={styles.newBookingRow}>
-                                                    <Text style={styles.newBookingDate}>
-                                                        {moment(item.start_date).format('MMM DD')} - {moment(item.end_date).format('MMM DD')}
-                                                    </Text>
-                                                    {item?.package?.date_type === 0 ? (
-                                                        <Text style={styles.newBookingDuration}>
-                                                            {(() => {
-                                                                const start = moment(item.start_date);
-                                                                const end = moment(item.end_date);
-                                                                const days = end.diff(start, 'days');
-                                                                const nights = days > 0 ? days - 1 : 0;
-                                                                return `${days} Days ${nights} Nights`;
-                                                            })()}
-                                                        </Text>
-                                                    ) : (
-                                                        <Text style={styles.newBookingDuration}>{item?.package?.itinerary.length} Days {item.package?.itinerary.length - 1} Nights</Text>
-                                                    )}
-                                                </View>
+                                }
+
+                                // Show only decline button for accepted status
+                                if (item.status === 'accepted') {
+                                    return (
+                                        <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
+                                            <View style={styles.buttonContainer}>
+                                                <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
+                                                    <Image
+                                                        source={declineButton}
+                                                        style={styles.buttonIcon}
+                                                    />
+                                                </TouchableWithoutFeedback>
                                             </View>
-                                            <TouchableOpacity
-                                                style={[
-                                                    styles.newBookingStatusButton,
-                                                    {
-                                                        backgroundColor:
-                                                            item.status === 'accepted'
-                                                                ? '#009955'
-                                                                : item.status === 'pending'
-                                                                    ? '#FC9512'
-                                                                    : '#FF0004'
-                                                    }
-                                                ]}
-                                            >
-                                                <Text style={styles.newBookingStatusText}>
-                                                    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                        <View
-                                            style={{
-                                                borderBottomColor: '#C0C0C0',
-                                                borderBottomWidth: StyleSheet.hairlineWidth,
-                                                marginVertical: 5,
-                                                marginTop: 10
-                                            }}
+                                        </TouchableOpacity>
+                                    );
+                                }
+
+                                // Show both accept and decline buttons for pending status
+                                if (item.status === 'pending') {
+                                    return (
+                                        <TouchableOpacity onPress={() => handleSwipeLeft(index)}>
+                                            <View style={styles.buttonContainer}>
+                                                <TouchableWithoutFeedback onPress={() => actionButton('accept', item?.id)}>
+                                                    <Image
+                                                        source={acceptButton}
+                                                        style={[styles.buttonIcon, { marginLeft: 10 }]}
+                                                    />
+                                                </TouchableWithoutFeedback>
+                                                <TouchableWithoutFeedback onPress={() => handleRejectWithConfirmation(item?.id)}>
+                                                    <Image
+                                                        source={declineButton}
+                                                        style={styles.buttonIcon}
+                                                    />
+                                                </TouchableWithoutFeedback>
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                }
+
+                                // Default case: show no buttons
+                                return null;
+                            }}
+                        >
+                            <Pressable
+                                onPress={() => navigation.navigate('MyBookingDetails', { bookingId: item })}
+                                style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
+                            >
+                                <View style={styles.newBookingCard}>
+                                    {/* User Info Section */}
+                                    <View style={styles.newBookingRow}>
+                                        <Image
+                                            source={{ uri: item?.package?.cover_photo_url }}
+                                            style={styles.newBookingProfileImage}
                                         />
-                                        {/* Destination & Price */}
-                                        <View style={styles.newBookingFooter}>
-                                            <Text style={styles.newBookingDestination}>{item?.package?.location}</Text>
-                                            <Text style={styles.newBookingPrice}>₹{formatNumber(item.final_amount)}</Text>
+                                        <View style={styles.newBookingUserInfo}>
+                                            <Text style={styles.newBookingUserName}>{item?.package?.name}</Text>
+                                            <Text style={styles.newBookingBookingId}>BOOKING-GT-{item.id}</Text>
+                                            <View style={styles.newBookingRow}>
+                                                <Text style={styles.newBookingDate}>
+                                                    {moment(item.start_date).format('MMM DD')} - {moment(item.end_date).format('MMM DD')}
+                                                </Text>
+                                                {item?.package?.date_type === 0 ? (
+                                                    <Text style={styles.newBookingDuration}>
+                                                        {(() => {
+                                                            const start = moment(item.start_date);
+                                                            const end = moment(item.end_date);
+                                                            const days = end.diff(start, 'days');
+                                                            const nights = days > 0 ? days - 1 : 0;
+                                                            return `${days} Days ${nights} Nights`;
+                                                        })()}
+                                                    </Text>
+                                                ) : (
+                                                    <Text style={styles.newBookingDuration}>{item?.package?.itinerary.length} Days {item.package?.itinerary.length - 1} Nights</Text>
+                                                )}
+                                            </View>
                                         </View>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.newBookingStatusButton,
+                                                {
+                                                    backgroundColor:
+                                                        item.status === 'accepted'
+                                                            ? '#009955'
+                                                            : item.status === 'pending'
+                                                                ? '#FC9512'
+                                                                : '#FF0004'
+                                                }
+                                            ]}
+                                        >
+                                            <Text style={styles.newBookingStatusText}>
+                                                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </Pressable>
-                            </Swipeable>
-                        )}
-                    />
-                )}
+                                    <View
+                                        style={{
+                                            borderBottomColor: '#C0C0C0',
+                                            borderBottomWidth: StyleSheet.hairlineWidth,
+                                            marginVertical: 5,
+                                            marginTop: 10
+                                        }}
+                                    />
+                                    {/* Destination & Price */}
+                                    <View style={styles.newBookingFooter}>
+                                        <Text style={styles.newBookingDestination}>{item?.package?.location}</Text>
+                                        <Text style={styles.newBookingPrice}>₹{formatNumber(item.final_amount)}</Text>
+                                    </View>
+                                </View>
+                            </Pressable>
+                        </Swipeable>
+                    )}
+                />
+            )}
             {/* </ScrollView> */}
             {/* calender modal */}
             <Modal
@@ -638,15 +673,15 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         ...Platform.select({
             android: {
-              elevation: 5, // Only for Android
+                elevation: 5, // Only for Android
             },
             ios: {
-              shadowColor: '#000', // Only for iOS
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 5,
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
             },
-          }),
+        }),
         margin: 1
     },
     newBookingRow: {
