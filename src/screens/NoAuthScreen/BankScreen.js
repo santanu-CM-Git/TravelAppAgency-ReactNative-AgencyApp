@@ -28,7 +28,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import MultiSelect from 'react-native-multiple-select';
 import { Dropdown } from 'react-native-element-dropdown';
 import Entypo from 'react-native-vector-icons/Entypo';
-import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import { addIconImg, bankImg, plus, userPhoto } from '../../utils/Images';
