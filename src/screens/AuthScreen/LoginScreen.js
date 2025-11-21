@@ -177,7 +177,7 @@ const LoginScreen = ({  }) => {
       <KeyboardAwareScrollView
       contentContainerStyle={styles.scrollContainer}
       enableOnAndroid={true}
-      extraScrollHeight={Platform.OS === 'android' ? responsiveHeight(3) : 20}
+      extraScrollHeight={Platform.OS === 'android' ? responsiveHeight(3) : responsiveHeight(10)}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
       extraHeight={Platform.OS === 'android' ? responsiveHeight(3) : 100}
