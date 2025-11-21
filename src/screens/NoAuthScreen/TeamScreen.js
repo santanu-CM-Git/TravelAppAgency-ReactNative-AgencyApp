@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     container: {
         //justifyContent: 'center',
         backgroundColor: '#FAFAFA',
-        flex: 1
+        flex: 1,
     },
     loader: {
         position: 'absolute',

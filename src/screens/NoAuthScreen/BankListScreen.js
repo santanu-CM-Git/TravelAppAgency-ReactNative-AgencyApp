@@ -337,7 +337,8 @@ export default BankListScreen;
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
-        flex: 1
+        flex: 1,
+        marginBottom: Platform.OS === 'ios' ? -responsiveHeight(3):0,
     },
     wrapper: {
         paddingHorizontal: 23,
