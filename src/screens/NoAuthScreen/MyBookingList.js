@@ -588,7 +588,8 @@ export default MyBookingList
 const styles = StyleSheet.create({
     Container: {
         flex: 1,
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FAFAFA',
+        marginBottom: Platform.OS === 'ios' ? -responsiveHeight(3):0,
     },
     searchSection: {
         paddingHorizontal: 15,

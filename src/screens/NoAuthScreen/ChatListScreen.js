@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     Container: {
         flex: 1,
         backgroundColor: '#FAFAFA',
-        //paddingTop: responsiveHeight(1),
+        marginBottom: Platform.OS === 'ios' ? -responsiveHeight(3):0,
     },
     searchSection: {
         paddingHorizontal: 15,

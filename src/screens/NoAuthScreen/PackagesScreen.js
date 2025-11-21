@@ -332,7 +332,8 @@ export default PackagesScreen
 const styles = StyleSheet.create({
     Container: {
         flex: 1,
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FAFAFA',
+        marginBottom: Platform.OS === 'ios' ? -responsiveHeight(1):0,
     },
     cardContainer: {
         flexDirection: 'row',

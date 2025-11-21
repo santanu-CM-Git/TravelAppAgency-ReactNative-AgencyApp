@@ -297,7 +297,8 @@ const styles = StyleSheet.create({
     container: {
         //justifyContent: 'center',
         backgroundColor: '#FAFAFA',
-        flex: 1
+        flex: 1,
+        marginBottom: Platform.OS === 'ios' ? -responsiveHeight(4.5):0,
     },
     wrapper: {
         paddingHorizontal: 10,
