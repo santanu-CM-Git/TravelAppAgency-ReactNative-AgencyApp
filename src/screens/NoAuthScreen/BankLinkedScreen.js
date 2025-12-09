@@ -153,7 +153,7 @@ const BankLinkedScreen = ({ route }) => {
                                 <Text style={styles.accountType}>IFSC: {account.ifsc_code}</Text>
                                 <Text style={styles.accountHolder}>Account Holder: {account.account_holder_name || account.agent_name}</Text>
                                 
-                                {/* KYC Verification Tag */}
+                                {/* KYC Verification Tag
                                 <View style={styles.kycContainer}>
                                     <View style={[
                                         styles.kycTag,
@@ -168,6 +168,23 @@ const BankLinkedScreen = ({ route }) => {
                                             { color: (account.kyc_verified == 1) ? '#2E7D32' : '#E65100' }
                                         ]}>
                                             {(account.kyc_verified == 1) ? 'KYC Verified' : 'KYC Not Verified'}
+                                        </Text>
+                                    </View>
+                                </View> */}
+                                <View style={styles.kycContainer}>
+                                    <View style={[
+                                        styles.kycTag,
+                                        { backgroundColor: '#E8F5E8'}
+                                    ]}>
+                                        <View style={[
+                                            styles.kycDot,
+                                            { backgroundColor: '#4CAF50' }
+                                        ]} />
+                                        <Text style={[
+                                            styles.kycText,
+                                            { color:'#2E7D32' }
+                                        ]}>
+                                            {'KYC Verified'}
                                         </Text>
                                     </View>
                                 </View>

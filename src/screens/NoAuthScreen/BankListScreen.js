@@ -28,6 +28,7 @@ import { API_URL } from '@env'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const BankListScreen = ({ route }) => {
     const navigation = useNavigation();
@@ -46,8 +47,25 @@ const BankListScreen = ({ route }) => {
         country: '',
         countryCode: '',
         pan: '',
-        gst: ''
+        gst: '',
+        aadhar: '',
+        businessType: ''
     });
+    const [isBusinessTypeFocus, setIsBusinessTypeFocus] = useState(false);
+
+    const businessTypeData = [
+        { label: 'LLP', value: 'llp' },
+        { label: 'NGO', value: 'ngo' },
+        { label: 'Other', value: 'other' },
+        { label: 'Individual', value: 'individual' },
+        { label: 'Partnership', value: 'partnership' },
+        { label: 'Proprietorship', value: 'proprietorship' },
+        { label: 'Public Limited', value: 'public_limited' },
+        { label: 'Private Limited', value: 'private_limited' },
+        { label: 'Trust, Society', value: 'trust_society' },
+        { label: 'Not Yet Registered', value: 'not_yet_registered' },
+        { label: 'Educational Institutes', value: 'educational_institutes' }
+    ];
 
     const fetchCountryCode = async (countryName) => {
         try {
@@ -78,24 +96,31 @@ const BankListScreen = ({ route }) => {
     const validateForm = () => {
         const panRegex = /^[a-zA-z]{5}\d{4}[a-zA-Z]{1}$/;
         const gstRegex = /^[0123][0-9][a-z]{5}[0-9]{4}[a-z][0-9][a-z0-9][a-z0-9]$/gi;
+        const aadharRegex = /^\d{12}$/;
         
         const isPanValid = panRegex.test(formData.pan);
-        const isGstValid = gstRegex.test(formData.gst);
+        const isGstValid = formData.gst ? gstRegex.test(formData.gst) : true; // GST is optional now
+        const isAadharValid = formData.aadhar ? aadharRegex.test(formData.aadhar) : true; // Aadhar is optional now
 
         if (!isPanValid) {
             Alert.alert('Error', 'Please enter a valid PAN number');
             return true;
         }
 
-        if (!isGstValid) {
+        if (formData.gst && !isGstValid) {
             Alert.alert('Error', 'Please enter a valid GST number');
+            return true;
+        }
+
+        if (formData.aadhar && !isAadharValid) {
+            Alert.alert('Error', 'Please enter a valid Aadhar number (12 digits)');
             return true;
         }
 
         return !formData.agentName || !formData.accountNumber || !formData.ifscCode ||
             !formData.email || !formData.mobileNumber || !formData.street || !formData.street2 ||
             !formData.city || !formData.state || !formData.postalCode || !formData.country ||
-            !formData.pan || !formData.gst;
+            !formData.pan || !formData.businessType;
     };
 
     const createRazorpayBankAccount = async (formData) => {
@@ -118,7 +143,9 @@ const BankListScreen = ({ route }) => {
                 pincode: formData.postalCode,
                 country: formData.countryCode,
                 pan: formData.pan,
-                gst: formData.gst
+                gst: formData.gst || '',
+                aadhar: formData.aadhar,
+                business_type: formData.businessType
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -319,7 +346,41 @@ const BankListScreen = ({ route }) => {
                         />
 
                         <InputField
-                            label="GST Number"
+                            label="Aadhar Number (Optional)"
+                            value={formData.aadhar}
+                            onChangeText={(text) => handleInputChange('aadhar', text.replace(/\D/g, '').slice(0, 12))}
+                            placeholder="Enter Aadhar number (12 digits)"
+                            keyboardType="numeric"
+                            inputType="others"
+                        />
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                            <Text style={styles.label}>Business Type</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
+                        <Dropdown
+                            style={[styles.dropdown, isBusinessTypeFocus && { borderColor: '#DDD' }]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            itemTextStyle={styles.selectedTextStyle}
+                            data={businessTypeData}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={!isBusinessTypeFocus ? 'Select Business Type' : '...'}
+                            searchPlaceholder="Search..."
+                            value={formData.businessType}
+                            onFocus={() => setIsBusinessTypeFocus(true)}
+                            onBlur={() => setIsBusinessTypeFocus(false)}
+                            onChange={item => {
+                                handleInputChange('businessType', item.value);
+                                setIsBusinessTypeFocus(false);
+                            }}
+                        />
+
+                        <InputField
+                            label="GST Number (Optional)"
                             value={formData.gst}
                             onChangeText={(text) => handleInputChange('gst', text.toUpperCase())}
                             placeholder="Enter GST number"
@@ -377,5 +438,43 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(1.8),
         color: '#333',
         fontFamily: 'Poppins-Regular',
+    },
+    label: {
+        fontSize: responsiveFontSize(1.8),
+        color: "#000000",
+        fontFamily: 'Poppins-SemiBold',
+        marginBottom: 5,
+    },
+    required: {
+        fontSize: responsiveFontSize(1.8),
+        color: "#FF0000",
+        fontFamily: 'Poppins-SemiBold',
+        marginLeft: 2,
+    },
+    dropdown: {
+        height: responsiveHeight(6),
+        width: '100%',
+        borderColor: '#DDD',
+        borderWidth: 0.7,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        marginTop: 5,
+        marginBottom: responsiveHeight(2)
+    },
+    placeholderStyle: {
+        fontSize: responsiveFontSize(1.8),
+        color: '#2F2F2F',
+        fontFamily: 'Poppins-Regular'
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+        color: '#2F2F2F',
+        fontFamily: 'Poppins-Regular'
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
+        color: '#2F2F2F',
+        fontFamily: 'Poppins-Regular'
     }
 });
