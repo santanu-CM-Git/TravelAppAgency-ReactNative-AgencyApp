@@ -53,7 +53,15 @@ const BankListScreen = ({ route }) => {
         try {
             const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
             const data = await response.json();
-            return data[0]?.cca2; // Returns 2-letter code
+            
+            // Find exact match first (case-insensitive)
+            const exactMatch = data.find(country => 
+                country.name.common.toLowerCase() === countryName.toLowerCase() ||
+                country.name.official.toLowerCase() === countryName.toLowerCase()
+            );
+            
+            // Return exact match if found, otherwise return first result
+            return exactMatch?.cca2 || data[0]?.cca2;
         } catch (error) {
             console.error('Error fetching country code:', error);
             return null;
@@ -146,7 +154,6 @@ const BankListScreen = ({ route }) => {
 
             setFormData(updatedFormData);
             console.log('Form Data with Country Code:', updatedFormData);
-
             // Create Razorpay bank account
             const bankAccountResponse = await createRazorpayBankAccount(updatedFormData);
             console.log('Bank Account Response:', bankAccountResponse);
