@@ -47,6 +47,7 @@ const BankListScreen = ({ route }) => {
         country: '',
         countryCode: '',
         pan: '',
+        companyPan: '',
         gst: '',
         aadhar: '',
         businessType: ''
@@ -143,6 +144,7 @@ const BankListScreen = ({ route }) => {
                 pincode: formData.postalCode,
                 country: formData.countryCode,
                 pan: formData.pan,
+                company_pan: formData.companyPan || '',
                 gst: formData.gst || '',
                 aadhar: formData.aadhar,
                 business_type: formData.businessType
@@ -338,10 +340,18 @@ const BankListScreen = ({ route }) => {
                         />
 
                         <InputField
-                            label="PAN Number"
+                            label="Authorized Signatory Personal PAN"
                             value={formData.pan}
                             onChangeText={(text) => handleInputChange('pan', text.toUpperCase())}
                             placeholder="Enter PAN number (e.g., AVOJB1111K)"
+                            inputType="ifsc"
+                        />
+
+                        <InputField
+                            label="Company PAN (if any)"
+                            value={formData.companyPan}
+                            onChangeText={(text) => handleInputChange('companyPan', text.toUpperCase())}
+                            placeholder="Enter Company PAN number (e.g., AVOJB1111K)"
                             inputType="ifsc"
                         />
 
