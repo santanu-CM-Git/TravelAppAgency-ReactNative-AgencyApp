@@ -449,6 +449,7 @@ const PersonalInformation = ({ route }) => {
                 //helperText={'Please enter lastname'}
                 inputType={'others'}
                 onChangeText={(text) => changeFirstname(text)}
+                maxLength={30}
               />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>

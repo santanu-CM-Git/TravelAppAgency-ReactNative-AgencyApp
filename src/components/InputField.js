@@ -17,7 +17,8 @@ export default function InputField({
   error,
   inputFieldType,
   textAlignVertical,
-  ref
+  ref,
+  maxLength
 }) {
   //console.log(inputType, 'dddd')
   return (
@@ -85,6 +86,7 @@ export default function InputField({
           multiline={inputFieldType == 'address' ? true : false}
           placeholderTextColor="#808080"
           selectionColor="#808080"
+          maxLength={maxLength}
         />
       )  : inputType == 'login' ? (
         <TextInput
