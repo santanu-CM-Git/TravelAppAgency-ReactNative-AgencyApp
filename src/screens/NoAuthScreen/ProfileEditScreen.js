@@ -422,7 +422,7 @@ const ProfileEditScreen = ({ route }) => {
                 keyboardType=" "
                 value={description}
                 //helperText={'Please enter lastname'}
-                inputType={'address'}
+                inputType={'others'}
                 onChangeText={(text) => setDescription(text)}
               />
             </View>
