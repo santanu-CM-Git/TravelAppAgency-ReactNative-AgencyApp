@@ -1517,7 +1517,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                         {selectedImages.length > 0 && (
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScrollView}>
                                 {selectedImages.map((imageUri, index) => (
-                                    <View key={index} style={styles.imageContainer}>
+                                    <View key={index} style={styles.imageContaineritinerary}>
                                         <Image source={{ uri: imageUri }} style={styles.image} />
                                         <TouchableOpacity
                                             style={styles.removeImageButton}
@@ -2092,6 +2092,9 @@ const styles = StyleSheet.create({
     imageContainer: {
         alignItems: "center",
         marginTop: 10,
+    },
+    imageContaineritinerary: {
+        marginRight: 10,
     },
     image: {
         width: 100,
