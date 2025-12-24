@@ -1043,6 +1043,7 @@ const PackageEditScreen = ({ route }) => {
                                         keyboardType="numeric"
                                         value={policy.day}
                                         onChangeText={(text) => updatePolicy(policy.id, "day", text)}
+                                        placeholderTextColor="#999"
                                     />
                                     <TextInput
                                         style={styles.policyinput}
@@ -1050,6 +1051,7 @@ const PackageEditScreen = ({ route }) => {
                                         keyboardType="numeric"
                                         value={policy.percentage}
                                         onChangeText={(text) => updatePolicy(policy.id, "percentage", text)}
+                                        placeholderTextColor="#999"
                                     />
 
                                     {policies.length > 1 && (
