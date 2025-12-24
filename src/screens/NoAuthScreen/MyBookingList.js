@@ -52,7 +52,21 @@ const MyBookingList = ({ route }) => {
     const [markedDates, setMarkedDates] = useState({});
     const [hasDateSelected, setHasDateSelected] = useState(false);
 
-    const fetchBookings = async () => {
+    const clearFilters = () => {
+        setStartDay(moment().format('YYYY-MM-DD'));
+        setEndDay(null);
+        setMarkedDates({});
+        setHasDateSelected(false);
+        setSearchText('');
+        // Fetch all bookings without any date filters
+        fetchBookings(false, null, null);
+    };
+
+    const hasActiveFilters = () => {
+        return hasDateSelected || searchText.trim() !== '';
+    };
+
+    const fetchBookings = async (useDateFilter = null, customStartDay = null, customEndDay = null) => {
         try {
             setIsLoading(true);
             const userToken = await AsyncStorage.getItem('userToken');
@@ -69,22 +83,27 @@ const MyBookingList = ({ route }) => {
 
             let requestData = {};
 
-            if (hasDateSelected) {
-                if (endDay) {
+            // Use provided parameters or fall back to state values
+            const shouldUseDateFilter = useDateFilter !== null ? useDateFilter : hasDateSelected;
+            const startDate = customStartDay !== null ? customStartDay : startDay;
+            const endDate = customEndDay !== null ? customEndDay : endDay;
+
+            if (shouldUseDateFilter) {
+                if (endDate) {
                     // Date range selected
                     requestData = {
-                        start_date: startDay,
-                        end_date: endDay
+                        start_date: startDate,
+                        end_date: endDate
                     };
                 } else {
                     // Single date selected
                     requestData = {
-                        start_date: startDay,
-                        end_date: startDay
+                        start_date: startDate,
+                        end_date: startDate
                     };
                 }
             }
-            // If hasDateSelected is false, requestData remains {}
+            // If shouldUseDateFilter is false, requestData remains {}
 
             console.log(requestData)
             const response = await axios.post(`${API_URL}/agent/booking-list`, requestData, {
@@ -356,22 +375,30 @@ const MyBookingList = ({ route }) => {
             </View>
 
             <View style={styles.bookingContainer}>
-                {/* Date Picker */}
-                <TouchableOpacity style={styles.bookingDatePicker} onPress={() => toggleCalendarModal()}>
-                    <FontAwesome name="calendar" size={16} color="#FF455C" />
-                    {hasDateSelected ? (
-                        <Text style={styles.bookingDateText}>
-                            {!endDay || moment(startDay).isSame(endDay, 'day')
-                                ? moment(startDay).format('DD MMM, YYYY')
-                                : `${moment(startDay).format('DD MMM, YYYY')} - ${moment(endDay).format('DD MMM, YYYY')}`}
-                        </Text>
-                    ) : (
-                        <Text style={styles.bookingDateText}>
-                            Select Date
-                        </Text>
-                    )}
+                <View style={styles.dateFilterRow}>
+                    {/* Date Picker */}
+                    <TouchableOpacity style={styles.bookingDatePicker} onPress={() => toggleCalendarModal()}>
+                        <FontAwesome name="calendar" size={16} color="#FF455C" />
+                        {hasDateSelected ? (
+                            <Text style={styles.bookingDateText} numberOfLines={1} ellipsizeMode="tail">
+                                {!endDay || moment(startDay).isSame(endDay, 'day')
+                                    ? moment(startDay).format('DD MMM, YYYY')
+                                    : `${moment(startDay).format('DD MMM, YYYY')} - ${moment(endDay).format('DD MMM, YYYY')}`}
+                            </Text>
+                        ) : (
+                            <Text style={styles.bookingDateText}>
+                                Select Date
+                            </Text>
+                        )}
+                    </TouchableOpacity>
 
-                </TouchableOpacity>
+                    {/* Clear Filter Button - Only show when filters are active */}
+                    {hasActiveFilters() && (
+                        <TouchableOpacity style={styles.clearFilterButton} onPress={clearFilters}>
+                            <FontAwesome name="times" size={12} color="#FF455C" />
+                        </TouchableOpacity>
+                    )}
+                </View>
 
                 {/* New Booking Button */}
                 <TouchableOpacity style={styles.bookingButton} onPress={() => navigation.navigate('NewBookingScreen')}>
@@ -633,34 +660,61 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+    },
+    dateFilterRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexShrink: 1,
+        marginRight: 8,
     },
     bookingDatePicker: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F8F8F8',
         paddingVertical: 5,
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: '#E0E0E0',
+        maxWidth: responsiveWidth(50),
     },
     bookingDateText: {
-        fontSize: responsiveFontSize(1.5),
+        fontSize: responsiveFontSize(1.4),
         color: "#686868",
         fontFamily: 'Poppins-Medium',
-        marginLeft: 5
+        marginLeft: 5,
+    },
+    clearFilterButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        paddingVertical: 0,
+        paddingHorizontal: 0,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: '#FF455C',
+        marginLeft: 5,
+        width: 26,
+        height: 26,
+    },
+    clearFilterText: {
+        fontSize: responsiveFontSize(1.5),
+        color: "#FF455C",
+        fontFamily: 'Poppins-Medium',
     },
     bookingButton: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FF4B5C',
         paddingVertical: 5,
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         borderRadius: 20,
+        flexShrink: 0,
     },
     bookingButtonText: {
-        fontSize: responsiveFontSize(1.5),
+        fontSize: responsiveFontSize(1.4),
         color: "#FFFFFF",
         fontFamily: 'Poppins-Medium',
     },
