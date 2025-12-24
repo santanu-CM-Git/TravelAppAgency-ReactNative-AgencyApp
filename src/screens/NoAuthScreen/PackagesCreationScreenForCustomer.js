@@ -498,20 +498,80 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
         }
     }, [startDate, endDate]);
 
+    // Function to check if there's any unsaved form data
+    const hasUnsavedData = () => {
+        // Check if any form fields have data
+        if (packageName && packageName.trim() !== '') return true;
+        if (packageDescription && packageDescription.trim() !== '') return true;
+        if (slot && slot.trim() !== '') return true;
+        if (price && price.trim() !== '') return true;
+        if (discountedPrice && discountedPrice.trim() !== '') return true;
+        if (childPrice && childPrice.trim() !== '') return true;
+        if (coverPhoto) return true;
+        if (startDate || endDate || expireDate) return true;
+        
+        // Check if any day has description or images
+        const hasDayData = days.some(day => 
+            (day.description && day.description.trim() !== '') || 
+            (day.images && day.images.length > 0)
+        );
+        if (hasDayData) return true;
+        
+        // Check if any policy has data
+        const hasPolicyData = policies.some(policy => 
+            (policy.day && policy.day.trim() !== '') || 
+            (policy.percentage && policy.percentage.trim() !== '')
+        );
+        if (hasPolicyData) return true;
+        
+        // Check if any selections are made
+        if (selectedItems.length > 0) return true;
+        if (selectedItemsInclusions.length > 0) return true;
+        if (selectedItemsExclusion.length > 0) return true;
+        
+        return false;
+    };
+
+    // Function to handle back navigation with confirmation
+    const handleBackPress = () => {
+        if (hasUnsavedData()) {
+            Alert.alert(
+                'Unsaved Changes',
+                'You have unsaved changes. Are you sure you want to go back? All your data will be lost.',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                        onPress: () => {}
+                    },
+                    {
+                        text: 'Discard',
+                        style: 'destructive',
+                        onPress: () => navigation.goBack()
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true; // Prevent default back action
+        } else {
+            navigation.goBack();
+            return true;
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             const backAction = () => {
-               navigation.goBack()
-               return true
-              };
+                return handleBackPress();
+            };
           
-              const backHandler = BackHandler.addEventListener(
+            const backHandler = BackHandler.addEventListener(
                 'hardwareBackPress',
                 backAction,
-              );
+            );
           
-              return () => backHandler.remove();
-        }, [navigation])
+            return () => backHandler.remove();
+        }, [navigation, packageName, packageDescription, slot, price, discountedPrice, childPrice, coverPhoto, startDate, endDate, expireDate, days, policies, selectedItems, selectedItemsInclusions, selectedItemsExclusion])
     );
 
     const onStartDateChange = (event, selectedDate) => {
@@ -1036,7 +1096,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar translucent={false} backgroundColor="black" barStyle={Platform.OS === 'ios' ? 'dark-content' : 'light-content'} />
-            <CustomHeader commingFrom={'Create Package'} onPress={() => navigation.goBack()} title={'Create Package'} />
+            <CustomHeader commingFrom={'Create Package'} onPress={handleBackPress} title={'Create Package'} />
             <ScrollView keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1 }} style={{ marginBottom: responsiveHeight(4) }}>
                 <View style={styles.photocontainer}>
                     {/* Cover Photo Section */}
