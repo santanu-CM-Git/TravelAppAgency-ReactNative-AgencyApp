@@ -224,9 +224,22 @@ const PackagesCreationScreen = ({ route }) => {
     };
 
     const addDay = () => {
+        // Find the next available day number
+        // First, check if there are any gaps in the sequence
+        const existingIds = days.map(day => day.id).sort((a, b) => a - b);
+        let nextId = existingIds.length + 1; // Default to adding at the end
+        
+        // Find the first gap in the sequence
+        for (let i = 0; i < existingIds.length; i++) {
+            if (existingIds[i] !== i + 1) {
+                nextId = i + 1;
+                break;
+            }
+        }
+        
         const newDay = {
-            id: days.length + 1,
-            name: `Day ${days.length + 1}`,
+            id: nextId,
+            name: `Day ${nextId}`,
             description: "",
             images: []
         };
@@ -235,7 +248,13 @@ const PackagesCreationScreen = ({ route }) => {
 
     const removeDay = (id) => {
         const updatedDays = days.filter((day) => day.id !== id);
-        setDays(updatedDays);
+        // Renumber days sequentially to maintain proper sequence
+        const renumberedDays = updatedDays.map((day, index) => ({
+            ...day,
+            id: index + 1,
+            name: `Day ${index + 1}`
+        }));
+        setDays(renumberedDays);
     };
 
     const updateDayDescription = (dayId, newDescription) => {
