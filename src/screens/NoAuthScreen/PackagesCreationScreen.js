@@ -1148,8 +1148,16 @@ const PackagesCreationScreen = ({ route }) => {
 
                                     <View style={styles.itineraryButtonGroup}>
                                         <TouchableOpacity style={styles.itineraryCreateButton} onPress={() => openModal(day)}>
-                                            <FontAwesome name="plus-circle" size={16} color="#fff" />
-                                            <Text style={styles.itineraryButtonText}>Create Itinerary</Text>
+                                            <FontAwesome 
+                                                name={(day.description && day.description.trim() !== '') && (day.images && day.images.length > 0) ? "edit" : "plus-circle"} 
+                                                size={16} 
+                                                color="#fff" 
+                                            />
+                                            <Text style={styles.itineraryButtonText}>
+                                                {(day.description && day.description.trim() !== '') && (day.images && day.images.length > 0) 
+                                                    ? "Edit Itinerary" 
+                                                    : "Create Itinerary"}
+                                            </Text>
                                         </TouchableOpacity>
 
                                         {/* Remove Day Button */}
