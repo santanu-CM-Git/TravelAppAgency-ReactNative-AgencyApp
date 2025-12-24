@@ -36,7 +36,6 @@ import CustomHeader from '../../components/CustomHeader';
 import CheckBox from '@react-native-community/checkbox';
 import Modal from "react-native-modal";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import IOSDatePickerModal from '../../components/IOSDatePickerModal';

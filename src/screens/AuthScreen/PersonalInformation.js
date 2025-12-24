@@ -526,6 +526,8 @@ const PersonalInformation = ({ route }) => {
                   styles={{
                     textInput: styles.textInput,
                     listView: styles.listView,
+                    row: styles.autocompleteRow,
+                    separator: styles.autocompleteSeparator,
                     description: {
                       color: '#716E6E', // Text color of the suggestions
                       fontSize: responsiveFontSize(1.6),
@@ -928,5 +930,29 @@ const styles = StyleSheet.create({
   },
   listView: {
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginTop: 5,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  autocompleteRow: {
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    borderLeftWidth: 1,
+    borderLeftColor: '#E0E0E0',
+    borderRightWidth: 1,
+    borderRightColor: '#E0E0E0',
+  },
+  autocompleteSeparator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
   },
 });
