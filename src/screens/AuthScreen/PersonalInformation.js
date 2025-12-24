@@ -100,23 +100,11 @@ const PersonalInformation = ({ route }) => {
 
   const pickDocument = async () => {
     try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+      const result = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.images],
       });
 
-      const pickedDocument = result[0];
-      setPickedDocument(pickedDocument);
-
-      // const formData = new FormData();
-      // if (pickedDocument) {
-      //   formData.append("profile_pic", {
-      //     uri: pickedDocument.uri,
-      //     type: pickedDocument.type || 'image/jpeg',
-      //     name: pickedDocument.name || 'photo.jpg',
-      //   });
-      // } else {
-      //   formData.append("profile_pic", "");
-      // }
+      setPickedDocument(result);
 
     } catch (err) {
       setIsPicUploadLoading(false);
@@ -124,7 +112,7 @@ const PersonalInformation = ({ route }) => {
         console.log('Document picker was cancelled');
       } else if (err.response) {
         console.log('Error response:', err.response.data?.response?.records);
-        handleAlert('Oops..', err.response.data?.message);
+        Alert.alert('Oops..', err.response.data?.message || "Something went wrong");
       } else {
         console.error('Error picking document', err);
       }
