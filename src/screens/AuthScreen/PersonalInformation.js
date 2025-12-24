@@ -208,80 +208,87 @@ const PersonalInformation = ({ route }) => {
       setwebsiteurlError('');
     }
 
-    if (pickedDocument && coverPhoto) {
-      if (firstname && tagline && location && websiteurl) {
-        console.log('okkkkk')
-        const formData = new FormData();
-        if (pickedDocument) {
-          formData.append("profile_photo", {
-            uri: pickedDocument.uri,
-            type: pickedDocument.type || 'image/jpeg',
-            name: pickedDocument.name || 'photo.jpg',
-          });
-        } else {
-          formData.append("profile_photo", "");
-        }
-        if (coverPhoto) {
-          formData.append("cover_photo", {
-            uri: coverPhoto.uri,
-            type: coverPhoto.type || 'image/jpeg',
-            name: coverPhoto.name || 'photo.jpg',
-          });
-        } else {
-          formData.append("cover_photo", "");
-        }
-        formData.append("name", firstname);
-        formData.append("tag_line", tagline);
-        formData.append("address", location);
-        formData.append("long", long);
-        formData.append("lat", lat);
-        formData.append("country", country);
-        formData.append("website_url", websiteurl);
-        formData.append("google_profile", googleurl);
-        formData.append("fb_profile", facebookurl);
+    // Validate profile picture and cover picture separately
+    if (!pickedDocument && !coverPhoto) {
+      Alert.alert('Required', "Please upload Profile Picture and Cover Picture.", [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
+      return;
+    }
 
-        console.log(JSON.stringify(formData), 'hhhhhhhh');
-        console.log(route?.params?.token, 'token');
+    if (!pickedDocument) {
+      Alert.alert('Required', "Please upload Profile Picture.", [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
+      return;
+    }
+
+    if (!coverPhoto) {
+      Alert.alert('Required', "Please upload Cover Picture.", [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
+      return;
+    }
+
+    if (firstname && tagline && location && websiteurl) {
+      console.log('okkkkk')
+      const formData = new FormData();
+      if (pickedDocument) {
+        formData.append("profile_photo", {
+          uri: pickedDocument.uri,
+          type: pickedDocument.type || 'image/jpeg',
+          name: pickedDocument.name || 'photo.jpg',
+        });
+      } else {
+        formData.append("profile_photo", "");
+      }
+      if (coverPhoto) {
+        formData.append("cover_photo", {
+          uri: coverPhoto.uri,
+          type: coverPhoto.type || 'image/jpeg',
+          name: coverPhoto.name || 'photo.jpg',
+        });
+      } else {
+        formData.append("cover_photo", "");
+      }
+      formData.append("name", firstname);
+      formData.append("tag_line", tagline);
+      formData.append("address", location);
+      formData.append("long", long);
+      formData.append("lat", lat);
+      formData.append("country", country);
+      formData.append("website_url", websiteurl);
+      formData.append("google_profile", googleurl);
+      formData.append("fb_profile", facebookurl);
+
+      console.log(JSON.stringify(formData), 'hhhhhhhh');
+      console.log(route?.params?.token, 'token');
 
 
-        setIsLoading(true)
-        axios.post(`${API_URL}/agent/profile-update`, formData, {
-          headers: {
-            'Accept': 'application/json',
-            "Authorization": 'Bearer ' + route?.params?.token,
-            'Content-Type': 'multipart/form-data'
-          },
-        })
-          .then(res => {
-            console.log(res.data)
-            if (res.data.response == true) {
-              setIsLoading(false)
-              Toast.show({
-                type: 'success',
-                text1: '',
-                text2: "Profile data updated successfully.",
-                position: 'top',
-                topOffset: Platform.OS == 'ios' ? 55 : 20
-              });
-              login(route?.params?.token)
-            } else {
-              //console.log('not okk')
-              setIsLoading(false)
-              Alert.alert('Oops..', res.data.message || "Something went wrong.", [
-                {
-                  text: 'Cancel',
-                  onPress: () => console.log('Cancel Pressed'),
-                  style: 'cancel',
-                },
-                { text: 'OK', onPress: () => console.log('OK Pressed') },
-              ]);
-            }
-          })
-          .catch(e => {
+      setIsLoading(true)
+      axios.post(`${API_URL}/agent/profile-update`, formData, {
+        headers: {
+          'Accept': 'application/json',
+          "Authorization": 'Bearer ' + route?.params?.token,
+          'Content-Type': 'multipart/form-data'
+        },
+      })
+        .then(res => {
+          console.log(res.data)
+          if (res.data.response == true) {
             setIsLoading(false)
-            console.log(`user update error ${e}`)
-            console.log(e.response.data, 'ggg')
-            Alert.alert('Oops..', e.response.data || "Something went wrong", [
+            Toast.show({
+              type: 'success',
+              text1: '',
+              text2: "Profile data updated successfully.",
+              position: 'top',
+              topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+            login(route?.params?.token)
+          } else {
+            //console.log('not okk')
+            setIsLoading(false)
+            Alert.alert('Oops..', res.data.message || "Something went wrong.", [
               {
                 text: 'Cancel',
                 onPress: () => console.log('Cancel Pressed'),
@@ -289,12 +296,23 @@ const PersonalInformation = ({ route }) => {
               },
               { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
-          });
-      } else {
-        // Optionally handle case where some fields are still invalid
-      }
+          }
+        })
+        .catch(e => {
+          setIsLoading(false)
+          console.log(`user update error ${e}`)
+          console.log(e.response.data, 'ggg')
+          Alert.alert('Oops..', e.response.data || "Something went wrong", [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel',
+            },
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ]);
+        });
     } else {
-      alert("Please upload Profile Picture and Cover Picture.")
+      // Optionally handle case where some fields are still invalid
     }
 
 
