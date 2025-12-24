@@ -85,7 +85,7 @@ export default function InputField({
           editable={inputType == 'nonedit' ? false : true}
           multiline={inputFieldType == 'address' ? true : false}
           placeholderTextColor="#808080"
-          selectionColor="#808080"
+          selectionColor="#417AA4"
           maxLength={maxLength}
         />
       )  : inputType == 'login' ? (
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F5F5'
   },
   editinput: {
-    color: '#808080',
+    color: '#2F2F2F',
     fontFamily: 'Poppins-Regular',
     justifyContent: 'center',
     alignItems: 'center',
