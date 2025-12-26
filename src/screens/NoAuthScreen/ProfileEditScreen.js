@@ -91,8 +91,7 @@ const ProfileEditScreen = ({ route }) => {
         type: [DocumentPicker.types.images],
       });
 
-      const pickedDocument = result[0];
-      setPickedDocument(pickedDocument);
+      setPickedDocument(result);
 
     } catch (err) {
       setIsPicUploadLoading(false);
@@ -100,7 +99,7 @@ const ProfileEditScreen = ({ route }) => {
         console.log('Document picker was cancelled');
       } else if (err.response) {
         console.log('Error response:', err.response.data?.response?.records);
-        handleAlert('Oops..', err.response.data?.message);
+        Alert.alert('Oops..', err.response.data?.message || 'Something went wrong');
       } else {
         console.error('Error picking document', err);
       }
