@@ -1772,9 +1772,9 @@ const ChatScreen = ({ route }) => {
             )}
             <GestureTouchableOpacity
               onPress={() => setIsImageModalVisible(false)}
-              style={{ position: 'absolute', top: 40, right: 30, backgroundColor: '#fff', borderRadius: 20, padding: 8 }}
+              style={{top:15, backgroundColor: '#fff', borderRadius: 36/2,justifyContent: 'center', alignItems: 'center', width: 36, height: 36 }}
             >
-              <Text style={{ fontSize: 18, color: '#222' }}>✕</Text>
+              <Text style={{ fontSize: responsiveFontSize(2), color: '#222', textAlign: 'center' }}>✕</Text>
             </GestureTouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
