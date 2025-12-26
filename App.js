@@ -205,7 +205,9 @@ function App() {
         <AuthProvider>
           <AppNav />
         </AuthProvider>
-        <Toast />
+        <Toast 
+          topOffset={Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 55}
+        />
         <NotificationPopup
           isVisible={showNotificationPopup}
           notification={currentNotification}
