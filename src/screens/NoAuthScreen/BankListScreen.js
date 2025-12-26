@@ -53,6 +53,8 @@ const BankListScreen = ({ route }) => {
         businessType: ''
     });
     const [isBusinessTypeFocus, setIsBusinessTypeFocus] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
 
     const businessTypeData = [
         { label: 'LLP', value: 'llp' },
@@ -87,41 +89,209 @@ const BankListScreen = ({ route }) => {
         }
     };
 
+    const validateField = (field, value) => {
+        let error = '';
+        
+        switch (field) {
+            case 'agentName':
+                if (!value.trim()) {
+                    error = 'Account holder name is required';
+                } else if (value.trim().length < 2) {
+                    error = 'Account holder name must be at least 2 characters';
+                } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                    error = 'Account holder name should contain only letters and spaces';
+                }
+                break;
+                
+            case 'accountNumber':
+                if (!value.trim()) {
+                    error = 'Account number is required';
+                } else if (!/^\d+$/.test(value)) {
+                    error = 'Account number should contain only digits';
+                } else if (value.length < 9 || value.length > 18) {
+                    error = 'Account number must be between 9 and 18 digits';
+                }
+                break;
+                
+            case 'ifscCode':
+                if (!value.trim()) {
+                    error = 'IFSC code is required';
+                } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(value.toUpperCase())) {
+                    error = 'Invalid IFSC code format (e.g., ABCD0123456)';
+                }
+                break;
+                
+            case 'email':
+                if (!value.trim()) {
+                    error = 'Email is required';
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    error = 'Please enter a valid email address';
+                }
+                break;
+                
+            case 'mobileNumber':
+                if (!value.trim()) {
+                    error = 'Mobile number is required';
+                } else if (!/^\d+$/.test(value)) {
+                    error = 'Mobile number should contain only digits';
+                } else if (value.length !== 10) {
+                    error = 'Mobile number must be 10 digits';
+                }
+                break;
+                
+            case 'street':
+                if (!value.trim()) {
+                    error = 'Street address is required';
+                } else if (value.trim().length < 5) {
+                    error = 'Street address must be at least 5 characters';
+                }
+                break;
+                
+            case 'street2':
+                if (!value.trim()) {
+                    error = 'Apartment/Suite/Unit is required';
+                } else if (value.trim().length < 2) {
+                    error = 'Please enter apartment, suite, or unit details';
+                }
+                break;
+                
+            case 'city':
+                if (!value.trim()) {
+                    error = 'City is required';
+                } else if (value.trim().length < 2) {
+                    error = 'City name must be at least 2 characters';
+                } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                    error = 'City should contain only letters and spaces';
+                }
+                break;
+                
+            case 'state':
+                if (!value.trim()) {
+                    error = 'State is required';
+                } else if (value.trim().length < 2) {
+                    error = 'State name must be at least 2 characters';
+                } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                    error = 'State should contain only letters and spaces';
+                }
+                break;
+                
+            case 'postalCode':
+                if (!value.trim()) {
+                    error = 'Postal code is required';
+                } else if (!/^\d+$/.test(value)) {
+                    error = 'Postal code should contain only digits';
+                } else if (value.length !== 6) {
+                    error = 'Postal code must be 6 digits';
+                }
+                break;
+                
+            case 'country':
+                if (!value.trim()) {
+                    error = 'Country is required';
+                } else if (value.trim().length < 2) {
+                    error = 'Country name must be at least 2 characters';
+                } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+                    error = 'Country should contain only letters and spaces';
+                }
+                break;
+                
+            case 'pan':
+                if (!value.trim()) {
+                    error = 'PAN number is required';
+                } else if (!/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(value.toUpperCase())) {
+                    error = 'Invalid PAN format (e.g., AVOJB1111K)';
+                }
+                break;
+                
+            case 'companyPan':
+                if (value.trim() && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(value.toUpperCase())) {
+                    error = 'Invalid PAN format (e.g., AVOJB1111K)';
+                }
+                break;
+                
+            case 'gst':
+                if (value.trim() && !/^[0123][0-9][a-zA-Z]{5}[0-9]{4}[a-zA-Z][0-9][a-zA-Z0-9][a-zA-Z0-9]$/i.test(value)) {
+                    error = 'Invalid GST number format';
+                }
+                break;
+                
+            case 'aadhar':
+                if (value.trim() && value.length !== 12) {
+                    error = 'Aadhar number must be 12 digits';
+                } else if (value.trim() && !/^\d{12}$/.test(value)) {
+                    error = 'Aadhar number should contain only digits';
+                }
+                break;
+                
+            case 'businessType':
+                if (!value) {
+                    error = 'Business type is required';
+                }
+                break;
+                
+            default:
+                break;
+        }
+        
+        return error;
+    };
+
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
+        
+        // Clear error when user starts typing
+        if (errors[field] && touched[field]) {
+            const error = validateField(field, value);
+            setErrors(prev => ({
+                ...prev,
+                [field]: error
+            }));
+        }
+    };
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({
+            ...prev,
+            [field]: true
+        }));
+        
+        const error = validateField(field, formData[field]);
+        setErrors(prev => ({
+            ...prev,
+            [field]: error
+        }));
     };
 
     const validateForm = () => {
-        const panRegex = /^[a-zA-z]{5}\d{4}[a-zA-Z]{1}$/;
-        const gstRegex = /^[0123][0-9][a-z]{5}[0-9]{4}[a-z][0-9][a-z0-9][a-z0-9]$/gi;
-        const aadharRegex = /^\d{12}$/;
+        const newErrors = {};
+        const fieldsToValidate = [
+            'agentName', 'accountNumber', 'ifscCode', 'email', 'mobileNumber',
+            'street', 'street2', 'city', 'state', 'postalCode', 'country',
+            'pan', 'businessType', 'companyPan', 'gst', 'aadhar'
+        ];
         
-        const isPanValid = panRegex.test(formData.pan);
-        const isGstValid = formData.gst ? gstRegex.test(formData.gst) : true; // GST is optional now
-        const isAadharValid = formData.aadhar ? aadharRegex.test(formData.aadhar) : true; // Aadhar is optional now
-
-        if (!isPanValid) {
-            Alert.alert('Error', 'Please enter a valid PAN number');
-            return true;
-        }
-
-        if (formData.gst && !isGstValid) {
-            Alert.alert('Error', 'Please enter a valid GST number');
-            return true;
-        }
-
-        if (formData.aadhar && !isAadharValid) {
-            Alert.alert('Error', 'Please enter a valid Aadhar number (12 digits)');
-            return true;
-        }
-
-        return !formData.agentName || !formData.accountNumber || !formData.ifscCode ||
-            !formData.email || !formData.mobileNumber || !formData.street || !formData.street2 ||
-            !formData.city || !formData.state || !formData.postalCode || !formData.country ||
-            !formData.pan || !formData.businessType;
+        // Mark all fields as touched
+        const newTouched = {};
+        fieldsToValidate.forEach(field => {
+            newTouched[field] = true;
+        });
+        setTouched(newTouched);
+        
+        // Validate all fields
+        fieldsToValidate.forEach(field => {
+            const error = validateField(field, formData[field]);
+            if (error) {
+                newErrors[field] = error;
+            }
+        });
+        
+        setErrors(newErrors);
+        
+        // Check if there are any errors
+        return Object.keys(newErrors).length > 0;
     };
 
     const createRazorpayBankAccount = async (formData) => {
@@ -164,7 +334,7 @@ const BankListScreen = ({ route }) => {
 
     const handleSubmit = async () => {
         if (validateForm()) {
-            Alert.alert('Error', 'Please fill in all fields');
+            Alert.alert('Error', 'Please fix all validation errors before submitting');
             return;
         }
 
@@ -244,132 +414,258 @@ const BankListScreen = ({ route }) => {
                     <View style={styles.formContainer}>
                         <Text style={styles.title}>Enter Bank Account Details</Text>
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Account holder name</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
-                            label="Agent Name"
+                            label="Account holder name"
                             value={formData.agentName}
                             onChangeText={(text) => handleInputChange('agentName', text)}
-                            placeholder="Enter your full name"
+                            onBlur={() => handleBlur('agentName')}
+                            placeholder="Enter name exactly as it appears in bank account"
                             inputType="others"
+                            error={touched.agentName && errors.agentName ? true : false}
                         />
+                        {touched.agentName && errors.agentName ? (
+                            <Text style={styles.errorText}>{errors.agentName}</Text>
+                        ) : (
+                            <Text style={styles.helperText}>Name must match exactly as per your bank account records</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Bank Account Number</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Bank Account Number"
                             value={formData.accountNumber}
                             onChangeText={(text) => handleInputChange('accountNumber', text)}
+                            onBlur={() => handleBlur('accountNumber')}
                             placeholder="Enter account number"
                             keyboardType="numeric"
                             inputType="others"
+                            error={touched.accountNumber && errors.accountNumber ? true : false}
                         />
+                        {touched.accountNumber && errors.accountNumber && (
+                            <Text style={styles.errorText}>{errors.accountNumber}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>IFSC Code</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="IFSC Code"
                             value={formData.ifscCode}
-                            onChangeText={(text) => handleInputChange('ifscCode', text)}
+                            onChangeText={(text) => handleInputChange('ifscCode', text.toUpperCase())}
+                            onBlur={() => handleBlur('ifscCode')}
                             placeholder="Enter IFSC code"
                             inputType="ifsc"
+                            error={touched.ifscCode && errors.ifscCode ? true : false}
                         />
+                        {touched.ifscCode && errors.ifscCode && (
+                            <Text style={styles.errorText}>{errors.ifscCode}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Email</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Email"
                             value={formData.email}
                             onChangeText={(text) => handleInputChange('email', text)}
+                            onBlur={() => handleBlur('email')}
                             placeholder="Enter email address"
                             keyboardType="email-address"
                             autoCapitalize="none"
                             inputType="others"
+                            error={touched.email && errors.email ? true : false}
                         />
+                        {touched.email && errors.email && (
+                            <Text style={styles.errorText}>{errors.email}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Mobile Number</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Mobile Number"
                             value={formData.mobileNumber}
-                            onChangeText={(text) => handleInputChange('mobileNumber', text)}
+                            onChangeText={(text) => handleInputChange('mobileNumber', text.replace(/\D/g, '').slice(0, 10))}
+                            onBlur={() => handleBlur('mobileNumber')}
                             placeholder="Enter mobile number"
                             keyboardType="phone-pad"
                             inputType="others"
+                            error={touched.mobileNumber && errors.mobileNumber ? true : false}
                         />
+                        {touched.mobileNumber && errors.mobileNumber && (
+                            <Text style={styles.errorText}>{errors.mobileNumber}</Text>
+                        )}
 
                         <Text style={[styles.title, { marginTop: 20 }]}>Address Details</Text>
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Street Address</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Enter street address"
                             value={formData.street}
                             onChangeText={(text) => handleInputChange('street', text)}
+                            onBlur={() => handleBlur('street')}
                             placeholder="Enter street address"
                             inputType="others"
+                            error={touched.street && errors.street ? true : false}
                         />
+                        {touched.street && errors.street && (
+                            <Text style={styles.errorText}>{errors.street}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Apartment, Suite, Unit, etc.</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Enter apartment, suite, unit, etc."
                             value={formData.street2}
                             onChangeText={(text) => handleInputChange('street2', text)}
+                            onBlur={() => handleBlur('street2')}
                             placeholder="Enter apartment, suite, unit, etc."
                             inputType="others"
+                            error={touched.street2 && errors.street2 ? true : false}
                         />
+                        {touched.street2 && errors.street2 && (
+                            <Text style={styles.errorText}>{errors.street2}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>City</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="City"
                             value={formData.city}
                             onChangeText={(text) => handleInputChange('city', text)}
+                            onBlur={() => handleBlur('city')}
                             placeholder="Enter city"
                             inputType="others"
+                            error={touched.city && errors.city ? true : false}
                         />
+                        {touched.city && errors.city && (
+                            <Text style={styles.errorText}>{errors.city}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>State</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="State"
                             value={formData.state}
                             onChangeText={(text) => handleInputChange('state', text)}
+                            onBlur={() => handleBlur('state')}
                             placeholder="Enter state"
                             inputType="others"
+                            error={touched.state && errors.state ? true : false}
                         />
+                        {touched.state && errors.state && (
+                            <Text style={styles.errorText}>{errors.state}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Postal Code</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Postal Code"
                             value={formData.postalCode}
-                            onChangeText={(text) => handleInputChange('postalCode', text)}
+                            onChangeText={(text) => handleInputChange('postalCode', text.replace(/\D/g, '').slice(0, 6))}
+                            onBlur={() => handleBlur('postalCode')}
                             placeholder="Enter postal code"
                             keyboardType="numeric"
                             inputType="others"
+                            error={touched.postalCode && errors.postalCode ? true : false}
                         />
+                        {touched.postalCode && errors.postalCode && (
+                            <Text style={styles.errorText}>{errors.postalCode}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Country</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Country"
                             value={formData.country}
                             onChangeText={(text) => handleInputChange('country', text)}
+                            onBlur={() => handleBlur('country')}
                             placeholder="Enter country"
                             inputType="others"
+                            error={touched.country && errors.country ? true : false}
                         />
+                        {touched.country && errors.country && (
+                            <Text style={styles.errorText}>{errors.country}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Authorized Signatory Personal PAN</Text>
+                            <Text style={styles.required}>*</Text>
+                        </View>
                         <InputField
                             label="Authorized Signatory Personal PAN"
                             value={formData.pan}
-                            onChangeText={(text) => handleInputChange('pan', text.toUpperCase())}
+                            onChangeText={(text) => handleInputChange('pan', text.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
+                            onBlur={() => handleBlur('pan')}
                             placeholder="Enter PAN number (e.g., AVOJB1111K)"
                             inputType="ifsc"
+                            error={touched.pan && errors.pan ? true : false}
                         />
+                        {touched.pan && errors.pan && (
+                            <Text style={styles.errorText}>{errors.pan}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Company PAN (if any)</Text>
+                        </View>
                         <InputField
                             label="Company PAN (if any)"
                             value={formData.companyPan}
-                            onChangeText={(text) => handleInputChange('companyPan', text.toUpperCase())}
+                            onChangeText={(text) => handleInputChange('companyPan', text.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
+                            onBlur={() => handleBlur('companyPan')}
                             placeholder="Enter Company PAN number (e.g., AVOJB1111K)"
                             inputType="ifsc"
+                            error={touched.companyPan && errors.companyPan ? true : false}
                         />
+                        {touched.companyPan && errors.companyPan && (
+                            <Text style={styles.errorText}>{errors.companyPan}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>Aadhar Number (Optional)</Text>
+                        </View>
                         <InputField
                             label="Aadhar Number (Optional)"
                             value={formData.aadhar}
                             onChangeText={(text) => handleInputChange('aadhar', text.replace(/\D/g, '').slice(0, 12))}
+                            onBlur={() => handleBlur('aadhar')}
                             placeholder="Enter Aadhar number (12 digits)"
                             keyboardType="numeric"
                             inputType="others"
+                            error={touched.aadhar && errors.aadhar ? true : false}
                         />
+                        {touched.aadhar && errors.aadhar && (
+                            <Text style={styles.errorText}>{errors.aadhar}</Text>
+                        )}
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
                             <Text style={styles.label}>Business Type</Text>
                             <Text style={styles.required}>*</Text>
                         </View>
                         <Dropdown
-                            style={[styles.dropdown, isBusinessTypeFocus && { borderColor: '#DDD' }]}
+                            style={[styles.dropdown, isBusinessTypeFocus && { borderColor: '#DDD' }, touched.businessType && errors.businessType && styles.dropdownError]}
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             inputSearchStyle={styles.inputSearchStyle}
@@ -382,20 +678,34 @@ const BankListScreen = ({ route }) => {
                             searchPlaceholder="Search..."
                             value={formData.businessType}
                             onFocus={() => setIsBusinessTypeFocus(true)}
-                            onBlur={() => setIsBusinessTypeFocus(false)}
+                            onBlur={() => {
+                                setIsBusinessTypeFocus(false);
+                                handleBlur('businessType');
+                            }}
                             onChange={item => {
                                 handleInputChange('businessType', item.value);
                                 setIsBusinessTypeFocus(false);
                             }}
                         />
+                        {touched.businessType && errors.businessType && (
+                            <Text style={styles.errorText}>{errors.businessType}</Text>
+                        )}
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
+                            <Text style={styles.label}>GST Number (Optional)</Text>
+                        </View>
                         <InputField
                             label="GST Number (Optional)"
                             value={formData.gst}
-                            onChangeText={(text) => handleInputChange('gst', text.toUpperCase())}
+                            onChangeText={(text) => handleInputChange('gst', text.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15))}
+                            onBlur={() => handleBlur('gst')}
                             placeholder="Enter GST number"
                             inputType="ifsc"
+                            error={touched.gst && errors.gst ? true : false}
                         />
+                        {touched.gst && errors.gst && (
+                            <Text style={styles.errorText}>{errors.gst}</Text>
+                        )}
 
                         <View style={styles.buttonContainer}>
                             <CustomButton
@@ -486,5 +796,25 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#2F2F2F',
         fontFamily: 'Poppins-Regular'
+    },
+    errorText: {
+        color: '#FF0000',
+        fontSize: responsiveFontSize(1.5),
+        fontFamily: 'Poppins-Regular',
+        marginTop: -responsiveHeight(2),
+        marginBottom: responsiveHeight(1),
+        marginLeft: responsiveHeight(0.5)
+    },
+    helperText: {
+        color: '#666666',
+        fontSize: responsiveFontSize(1.5),
+        fontFamily: 'Poppins-Regular',
+        marginTop: -responsiveHeight(2),
+        marginBottom: responsiveHeight(1),
+        marginLeft: responsiveHeight(0.5)
+    },
+    dropdownError: {
+        borderColor: '#FF0000',
+        borderWidth: 1
     }
 });

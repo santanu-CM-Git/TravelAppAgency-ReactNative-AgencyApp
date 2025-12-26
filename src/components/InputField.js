@@ -13,6 +13,7 @@ export default function InputField({
   editable,
   value,
   onChangeText,
+  onBlur,
   helperText,
   error,
   inputFieldType,
@@ -77,8 +78,9 @@ export default function InputField({
         />
       ) : inputType == 'others' ? (
         <TextInput
-          style={styles.editinput}
+          style={[styles.editinput, error && styles.editinputError]}
           onChangeText={onChangeText}
+          onBlur={onBlur}
           value={value}
           placeholder={label}
           keyboardType={keyboardType}
@@ -125,8 +127,9 @@ export default function InputField({
         />
       ) : inputType == 'ifsc' ? (
         <TextInput
-          style={styles.editinput}
+          style={[styles.editinput, error && styles.editinputError]}
           onChangeText={onChangeText}
+          onBlur={onBlur}
           value={value}
           placeholder={label}
           keyboardType="default"
@@ -268,6 +271,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: responsiveWidth(83),
     height: responsiveHeight(6),
+  },
+  editinputError: {
+    borderColor: '#FF0000',
+    borderWidth: 1
   }
 
 });
