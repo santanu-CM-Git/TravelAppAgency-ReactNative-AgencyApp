@@ -702,6 +702,32 @@ const PackagesCreationScreen = ({ route }) => {
                 return;
             }
 
+            // Validate that count of completed itineraries equals package duration
+            if (selectedOption === 'fixedDate') {
+                const completedCount = getCompletedDaysCount();
+                if (completedCount !== calculatedDays) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: `Number of completed itineraries (${completedCount}) must equal package duration (${calculatedDays} days). Please complete all itinerary days with both description and images.`
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+            } else {
+                // For customDate packages, ensure all days are completed
+                const completedCount = getCompletedDaysCount();
+                if (completedCount !== days.length) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: `All itinerary days must be completed. Currently ${completedCount} out of ${days.length} days are completed. Please add both description and images for all days.`
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             // Prepare form data
             const formData = new FormData();
 

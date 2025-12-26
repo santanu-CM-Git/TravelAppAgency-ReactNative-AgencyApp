@@ -87,6 +87,7 @@ const PackageEditScreen = ({ route }) => {
     const [expireDate, setExpireDate] = useState(null);
     const [showExpireDatePicker, setShowExpireDatePicker] = useState(false);
     const [hasExistingBookings, setHasExistingBookings] = useState(false);
+    const [calculatedDays, setCalculatedDays] = useState(0);
 
     const handleSelection = (option) => {
         // Prevent changing date type if there are existing bookings
@@ -110,6 +111,28 @@ const PackageEditScreen = ({ route }) => {
         }
     };
     const [days, setDays] = useState([]);
+
+    // Function to calculate days between two dates
+    const calculateDaysBetween = (start, end) => {
+        if (!start || !end) return 0;
+        const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / oneDay);
+        return diffDays + 1; // +1 to include both start and end dates
+    };
+
+    // Function to get count of completed days
+    const getCompletedDaysCount = () => {
+        let completedDays = 0;
+        days.forEach(day => {
+            const hasDescription = day.description && day.description.trim() !== '';
+            const hasImages = day.images && day.images.length > 0;
+            if (hasDescription && hasImages) {
+                completedDays++;
+            }
+        });
+        return completedDays;
+    };
 
     const [selectedDay, setSelectedDay] = useState(null);
     const [description, setDescription] = useState("");
@@ -206,6 +229,14 @@ const PackageEditScreen = ({ route }) => {
         fetchalllocation();
     }, []);
 
+    // Effect to calculate days when dates change for fixedDate packages
+    useEffect(() => {
+        if (selectedOption === 'fixedDate' && startDate && endDate) {
+            const numberOfDays = calculateDaysBetween(startDate, endDate);
+            setCalculatedDays(numberOfDays);
+        }
+    }, [startDate, endDate, selectedOption]);
+
     const fetchPackageDetails = async () => {
         try {
             setIsLoading(true);
@@ -234,8 +265,14 @@ const PackageEditScreen = ({ route }) => {
                 setChildPrice(packageData.children_price);
                 setSelectedOption(packageData.date_type == 0 ? 'fixedDate' : 'customDate');
                 if (packageData.date_type == 0) {
-                    setStartDate(packageData.start_date ? new Date(packageData.start_date) : null);
-                    setEndDate(packageData.end_date ? new Date(packageData.end_date) : null);
+                    const start = packageData.start_date ? new Date(packageData.start_date) : null;
+                    const end = packageData.end_date ? new Date(packageData.end_date) : null;
+                    setStartDate(start);
+                    setEndDate(end);
+                    if (start && end) {
+                        const numberOfDays = calculateDaysBetween(start, end);
+                        setCalculatedDays(numberOfDays);
+                    }
                 } else {
                     setExpireDate(packageData.end_date ? new Date(packageData.end_date) : null);
                 }
@@ -516,6 +553,44 @@ const PackageEditScreen = ({ route }) => {
                 setChildPriceError('Please enter child price.');
                 setIsLoading(false);
                 return;
+            }
+
+            // Validate itinerary descriptions
+            const hasEmptyDescription = days.some(day => !day.description || !day.description.trim());
+            if (hasEmptyDescription) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'Please add description for all days in itinerary'
+                });
+                setIsLoading(false);
+                return;
+            }
+
+            // Validate that count of completed itineraries equals package duration
+            if (selectedOption === 'fixedDate') {
+                const completedCount = getCompletedDaysCount();
+                if (completedCount !== calculatedDays) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: `Number of completed itineraries (${completedCount}) must equal package duration (${calculatedDays} days). Please complete all itinerary days with both description and images.`
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+            } else {
+                // For customDate packages, ensure all days are completed
+                const completedCount = getCompletedDaysCount();
+                if (completedCount !== days.length) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: `All itinerary days must be completed. Currently ${completedCount} out of ${days.length} days are completed. Please add both description and images for all days.`
+                    });
+                    setIsLoading(false);
+                    return;
+                }
             }
 
             // Prepare form data
