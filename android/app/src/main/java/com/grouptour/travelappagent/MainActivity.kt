@@ -14,7 +14,7 @@ class MainActivity : ReactActivity() {
     super.onCreate(savedInstanceState)
   }
 
-  override fun getMainComponentName(): String = "Group Travel Agent"
+  override fun getMainComponentName(): String = "Group Tour for travel agencies"
 
   override fun createReactActivityDelegate(): ReactActivityDelegate =
     DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
