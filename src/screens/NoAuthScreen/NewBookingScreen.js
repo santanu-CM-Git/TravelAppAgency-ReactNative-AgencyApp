@@ -90,6 +90,8 @@ const NewBookingScreen = ({ route }) => {
     const [show, setShow] = useState(false);
     const [countryCode, setCountryCode] = useState('+91');
     const [packagelist, setPackagelist] = useState([]);
+    const [allPackagesData, setAllPackagesData] = useState([]); // Store full package data
+    const [selectedPackageData, setSelectedPackageData] = useState(null); // Store selected package details
     const [isPicUploadLoading, setIsPicUploadLoading] = useState(false);
     const [pickedDocument, setPickedDocument] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -133,8 +135,9 @@ const NewBookingScreen = ({ route }) => {
                         label: item.name,
                         value: item.id
                     }));
-                    console.log(userInfo, 'active package');
+                    console.log(JSON.stringify(userInfo), 'active package');
                     setPackagelist(formattedData);
+                    setAllPackagesData(userInfo); // Store full package data
                     setIsLoading(false)
                 })
                 .catch(e => {
@@ -374,10 +377,20 @@ const NewBookingScreen = ({ route }) => {
             setShowStartDatePicker(false);
             if (event.type === 'set' && selectedDate) {
                 setStartDate(selectedDate);
+                // If end date exists and is before new start date, reset it
+                if (endDate && new Date(endDate) < new Date(selectedDate)) {
+                    setEndDate(null);
+                }
             }
         } else {
             // iOS - handled by modal
-            if (selectedDate) setStartDate(selectedDate);
+            if (selectedDate) {
+                setStartDate(selectedDate);
+                // If end date exists and is before new start date, reset it
+                if (endDate && new Date(endDate) < new Date(selectedDate)) {
+                    setEndDate(null);
+                }
+            }
         }
     };
 
@@ -397,12 +410,103 @@ const NewBookingScreen = ({ route }) => {
     const handleIOSStartDateConfirm = useCallback((selectedDate) => {
         setStartDate(selectedDate);
         setShowIOSStartDatePicker(false);
-    }, []);
+        // If end date exists and is before new start date, reset it
+        if (endDate && new Date(endDate) < new Date(selectedDate)) {
+            setEndDate(null);
+        }
+    }, [endDate]);
 
     const handleIOSEndDateConfirm = useCallback((selectedDate) => {
         setEndDate(selectedDate);
         setShowIOSEndDatePicker(false);
     }, []);
+
+    // Calculate minimum date for start date picker
+    const getStartDateMinimum = () => {
+        if (!selectedPackageData) {
+            return new Date(); // Default to today if no package selected
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // For fixed date packages (date_type "0"), use package start_date
+        if (selectedPackageData.date_type === "0" && selectedPackageData.start_date) {
+            const packageStartDate = new Date(selectedPackageData.start_date);
+            packageStartDate.setHours(0, 0, 0, 0);
+            // Use the later of today or package start date
+            return packageStartDate > today ? packageStartDate : today;
+        }
+        
+        // For custom packages (date_type "1"), use today
+        return today;
+    };
+
+    // Calculate maximum date for start date picker
+    const getStartDateMaximum = () => {
+        if (!selectedPackageData) {
+            return null; // No restriction if no package selected
+        }
+        
+        // For fixed date packages (date_type "0"), use package end_date
+        if (selectedPackageData.date_type === "0" && selectedPackageData.end_date) {
+            const packageEndDate = new Date(selectedPackageData.end_date);
+            packageEndDate.setHours(23, 59, 59, 999);
+            return packageEndDate;
+        }
+        
+        // For custom packages (date_type "1"), use package end_date if available
+        if (selectedPackageData.date_type === "1" && selectedPackageData.end_date) {
+            const packageEndDate = new Date(selectedPackageData.end_date);
+            packageEndDate.setHours(23, 59, 59, 999);
+            return packageEndDate;
+        }
+        
+        return null; // No restriction
+    };
+
+    // Calculate minimum date for end date picker
+    const getEndDateMinimum = () => {
+        // If start date is selected, use it as minimum
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            return start;
+        }
+        
+        if (!selectedPackageData) {
+            return new Date(); // Default to today if no package selected
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // For fixed date packages (date_type "0"), use package start_date
+        if (selectedPackageData.date_type === "0" && selectedPackageData.start_date) {
+            const packageStartDate = new Date(selectedPackageData.start_date);
+            packageStartDate.setHours(0, 0, 0, 0);
+            return packageStartDate > today ? packageStartDate : today;
+        }
+        
+        // For custom packages (date_type "1"), use today
+        return today;
+    };
+
+    // Calculate maximum date for end date picker
+    const getEndDateMaximum = () => {
+        if (!selectedPackageData) {
+            return null; // No restriction if no package selected
+        }
+        
+        // Always use package end_date if available
+        if (selectedPackageData.end_date) {
+            const packageEndDate = new Date(selectedPackageData.end_date);
+            packageEndDate.setHours(23, 59, 59, 999);
+            return packageEndDate;
+        }
+        
+        return null; // No restriction
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -532,6 +636,12 @@ const NewBookingScreen = ({ route }) => {
                                 onChange={item => {
                                     setPackageValue(item.value);
                                     setYearIsFocus(false);
+                                    // Find and store the selected package's full data
+                                    const selectedPackage = allPackagesData.find(pkg => pkg.id === item.value);
+                                    setSelectedPackageData(selectedPackage || null);
+                                    // Reset dates when package changes
+                                    setStartDate(null);
+                                    setEndDate(null);
                                 }}
                             />
                         </View>
@@ -591,21 +701,23 @@ const NewBookingScreen = ({ route }) => {
                         </View>
                         {Platform.OS === 'android' && showStartDatePicker && (
                             <RNDateTimePicker
-                                value={startDate || new Date()}
+                                value={startDate || getStartDateMinimum()}
                                 mode="date"
                                 display="default"
                                 onChange={onStartDateChange}
-                                minimumDate={new Date()}
+                                minimumDate={getStartDateMinimum()}
+                                maximumDate={getStartDateMaximum()}
                             />
                         )}
 
                         {Platform.OS === 'android' && showEndDatePicker && (
                             <RNDateTimePicker
-                                value={endDate || new Date()}
+                                value={endDate || getEndDateMinimum()}
                                 mode="date"
                                 display="default"
                                 onChange={onEndDateChange}
-                                minimumDate={startDate || new Date()}
+                                minimumDate={getEndDateMinimum()}
+                                maximumDate={getEndDateMaximum()}
                             />
                         )}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -706,16 +818,18 @@ const NewBookingScreen = ({ route }) => {
                 <>
                     <IOSDatePickerModal
                         visible={showIOSStartDatePicker}
-                        date={startDate || new Date()}
-                        minimumDate={new Date()}
+                        date={startDate || getStartDateMinimum()}
+                        minimumDate={getStartDateMinimum()}
+                        maximumDate={getStartDateMaximum()}
                         onConfirm={handleIOSStartDateConfirm}
                         onCancel={() => setShowIOSStartDatePicker(false)}
                         mode="date"
                     />
                     <IOSDatePickerModal
                         visible={showIOSEndDatePicker}
-                        date={endDate || new Date()}
-                        minimumDate={startDate || new Date()}
+                        date={endDate || getEndDateMinimum()}
+                        minimumDate={getEndDateMinimum()}
+                        maximumDate={getEndDateMaximum()}
                         onConfirm={handleIOSEndDateConfirm}
                         onCancel={() => setShowIOSEndDatePicker(false)}
                         mode="date"
