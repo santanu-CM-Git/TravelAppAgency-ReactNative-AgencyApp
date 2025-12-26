@@ -150,7 +150,7 @@ const AddNewMemberScreen = ({ route }) => {
                         } else {
                             //console.log('not okk')
                             setIsLoading(false)
-                            Alert.alert('Oops..', "Something went wrong.", [
+                            Alert.alert('Oops..', res.data.message || "Something went wrong.", [
                                 {
                                     text: 'Cancel',
                                     onPress: () => console.log('Cancel Pressed'),
@@ -164,7 +164,7 @@ const AddNewMemberScreen = ({ route }) => {
                         setIsLoading(false)
                         console.log(`user update error ${e}`)
                         console.log(e.response.data?.response.records)
-                        Alert.alert('Oops..', "Something went wrong", [
+                        Alert.alert('Oops..', e.response.data.message || "Something went wrong", [
                             {
                                 text: 'Cancel',
                                 onPress: () => console.log('Cancel Pressed'),
