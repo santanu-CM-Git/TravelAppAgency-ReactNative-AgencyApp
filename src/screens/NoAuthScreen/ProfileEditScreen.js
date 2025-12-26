@@ -87,8 +87,8 @@ const ProfileEditScreen = ({ route }) => {
 
   const pickDocument = async () => {
     try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+      const result = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.images],
       });
 
       const pickedDocument = result[0];
