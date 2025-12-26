@@ -1205,6 +1205,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     value={selectedOption === 'fixedDate'}
                                     onValueChange={() => handleSelection('fixedDate')}
                                     tintColors={{ true: '#FF455C', false: '#888' }}
+                                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                                 />
                                 <Text style={[styles.checkboxlabel]}>Fixed Date</Text>
                             </View>
@@ -1214,6 +1215,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     value={selectedOption === 'customDate'}
                                     onValueChange={() => handleSelection('customDate')}
                                     tintColors={{ true: '#FF455C', false: '#888' }}
+                                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                                 />
                                 <Text style={[styles.checkboxlabel]}>Custom Date</Text>
                             </View>
@@ -1507,6 +1509,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     value={selectedItems.includes(item)}
                                     onValueChange={() => toggleCheckbox(item)}
                                     tintColors={{ true: "#FF455C", false: "#888" }}
+                                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
                             </TouchableOpacity>
@@ -1532,6 +1535,7 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                     value={selectedItemsInclusions.includes(item)}
                                     onValueChange={() => toggleCheckboxInclusions(item)}
                                     tintColors={{ true: "#FF455C", false: "#888" }}
+                                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
                                 {selectedItemsExclusion.includes(item) && (
@@ -1551,7 +1555,8 @@ const PackagesCreationScreenForCustomer = ({ route }) => {
                                 <CheckBox
                                     value={selectedItemsExclusion.includes(item)}
                                     onValueChange={() => toggleCheckboxExclusion(item)}
-                                    tintColors={{ true: "#FF455C", false: "#888" }}
+                                    tintColors={{ true: "#FF455C", false: "#888" }} 
+                                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                                 />
                                 <Text style={styles.checkboxlabel}>{item}</Text>
                                 {selectedItemsInclusions.includes(item) && (
