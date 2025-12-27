@@ -204,7 +204,7 @@ const PackageEditScreen = ({ route }) => {
     const [selectedItemsExclusion, setSelectedItemsExclusion] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
 
-    const options = ["Adhar Card", "Pan Card", "Passport", "Photos"];
+    const options = ["Aadhar Card", "PAN Card", "Passport", "Photos"];
     const optionsInclusions = ["Air ticket", "Breakfast", "Dinner", "Daily transport"];
     const optionsExclusion = ["Air ticket", "Breakfast", "Dinner", "Daily transport"];
 

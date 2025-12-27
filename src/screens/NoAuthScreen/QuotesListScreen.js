@@ -156,14 +156,14 @@ const QuotesListScreen = ({ route }) => {
                                             source={CheckImg}
                                             style={styles.checkicon}
                                         />
-                                        <Text style={styles.packageAvlText}>Adhar Card</Text>
+                                        <Text style={styles.packageAvlText}>Aadhar Card</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Image
                                             source={CheckImg}
                                             style={styles.checkicon}
                                         />
-                                        <Text style={styles.packageAvlText}>Pan Card</Text>
+                                        <Text style={styles.packageAvlText}>PAN Card</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Image

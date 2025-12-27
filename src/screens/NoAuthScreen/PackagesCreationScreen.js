@@ -84,7 +84,7 @@ const PackagesCreationScreen = ({ route }) => {
     const [showExpireDatePicker, setShowExpireDatePicker] = useState(false);
 
     const [selectedItems, setSelectedItems] = useState([]);
-    const options = ["Adhar Card", "Pan Card", "Passport", "Photos"];
+    const options = ["Aadhar Card", "PAN Card", "Passport", "Photos"];
     const toggleCheckbox = (item) => {
         if (selectedItems.includes(item)) {
             setSelectedItems(selectedItems.filter((i) => i !== item));
