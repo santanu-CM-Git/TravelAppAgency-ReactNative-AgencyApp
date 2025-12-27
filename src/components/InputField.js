@@ -87,7 +87,7 @@ export default function InputField({
           editable={inputType == 'nonedit' ? false : true}
           multiline={inputFieldType == 'address' ? true : false}
           placeholderTextColor="#808080"
-          selectionColor="#417AA4"
+          selectionColor="#ff455c"
           maxLength={maxLength}
         />
       )  : inputType == 'login' ? (
