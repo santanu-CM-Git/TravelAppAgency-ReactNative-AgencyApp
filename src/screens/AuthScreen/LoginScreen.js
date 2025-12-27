@@ -101,7 +101,7 @@ const LoginScreen = ({  }) => {
 
     const phoneRegex = /^\d{10}$/;
     if (!phone) {
-      setMobileError('Please enter mobile no.')
+      setMobileError('Please enter mobile number.')
     } else if (!countryCode) {
       setMobileError('Please enter country code.')
     } else if (!phoneRegex.test(phone)) { 
@@ -263,7 +263,7 @@ const LoginScreen = ({  }) => {
           <Text
             style={styles.termsLinkText}
             onPress={() => navigation.navigate('Termsofuse')}>
-            Terms & Condition
+            Terms & Conditions
           </Text>{' '}
           and{' '}
           <Text
