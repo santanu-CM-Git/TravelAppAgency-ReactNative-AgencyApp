@@ -120,16 +120,16 @@ const BankLinkedScreen = ({ route }) => {
 
     useFocusEffect(
         useCallback(() => {
-          const onBackPress = () => {
-            navigation.goBack();
-            return true;
-          };
-      
-          const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      
-          return () => backHandler.remove(); // Proper cleanup
+            const onBackPress = () => {
+                navigation.goBack();
+                return true;
+            };
+
+            const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => backHandler.remove(); // Proper cleanup
         }, [navigation])
-      );
+    );
     if (isLoading) {
         return (
             <Loader />
@@ -152,8 +152,8 @@ const BankLinkedScreen = ({ route }) => {
                                 <Text style={styles.bankName}>{account.bank_name || 'Bank Account'} {account.bank_account_no}</Text>
                                 <Text style={styles.accountType}>IFSC: {account.ifsc_code}</Text>
                                 <Text style={styles.accountHolder}>Account Holder: {account.account_holder_name || account.agent_name}</Text>
-                                
-                                {/* KYC Verification Tag
+
+                                {/* KYC Verification Tag */}
                                 <View style={styles.kycContainer}>
                                     <View style={[
                                         styles.kycTag,
@@ -170,24 +170,8 @@ const BankLinkedScreen = ({ route }) => {
                                             {(account.kyc_verified == 1) ? 'KYC Verified' : 'KYC Not Verified'}
                                         </Text>
                                     </View>
-                                </View> */}
-                                <View style={styles.kycContainer}>
-                                    <View style={[
-                                        styles.kycTag,
-                                        { backgroundColor: '#E8F5E8'}
-                                    ]}>
-                                        <View style={[
-                                            styles.kycDot,
-                                            { backgroundColor: '#4CAF50' }
-                                        ]} />
-                                        <Text style={[
-                                            styles.kycText,
-                                            { color:'#2E7D32' }
-                                        ]}>
-                                            {'KYC Verified'}
-                                        </Text>
-                                    </View>
                                 </View>
+
                             </View>
                             <TouchableOpacity onPress={() => handleDelete(account.id)}>
                                 <MaterialIcons name="delete" size={24} color="#FF0000" />
@@ -251,15 +235,15 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         ...Platform.select({
             android: {
-              elevation: 5, // Only for Android
+                elevation: 5, // Only for Android
             },
             ios: {
-              shadowColor: '#000', // Only for iOS
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 5,
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
             },
-          }),
+        }),
     },
     bankLogo: {
         width: 40,
