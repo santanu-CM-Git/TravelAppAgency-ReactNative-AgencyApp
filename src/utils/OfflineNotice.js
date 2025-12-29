@@ -31,8 +31,10 @@ export default function OfflineNotice({ navigation }) {
     if (isConnected === false) {
 
         return (
-            <SafeAreaView style={styles.offlineContainer}>
-                <Text style={styles.offlineText}>No Internet Connection</Text>
+            <SafeAreaView edges={['top']} style={{ backgroundColor: '#b52424' }}>
+                <View style={styles.offlineContainer}>
+                    <Text style={styles.offlineText}>No Internet Connection</Text>
+                </View>
             </SafeAreaView>
         )
     }
@@ -46,7 +48,7 @@ const styles = StyleSheet.create({
         height: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: Platform.OS == 'ios' ? responsiveHeight(6) : 0,
+        marginTop: Platform.OS == 'ios' ? responsiveHeight(2) : 0,
 
     },
     offlineText: { color: '#fff' }
