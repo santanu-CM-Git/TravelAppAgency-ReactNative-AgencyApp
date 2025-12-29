@@ -403,7 +403,12 @@ const PackagesCreationScreen = ({ route }) => {
     const changePrice = (text) => {
         setPrice(text)
         if (text) {
-            setPriceError('')
+            const numValue = parseFloat(text);
+            if (numValue === 0 || isNaN(numValue)) {
+                setPriceError('Price cannot be 0.')
+            } else {
+                setPriceError('')
+            }
         } else {
             setPriceError('Please enter price.')
         }
@@ -412,7 +417,12 @@ const PackagesCreationScreen = ({ route }) => {
     const changeDiscountedPrice = (text) => {
         setDiscountedPrice(text);
         if (text) {
-            setDiscountedPriceError('');
+            const numValue = parseFloat(text);
+            if (numValue === 0 || isNaN(numValue)) {
+                setDiscountedPriceError('Discounted price cannot be 0.');
+            } else {
+                setDiscountedPriceError('');
+            }
         } else {
             setDiscountedPriceError('Please enter discounted price.');
         }
@@ -670,8 +680,20 @@ const PackagesCreationScreen = ({ route }) => {
                 setIsLoading(false);
                 return;
             }
+            const priceNum = parseFloat(price);
+            if (priceNum === 0 || isNaN(priceNum)) {
+                setPriceError('Price cannot be 0.');
+                setIsLoading(false);
+                return;
+            }
             if (!discountedPrice) {
                 setDiscountedPriceError('Please enter discounted price.');
+                setIsLoading(false);
+                return;
+            }
+            const discountedPriceNum = parseFloat(discountedPrice);
+            if (discountedPriceNum === 0 || isNaN(discountedPriceNum)) {
+                setDiscountedPriceError('Discounted price cannot be 0.');
                 setIsLoading(false);
                 return;
             }

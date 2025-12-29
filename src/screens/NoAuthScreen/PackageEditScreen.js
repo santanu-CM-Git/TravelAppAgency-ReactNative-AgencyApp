@@ -493,6 +493,34 @@ const PackageEditScreen = ({ route }) => {
         setSelectedImages(selectedImages.filter((img) => img !== uri));
     };
 
+    const changePrice = (text) => {
+        setPrice(text);
+        if (text) {
+            const numValue = parseFloat(text);
+            if (numValue === 0 || isNaN(numValue)) {
+                setPriceError('Price cannot be 0.');
+            } else {
+                setPriceError('');
+            }
+        } else {
+            setPriceError('Please enter price.');
+        }
+    };
+
+    const changeDiscountedPrice = (text) => {
+        setDiscountedPrice(text);
+        if (text) {
+            const numValue = parseFloat(text);
+            if (numValue === 0 || isNaN(numValue)) {
+                setDiscountedPriceError('Discounted price cannot be 0.');
+            } else {
+                setDiscountedPriceError('');
+            }
+        } else {
+            setDiscountedPriceError('Please enter discounted price.');
+        }
+    };
+
     const submitForm = async () => {
         try {
             setIsLoading(true);
@@ -544,8 +572,20 @@ const PackageEditScreen = ({ route }) => {
                 setIsLoading(false);
                 return;
             }
+            const priceNum = parseFloat(price);
+            if (priceNum === 0 || isNaN(priceNum)) {
+                setPriceError('Price cannot be 0.');
+                setIsLoading(false);
+                return;
+            }
             if (!discountedPrice) {
                 setDiscountedPriceError('Please enter discounted price.');
+                setIsLoading(false);
+                return;
+            }
+            const discountedPriceNum = parseFloat(discountedPrice);
+            if (discountedPriceNum === 0 || isNaN(discountedPriceNum)) {
+                setDiscountedPriceError('Discounted price cannot be 0.');
                 setIsLoading(false);
                 return;
             }
@@ -1021,12 +1061,7 @@ const PackageEditScreen = ({ route }) => {
                                 keyboardType="numeric"
                                 value={price}
                                 inputType={'others'}
-                                onChangeText={(text) => {
-                                    setPrice(text);
-                                    if (text) {
-                                        setPriceError('');
-                                    }
-                                }}
+                                onChangeText={changePrice}
                             />
                         </View>
 
@@ -1041,12 +1076,7 @@ const PackageEditScreen = ({ route }) => {
                                 keyboardType="numeric"
                                 value={discountedPrice}
                                 inputType={'others'}
-                                onChangeText={(text) => {
-                                    setDiscountedPrice(text);
-                                    if (text) {
-                                        setDiscountedPriceError('');
-                                    }
-                                }}
+                                onChangeText={changeDiscountedPrice}
                             />
                         </View>
 
